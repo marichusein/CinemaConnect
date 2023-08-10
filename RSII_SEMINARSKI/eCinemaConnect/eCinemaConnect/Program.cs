@@ -1,6 +1,8 @@
 using eCinemaConnect.Model;
 using eCinemaConnect.Services;
 using eCinemaConnect.Services.Database;
+using eCinemaConnect.Services.Interface;
+using eCinemaConnect.Services.Service;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddTransient<ITipGledatelja, TipGledateljaService>();
+builder.Services.AddTransient<IReziser, ReziseriService>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -19,6 +23,8 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<CinemaContext>(options => options.UseSqlServer(connectionString));
 
 builder.Services.AddAutoMapper(typeof(ITipGledatelja));
+builder.Services.AddAutoMapper(typeof(IReziser));
+
 
 var app = builder.Build();
 
