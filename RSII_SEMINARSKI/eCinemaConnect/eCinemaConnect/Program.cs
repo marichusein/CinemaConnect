@@ -13,6 +13,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddTransient<ITipGledatelja, TipGledateljaService>();
 builder.Services.AddTransient<IReziser, ReziseriService>();
+builder.Services.AddTransient<IGlumci, GlumciService>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -24,6 +26,8 @@ builder.Services.AddDbContext<CinemaContext>(options => options.UseSqlServer(con
 
 builder.Services.AddAutoMapper(typeof(ITipGledatelja));
 builder.Services.AddAutoMapper(typeof(IReziser));
+builder.Services.AddAutoMapper(typeof(IGlumci));
+
 
 
 var app = builder.Build();
@@ -38,6 +42,13 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseCors(builder =>
+{
+    builder.AllowAnyOrigin()
+           .AllowAnyHeader()
+           .AllowAnyMethod();
+});
 
 app.MapControllers();
 
