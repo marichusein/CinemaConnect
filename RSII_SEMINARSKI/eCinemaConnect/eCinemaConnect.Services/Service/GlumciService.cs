@@ -65,5 +65,15 @@ namespace eCinemaConnect.Services.Service
 
             return _mapper.Map<GlumciView>(existingGlumac);
         }
+
+        public GlumciView GetById(int id)
+        {
+            var existingGlumac = _context.Glumcis.Find(id);
+            if (existingGlumac != null)
+            {
+                return _mapper.Map<GlumciView>(existingGlumac);
+            }
+            return new GlumciView();
+        }
     }
 }

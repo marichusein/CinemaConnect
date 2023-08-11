@@ -60,5 +60,15 @@ namespace eCinemaConnect.Services.Service
             _context.SaveChanges();
             return _mapper.Map<Model.ViewRequests.ReziseriView>(objektIzBaze);
         }
+
+        public ReziseriView GetById(int id)
+        {
+            var objektIzBaze = _context.Reziseris.Find(id);
+            if(objektIzBaze != null)
+            {
+                return _mapper.Map<Model.ViewRequests.ReziseriView>(objektIzBaze);
+            }
+            return new ReziseriView();
+        }
     }
 }

@@ -25,12 +25,18 @@ namespace eCinemaConnect.Controllers
         {
            return _reziser.GetAll();
         }
+        [HttpGet("{id}")]
+        public Model.ViewRequests.ReziseriView Get(int id)
+        {
+            return _reziser.GetById(id);
+        }
 
         [HttpPost()]
         public Model.ViewRequests.ReziseriView AddRezisera(ReziserInsert obj)
         {
             return _reziser.AddRezisera(obj);
         }
+
 
         [HttpPut("{id}")]
         public Model.ViewRequests.ReziseriView UpdateRezisera(int id, ReziserUpdate obj)

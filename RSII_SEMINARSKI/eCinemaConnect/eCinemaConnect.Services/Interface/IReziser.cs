@@ -13,6 +13,7 @@ namespace eCinemaConnect.Services.Interface
         List<Model.ViewRequests.ReziseriView> GetAll();
         Model.ViewRequests.ReziseriView AddRezisera(ReziserInsert reziserInsert);
         Model.ViewRequests.ReziseriView UpdateRezisera(int id, ReziserUpdate reziserUpdate);
+        Model.ViewRequests.ReziseriView GetById(int id);
 
         bool DeleteById(int id);
     }

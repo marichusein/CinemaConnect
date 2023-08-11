@@ -15,6 +15,8 @@ namespace eCinemaConnect.Services
         List<TipGledatelja> GetAll();
         Model.TipGledatelja AddTipGledatelja(TipGledateljaInsert tipGledatelja);
         Model.TipGledatelja UpdateTipGledatelja(int id, TipGledateljaUpdate tipGledatelja);
+        Model.TipGledatelja GetById(int id);
+
 
         bool DeleteById(int id);
 

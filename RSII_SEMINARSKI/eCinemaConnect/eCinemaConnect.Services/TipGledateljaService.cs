@@ -56,5 +56,17 @@ namespace eCinemaConnect.Services
 
             return false;
         }
+
+        public TipGledatelja GetById(int id)
+        {
+            var objektIzBaze = context1.TipoviGledateljas.Find(id);
+
+            if (objektIzBaze != null)
+            {
+                return _mapper.Map<TipGledatelja>(objektIzBaze);
+            }
+
+            return new TipGledatelja();
+        }
     }
 }

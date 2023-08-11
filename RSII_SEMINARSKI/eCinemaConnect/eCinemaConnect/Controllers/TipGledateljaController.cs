@@ -24,6 +24,12 @@ namespace eCinemaConnect.Controllers
            return _tipGledateljaService.GetAll();
         }
 
+        [HttpGet("{id}")]
+        public TipGledatelja GetById(int id)
+        {
+            return _tipGledateljaService.GetById(id);
+        }
+
         [HttpPost()]
         public Model.TipGledatelja AddTipGledatelja(TipGledateljaInsert obj)
         {

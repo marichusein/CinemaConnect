@@ -14,6 +14,7 @@ namespace eCinemaConnect.Services.Interface
         List<Model.ViewRequests.GlumciView> GetAll();
         Model.ViewRequests.GlumciView AddGlumca(GlumciInsert glumciInsert);
         Model.ViewRequests.GlumciView UpdateGlumca(int id, GlumciUpdate reziserUpdate);
+        Model.ViewRequests.GlumciView GetById(int id);
 
         bool DeleteById(int id);
     }
