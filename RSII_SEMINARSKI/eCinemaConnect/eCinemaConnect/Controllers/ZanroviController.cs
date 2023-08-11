@@ -11,42 +11,42 @@ namespace eCinemaConnect.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class GlumciController : ControllerBase
+    public class ZanroviController : ControllerBase
     {
-        private readonly IGlumci _glumci;
+        private readonly IZanrovi _zanrovi;
 
-        public GlumciController(IGlumci glumci)
+        public ZanroviController(IZanrovi zanrovi)
         {
-           _glumci= glumci;
+           _zanrovi= zanrovi;
         }
 
         [HttpGet()]
-        public IEnumerable<Model.ViewRequests.GlumciView> Get()
+        public IEnumerable<Model.ViewRequests.ZanroviView> Get()
         {
-           return _glumci.GetAll();
+           return _zanrovi.GetAll();
         }
         [HttpGet("{id}")]
-        public Model.ViewRequests.GlumciView GetById(int id)
+        public Model.ViewRequests.ZanroviView GetById(int id)
         {
-            return _glumci.GetById(id);
+            return _zanrovi.GetById(id);
         }
 
         [HttpPost()]
-        public Model.ViewRequests.GlumciView AddGlumca(GlumciInsert obj)
+        public Model.ViewRequests.ZanroviView AddZanr(ZanroviInsert obj)
         {
-            return _glumci.AddGlumca(obj);
+            return _zanrovi.AddZanr(obj);
         }
 
         [HttpPut("{id}")]
-        public Model.ViewRequests.GlumciView UpdateGlumca(int id, GlumciUpdate obj)
+        public Model.ViewRequests.ZanroviView UpdateZanr(int id, ZanroviUpdate obj)
         {
-            return _glumci.UpdateGlumca(id, obj);
+            return _zanrovi.UpdateZanr(id, obj);
         }
 
         [HttpDelete("{id}")]
         public bool Delete(int id)
         {
-            return _glumci.DeleteById(id);
+            return _zanrovi.DeleteById(id);
         }
 
     }

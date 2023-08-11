@@ -14,6 +14,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddTransient<ITipGledatelja, TipGledateljaService>();
 builder.Services.AddTransient<IReziser, ReziseriService>();
 builder.Services.AddTransient<IGlumci, GlumciService>();
+builder.Services.AddTransient<IZanrovi, ZanroviService>();
+
 
 
 builder.Services.AddControllers();
@@ -27,6 +29,8 @@ builder.Services.AddDbContext<CinemaContext>(options => options.UseSqlServer(con
 builder.Services.AddAutoMapper(typeof(ITipGledatelja));
 builder.Services.AddAutoMapper(typeof(IReziser));
 builder.Services.AddAutoMapper(typeof(IGlumci));
+builder.Services.AddAutoMapper(typeof(IZanrovi));
+
 
 
 

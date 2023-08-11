@@ -45,7 +45,7 @@ namespace eCinemaConnect.Controllers
         }
 
         [HttpDelete("{id}")]
-        public bool DeleteTipGledatelja(int id)
+        public bool Delete(int id)
         {
             return _reziser.DeleteById(id);
         }
