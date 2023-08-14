@@ -15,6 +15,8 @@ builder.Services.AddTransient<ITipGledatelja, TipGledateljaService>();
 builder.Services.AddTransient<IReziser, ReziseriService>();
 builder.Services.AddTransient<IGlumci, GlumciService>();
 builder.Services.AddTransient<IZanrovi, ZanroviService>();
+builder.Services.AddTransient<IFilmovi, FilmoviService>();
+
 
 
 
@@ -30,6 +32,8 @@ builder.Services.AddAutoMapper(typeof(ITipGledatelja));
 builder.Services.AddAutoMapper(typeof(IReziser));
 builder.Services.AddAutoMapper(typeof(IGlumci));
 builder.Services.AddAutoMapper(typeof(IZanrovi));
+builder.Services.AddAutoMapper(typeof(IFilmovi));
+
 
 
 

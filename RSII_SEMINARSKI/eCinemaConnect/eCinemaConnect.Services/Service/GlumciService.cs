@@ -57,11 +57,11 @@ namespace eCinemaConnect.Services.Service
         {
             var existingGlumac = _context.Glumcis.Find(id);
 
-            if (existingGlumac == null)
-                throw new Exception("Greška");
-
-            _mapper.Map(glumciUpdate, existingGlumac);
-            _context.SaveChanges();
+            if (existingGlumac != null)
+            {
+                _mapper.Map(glumciUpdate, existingGlumac);
+                _context.SaveChanges();
+            }
 
             return _mapper.Map<GlumciView>(existingGlumac);
         }
