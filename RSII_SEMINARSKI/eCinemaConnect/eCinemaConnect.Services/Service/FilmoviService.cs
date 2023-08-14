@@ -36,6 +36,21 @@ namespace eCinemaConnect.Services.Service
 
             _context.Add(newFilm);
             _context.SaveChanges();
+            if(filmoviInsert.glumciUFlimu != null) {
+                foreach (GlumciView g in filmoviInsert.glumciUFlimu)
+                {
+                    var glumacBaza = _mapper.Map<Glumci>(g);
+                    var newFilmoviGlumic = new GlumciFilmovi()
+                    {
+                        Film = newFilm,
+                        FilmId = newFilm.Idfilma,
+                        Glumac = glumacBaza,
+                        GlumacId = glumacBaza.Idglumca
+                    };
+                    _context.GlumciFilmovis.Add(newFilmoviGlumic);
+                }
+            }
+           
 
             return _mapper.Map<FilmoviView>(newFilm);
         }

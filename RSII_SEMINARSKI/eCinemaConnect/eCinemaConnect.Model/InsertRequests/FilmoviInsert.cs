@@ -1,4 +1,5 @@
-﻿using System;
+﻿using eCinemaConnect.Model.ViewRequests;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,5 +22,6 @@ namespace eCinemaConnect.Model.InsertRequests
         public int? ReziserId { get; set; }
 
         public string? PlakatFilma { get; set; }
+        public List<GlumciView>? glumciUFlimu { get; set; }
     }
 }
