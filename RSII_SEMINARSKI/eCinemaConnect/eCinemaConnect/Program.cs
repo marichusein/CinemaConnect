@@ -16,6 +16,8 @@ builder.Services.AddTransient<IReziser, ReziseriService>();
 builder.Services.AddTransient<IGlumci, GlumciService>();
 builder.Services.AddTransient<IZanrovi, ZanroviService>();
 builder.Services.AddTransient<IFilmovi, FilmoviService>();
+builder.Services.AddTransient<ISale, SaleService>();
+
 
 
 
@@ -33,6 +35,8 @@ builder.Services.AddAutoMapper(typeof(IReziser));
 builder.Services.AddAutoMapper(typeof(IGlumci));
 builder.Services.AddAutoMapper(typeof(IZanrovi));
 builder.Services.AddAutoMapper(typeof(IFilmovi));
+builder.Services.AddAutoMapper(typeof(ISale));
+
 
 
 
