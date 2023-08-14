@@ -26,17 +26,17 @@ namespace eCinemaConnect.Controllers
            return _filmovi.GetAll();
         }
 
-        [HttpGet("{zanrid}")]
+        [HttpGet("zanr/{zanrid}")]
         public IEnumerable<Model.ViewRequests.FilmoviView> GetByZanr(int zanrid)
         {
             return _filmovi.GetFilmoviByZanr(zanrid);
         }
-        [HttpGet("{glumacid}")]
+        [HttpGet("glumac/{glumacid}")]
         public IEnumerable<Model.ViewRequests.FilmoviView> GetByGlumac(int glumacid)
         {
             return _filmovi.GetFilmoviByGlumac(glumacid);
         }
-        [HttpGet("{reziserid}")]
+        [HttpGet("reziser/{reziserid}")]
         public IEnumerable<Model.ViewRequests.FilmoviView> GetByreziser(int reziserid)
         {
             return _filmovi.GetFilmoviByReziser(reziserid);
