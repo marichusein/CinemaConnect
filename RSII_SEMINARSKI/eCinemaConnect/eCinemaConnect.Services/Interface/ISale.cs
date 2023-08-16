@@ -1,4 +1,6 @@
 ﻿using eCinemaConnect.Model.InsertRequests;
+using eCinemaConnect.Model.ViewRequests;
+
 using eCinemaConnect.Model.UpdateRequests;
 using System;
 using System.Collections.Generic;
@@ -8,13 +10,8 @@ using System.Threading.Tasks;
 
 namespace eCinemaConnect.Services.Interface
 {
-    public interface ISale
+    public interface ISale: IService<SalaView, SaleInsert, SalaUpdate>
     {
-        List<Model.ViewRequests.SalaView> GetAll();
-        Model.ViewRequests.SalaView AddSalu(SaleInsert salaInsert);
-        Model.ViewRequests.SalaView UpdateSalu(int id, SalaUpdate salaUpdate);
-        Model.ViewRequests.SalaView GetById(int id);
-
-        bool DeleteById(int id);
+       
     }
 }

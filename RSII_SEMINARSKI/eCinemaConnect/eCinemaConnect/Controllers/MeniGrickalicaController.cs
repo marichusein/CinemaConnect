@@ -28,19 +28,19 @@ namespace eCinemaConnect.Controllers
         [HttpGet("{id}")]
         public Model.ViewRequests.MeniGrickalicaView GetById(int id)
         {
-            return _meni.GetById(id);
+            return _meni.GetObj(id);
         }
 
         [HttpPost()]
         public Model.ViewRequests.MeniGrickalicaView AddMenu(MeniGrickalicaInsert obj)
         {
-            return _meni.AddMeni(obj);
+            return _meni.AddObj(obj);
         }
 
         [HttpPut("{id}")]
         public Model.ViewRequests.MeniGrickalicaView UpdateMenu(int id, MeniGrickalicaUpdate obj)
         {
-            return _meni.UpdateMeni(id, obj);
+            return _meni.UpdateObj(id, obj);
         }
 
         [HttpDelete("{id}")]

@@ -28,19 +28,19 @@ namespace eCinemaConnect.Controllers
         [HttpGet("{id}")]
         public Model.ViewRequests.GlumciView GetById(int id)
         {
-            return _glumci.GetById(id);
+            return _glumci.GetObj(id);
         }
 
         [HttpPost()]
         public Model.ViewRequests.GlumciView AddGlumca(GlumciInsert obj)
         {
-            return _glumci.AddGlumca(obj);
+            return _glumci.AddObj(obj);
         }
 
         [HttpPut("{id}")]
         public Model.ViewRequests.GlumciView UpdateGlumca(int id, GlumciUpdate obj)
         {
-            return _glumci.UpdateGlumca(id, obj);
+            return _glumci.UpdateObj(id, obj);
         }
 
         [HttpDelete("{id}")]

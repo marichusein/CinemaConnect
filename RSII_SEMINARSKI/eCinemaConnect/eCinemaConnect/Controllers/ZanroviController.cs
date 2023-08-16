@@ -28,19 +28,19 @@ namespace eCinemaConnect.Controllers
         [HttpGet("{id}")]
         public Model.ViewRequests.ZanroviView GetById(int id)
         {
-            return _zanrovi.GetById(id);
+            return _zanrovi.GetObj(id);
         }
 
         [HttpPost()]
         public Model.ViewRequests.ZanroviView AddZanr(ZanroviInsert obj)
         {
-            return _zanrovi.AddZanr(obj);
+            return _zanrovi.AddObj(obj);
         }
 
         [HttpPut("{id}")]
         public Model.ViewRequests.ZanroviView UpdateZanr(int id, ZanroviUpdate obj)
         {
-            return _zanrovi.UpdateZanr(id, obj);
+            return _zanrovi.UpdateObj(id, obj);
         }
 
         [HttpDelete("{id}")]

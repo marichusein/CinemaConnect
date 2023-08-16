@@ -1,5 +1,6 @@
 ﻿using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
+using eCinemaConnect.Model.ViewRequests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +9,8 @@ using System.Threading.Tasks;
 
 namespace eCinemaConnect.Services.Interface
 {
-    public interface IMeniGrickalica
+    public interface IMeniGrickalica: IService<MeniGrickalicaView, MeniGrickalicaInsert, MeniGrickalicaUpdate>
     {
-        List<Model.ViewRequests.MeniGrickalicaView> GetAll();
-        Model.ViewRequests.MeniGrickalicaView AddMeni(MeniGrickalicaInsert meniInsert);
-        Model.ViewRequests.MeniGrickalicaView UpdateMeni(int id, MeniGrickalicaUpdate meniUpdate);
-        Model.ViewRequests.MeniGrickalicaView GetById(int id);
-        bool DeleteById(int id);
+     
     }
 }

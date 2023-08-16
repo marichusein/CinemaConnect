@@ -1,5 +1,6 @@
 ﻿using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
+using eCinemaConnect.Model.ViewRequests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,13 +9,8 @@ using System.Threading.Tasks;
 
 namespace eCinemaConnect.Services.Interface
 {
-    public interface IZanrovi
+    public interface IZanrovi : IService<ZanroviView, ZanroviInsert, ZanroviUpdate>
     {
-        List<Model.ViewRequests.ZanroviView> GetAll();
-        Model.ViewRequests.ZanroviView AddZanr(ZanroviInsert zanroviInsert);
-        Model.ViewRequests.ZanroviView UpdateZanr(int id, ZanroviUpdate zanroviUpdate);
-        Model.ViewRequests.ZanroviView GetById(int id);
-
-        bool DeleteById(int id);
+        
     }
 }

@@ -1,5 +1,6 @@
 ﻿using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
+using eCinemaConnect.Model.ViewRequests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,14 +9,8 @@ using System.Threading.Tasks;
 
 namespace eCinemaConnect.Services.Interface
 {
-    public interface IGlumci
+    public interface IGlumci: IService<GlumciView, GlumciInsert, GlumciUpdate>
     {
 
-        List<Model.ViewRequests.GlumciView> GetAll();
-        Model.ViewRequests.GlumciView AddGlumca(GlumciInsert glumciInsert);
-        Model.ViewRequests.GlumciView UpdateGlumca(int id, GlumciUpdate reziserUpdate);
-        Model.ViewRequests.GlumciView GetById(int id);
-
-        bool DeleteById(int id);
     }
 }

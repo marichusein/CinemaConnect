@@ -28,19 +28,19 @@ namespace eCinemaConnect.Controllers
         [HttpGet("{id}")]
         public Model.ViewRequests.SalaView GetById(int id)
         {
-            return _sale.GetById(id);
+            return _sale.GetObj(id);
         }
 
         [HttpPost()]
         public Model.ViewRequests.SalaView AddZanr(SaleInsert obj)
         {
-            return _sale.AddSalu(obj);
+            return _sale.AddObj(obj);
         }
 
         [HttpPut("{id}")]
         public Model.ViewRequests.SalaView UpdateSalu(int id, SalaUpdate obj)
         {
-            return _sale.UpdateSalu(id, obj);
+            return _sale.UpdateObj(id, obj);
         }
 
         [HttpDelete("{id}")]
