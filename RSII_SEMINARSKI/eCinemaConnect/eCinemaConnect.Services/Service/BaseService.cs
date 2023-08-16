@@ -4,9 +4,11 @@ using eCinemaConnect.Model.UpdateRequests;
 using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,9 +24,20 @@ namespace eCinemaConnect.Services.Service
             _mapper = mapper;
         }
 
-        public List<T> GetAll()
+        public List<T> GetAll(params Expression<Func<T, object>>[] includeProperties)
         {
-            var obj = _context.Set<TDBx>().AsQueryable().ToList();
+            IQueryable<TDBx> query = _context.Set<TDBx>();
+
+            foreach (var includeExpression in includeProperties)
+            {
+                string propertyName = (includeExpression.Body as MemberExpression)?.Member.Name;
+                if (!string.IsNullOrEmpty(propertyName))
+                {
+                    query = query.Include(propertyName);
+                }
+            }
+
+            var obj = query.ToList();
             return _mapper.Map<List<T>>(obj);
         }
 
