@@ -21,6 +21,8 @@ builder.Services.AddTransient<IMeniGrickalica, MeniGrickalicaService>();
 builder.Services.AddTransient<IProjekcije, ProjekcijeService>();
 builder.Services.AddTransient<IRepertoar, RepertoarService>();
 builder.Services.AddTransient<IRecenzije, RecenzijeService>();
+builder.Services.AddTransient<ISjediste, SjedisteService>();
+
 
 
 
@@ -48,6 +50,8 @@ builder.Services.AddAutoMapper(typeof(IMeniGrickalica));
 builder.Services.AddAutoMapper(typeof(IProjekcije));
 builder.Services.AddAutoMapper(typeof(IRepertoar));
 builder.Services.AddAutoMapper(typeof(IRecenzije));
+builder.Services.AddAutoMapper(typeof(ISjediste));
+
 
 
 
