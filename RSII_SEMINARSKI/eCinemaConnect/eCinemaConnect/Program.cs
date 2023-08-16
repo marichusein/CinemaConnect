@@ -19,6 +19,8 @@ builder.Services.AddTransient<IFilmovi, FilmoviService>();
 builder.Services.AddTransient<ISale, SaleService>();
 builder.Services.AddTransient<IMeniGrickalica, MeniGrickalicaService>();
 builder.Services.AddTransient<IProjekcije, ProjekcijeService>();
+builder.Services.AddTransient<IRepertoar, RepertoarService>();
+
 
 
 
@@ -42,6 +44,8 @@ builder.Services.AddAutoMapper(typeof(IFilmovi));
 builder.Services.AddAutoMapper(typeof(ISale));
 builder.Services.AddAutoMapper(typeof(IMeniGrickalica));
 builder.Services.AddAutoMapper(typeof(IProjekcije));
+builder.Services.AddAutoMapper(typeof(IRepertoar));
+
 
 
 
