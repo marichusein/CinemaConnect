@@ -1,6 +1,6 @@
 # 🎬 Cinema Connect: Your Ultimate Theater Experience! 🎥
 
-Welcome to **Cinema Connect**, where the magic of cinema comes alive in the palm of your hand. Our cutting-edge Theater Management System User Mobile Application is your gateway to an extraordinary world of entertainment, interaction, and immersion. Get ready to embark on a cinematic journey like never before!
+Welcome to **Cinema Connect**, where the magic of cinema comes alive in the palm of your hand. Our cutting-edge Theater Management System User Mobile Application is your gateway to an extraordinary world of entertainment, interaction, and immersion. Get ready to embark on a cinematic journey like never before !
 
 ## 🌟 Features That Define Your Experience 🌟
 
