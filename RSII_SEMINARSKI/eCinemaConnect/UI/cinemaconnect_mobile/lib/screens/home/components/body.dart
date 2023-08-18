@@ -1,89 +1,138 @@
+import 'package:cinemaconnect_mobile/models/movie.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'categories.dart';
+import 'gener_card.dart';
+import 'dart:math' as math;
 
 class Body extends StatelessWidget {
   const Body({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Category(),
-      ],
+    return const Column(
+      children: <Widget>[Category(), Genres(), MovieCarousel()],
     );
   }
 }
 
-class Category extends StatefulWidget {
-  const Category({Key? key}) : super(key: key);
+class MovieCarousel extends StatefulWidget {
+  const MovieCarousel({super.key});
 
   @override
-  State<Category> createState() => _CategoryState();
+  State<MovieCarousel> createState() => _MovieCarouselState();
 }
 
-class _CategoryState extends State<Category> {
-  int selectedCategory = 0;
-  List<String> categories = ["Trenutno u kinu", "Uskoro dolazi", "Novosti"];
-  
-  double kDefaultPadding = 16.0; // Adjust the value as needed;
+class _MovieCarouselState extends State<MovieCarousel> {
+  late PageController _pageController;
+  int initialPage = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController =
+        PageController(viewportFraction: 0.8, initialPage: initialPage);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _pageController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 60,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
-        itemBuilder: (context, index) => buildCategory(index, context),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10.0),
+      child: AspectRatio(
+        aspectRatio: 0.85,
+        child: PageView.builder(
+          controller: _pageController,
+          itemCount: movies.length,
+          itemBuilder: (context, index) => buildMovieSlider(index),
+        ),
       ),
     );
   }
 
-  Padding buildCategory(int index, BuildContext context) {
-  return Padding(
-    padding: EdgeInsets.symmetric(horizontal: 16.0),
-    child: GestureDetector(
-      onTap: () {
-        setState(() {
-          selectedCategory = index;
-        });
-      },
+  Widget buildMovieSlider(int index) => AnimatedBuilder(
+        animation: _pageController,
+        builder: (context, child) {
+          double value = 0;
+          if (_pageController.position.haveDimensions &&
+              _pageController.page != null) {
+            value = index - _pageController.page!;
+            value = (value * 0.038).clamp(-1, 1);
+          }
+          return Transform.rotate(
+            angle: math.pi*value,
+            child: MovieCard(movie: movies[index]),
+          );
+         
+        },
+      );
+}
+
+class MovieCard extends StatelessWidget {
+  final Movie movie;
+  const MovieCard({super.key, required this.movie});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            categories[index],
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'SFUIText',
-                  color: index == selectedCategory
-                      ? Colors.black
-                      : Color.fromARGB(105, 45, 45, 45),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(50),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.5),
+                    offset: const Offset(0, 2),
+                    blurRadius: 5,
+                    spreadRadius: 5,
+                  ),
+                ],
+                image: DecorationImage(
+                  fit: BoxFit.fill,
+                  image: AssetImage(movie.poster),
                 ),
-          ),
-          Container(
-            height: 4,
-            width: 40,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: index == selectedCategory
-                  ? Color.fromARGB(255, 207, 185, 57)
-                  : Colors.transparent,
+              ),
             ),
           ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 15.0),
+            child: Text(
+              movie.title,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'SFUIText',
+                  ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SvgPicture.asset(
+                "assets/icons/star_fill.svg",
+                height: 20,
+              ),
+              const SizedBox(
+                width: 4.0,
+              ),
+              Text(
+                "${movie.rating}",
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w400,
+                      fontFamily: 'SFUIText',
+                    ),
+              )
+            ],
+          )
         ],
       ),
-    ),
-  );
-}
-
-}
-
-void main() {
-  runApp(
-    MaterialApp(
-      home: Scaffold(
-        body: Body(),
-      ),
-    ),
-  );
+    );
+  }
 }
