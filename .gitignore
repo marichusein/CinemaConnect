@@ -396,3 +396,29 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+
+# Flutter/Dart specific
+.vscode/
+.idea/
+*.iml
+*.lock
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec.lock
+**/ios/Pods/
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/AppFrameworkInfo.plist
+**/ios/Runner.xcodeproj/project.xcworkspace/xcuserdata/
+**/android/.gradle/
+**/android/local.properties
+**/android/.idea
+**/android/captures/
+
+# Miscellaneous
+.DS_Store
+*.log
+*.tmp
+*.temp
+/.metadata/
+
