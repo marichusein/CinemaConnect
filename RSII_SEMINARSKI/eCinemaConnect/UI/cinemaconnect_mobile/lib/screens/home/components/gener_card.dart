@@ -1,3 +1,4 @@
+import 'package:cinemaconnect_mobile/const.dart';
 import 'package:flutter/material.dart';
 
 class Genres extends StatelessWidget {
@@ -5,11 +6,19 @@ class Genres extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<String> genres = ["Akcija", "Horor", "Komedija", "Kriminalistički", "Drama", "Romantični", "Dječiji"];
+    List<String> genres = [
+      "Akcija",
+      "Horor",
+      "Komedija",
+      "Kriminalistički",
+      "Drama",
+      "Romantični",
+      "Dječiji"
+    ];
     return Container(
-      margin: const EdgeInsets.only(right: 15.0, top: 0.0),
-      
-      height: 60, // Set a fixed height here
+      margin: const EdgeInsets.symmetric(vertical: kDefaultPadding / 2),
+
+      height: 36, // Set a fixed height here
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: genres.length,
@@ -26,10 +35,11 @@ class GenerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
+      alignment: Alignment.center,
+      margin: const EdgeInsets.only(left: kDefaultPadding),
       padding: const EdgeInsets.symmetric(
-        horizontal: 8.0,
-        vertical: 8.0,
+        horizontal: kDefaultPadding,
+        vertical: kDefaultPadding / 4,
       ),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.black26),
@@ -40,6 +50,7 @@ class GenerCard extends StatelessWidget {
         style: TextStyle(
           color: Colors.black.withOpacity(0.8),
           fontSize: 16,
+          fontFamily: 'SFUIText',
         ),
       ),
     );

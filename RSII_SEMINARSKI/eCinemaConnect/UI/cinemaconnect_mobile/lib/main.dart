@@ -15,6 +15,21 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Cinema Connect',
       theme: ThemeData(
+        textTheme: const TextTheme(
+          bodyMedium: TextStyle(
+            fontFamily: 'SFUIText',
+          ),
+          headlineLarge: TextStyle(
+            fontFamily: 'SFUIText',
+          ),
+          headlineMedium: TextStyle(
+            fontFamily: 'SFUIText',
+          ),
+          headlineSmall: TextStyle(
+            fontFamily: 'SFUIText',
+          )
+        ),
+        
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
