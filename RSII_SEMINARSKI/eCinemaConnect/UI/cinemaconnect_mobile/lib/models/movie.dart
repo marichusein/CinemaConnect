@@ -24,6 +24,41 @@ class Movie {
 
 // our demo data movie data
 List<Movie> movies = [
+    Movie(
+    id: 6,
+    title: "Lleida - zimski ak.2023/24",
+    year: 2023,
+    poster: "assets/images/poster3.png",
+    backdrop: "assets/images/backdrop_1.jpg",
+    numOfRatings: 150212,
+    rating: 9.3,
+    criticsReview: 50,
+    metascoreRating: 97,
+    genra: ["Erasmus +", "IT", "Mašinstvo"],
+    plot: "Nominovati se može samo stalno uposleno nastavno osoblje Univerziteta najmanje u zvanju docenta. Oblasti za koje je moguće aplicirati su IT, mašinstvo, hemijski inžinjering i zaštita okoliša. Kvota je jedan.",
+    cast: [
+      {
+        "orginalName": "Mirsada Behram",
+        "movieName": "IROUNMO",
+        "image": "assets/images/actor_11.jpg",
+      },
+      {
+        "orginalName": "Husein Marić",
+        "movieName": "IROUNMO",
+        "image": "assets/images/profile_picture.jpg",
+      },
+      {
+        "orginalName": "Emina Junuz",
+        "movieName": "FIT",
+        "image": "assets/images/actor_10.jpg",
+      },
+      {
+        "orginalName": "Rijad Novaković",
+        "movieName": "IROUNMO",
+        "image": "assets/images/actor_12.jpg",
+      },
+    ],
+  ),
   Movie(
     id: 5,
     title: "The Nun : Dio 2",
@@ -208,3 +243,84 @@ List<Movie> movies = [
 
 String plotText =
     "American car designer Carroll Shelby and driver Kn Miles battle corporate interference and the laws of physics to build a revolutionary race car for Ford in order.";
+
+
+// import 'dart:convert';
+// import 'package:http/http.dart' as http;
+
+// class Movie {
+//   final int id, year, metascoreRating;
+//   final String title, poster, plot;
+//   final double rating;
+//   final List<Map> cast;
+//   final List<String> genra;
+
+//   Movie({
+//     required this.id,
+//     required this.title,
+//     required this.year,
+//     required this.poster,
+//     required this.metascoreRating,
+//     required this.rating,
+//     required this.plot,
+//     required this.cast,
+//     required this.genra,
+//   });
+
+//   factory Movie.fromJson(Map<String, dynamic> json) {
+//     return Movie(
+//       id: json['idfilma'],
+//       title: json['nazivFilma'],
+//       year: json['godinaIzdanja'],
+//       poster: json['plakatFilma'],
+//       plot: json['opis'],
+//       metascoreRating: 87,
+//       rating: 7.4,
+//       genra: json['zanr.nazivZanra'],
+//       cast: [
+//       {
+//         "orginalName": "Taissa Farmiga",
+//         "movieName": "Sister Irene",
+//         "image": "assets/images/actor_5.jpg",
+//       },
+//       {
+//         "orginalName": "Bonnie Aarons",
+//         "movieName": "The Nun",
+//         "image": "assets/images/actor_6.jpg",
+//       },
+//       {
+//         "orginalName": "Jonas Bloquet",
+//         "movieName": "Frenchie",
+//         "image": "assets/images/actor_7.jpg",
+//       },
+//       {
+//         "orginalName": "Anna Popplewell",
+//         "movieName": "Marcella",
+//         "image": "assets/images/actor_8.jpg",
+//       },
+//        {
+//         "orginalName": "Katelyn Rose Downey",
+//         "movieName": "Sophie",
+//         "image": "assets/images/actor_9.jpg",
+//       },
+//     ],
+//     );
+//   }
+// }
+
+// List<Movie> movies = [];
+
+// Future<void> fetchMoviesFromApi() async {
+//   try {
+//     final response = await http.get(Uri.parse('https://localhost:7036/Filmovi'));
+//     if (response.statusCode == 200) {
+//       final List<dynamic> jsonData = json.decode(response.body);
+//       movies = jsonData.map((json) => Movie.fromJson(json)).toList();
+//     } else {
+//       throw Exception('Failed to fetch movies from API');
+//     }
+//   } catch (e) {
+//     throw Exception('Failed to fetch movies: $e');
+//   }
+// }
+

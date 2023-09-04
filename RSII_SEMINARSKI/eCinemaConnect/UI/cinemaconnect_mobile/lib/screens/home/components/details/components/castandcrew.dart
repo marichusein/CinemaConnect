@@ -20,7 +20,7 @@ class CastAndCrew extends StatelessWidget {
             "Glumci",
             style: Theme.of(context).textTheme.headlineSmall,
           ),
-          SizedBox(height: kDefaultPadding),
+          const SizedBox(height: kDefaultPadding),
           SizedBox(
             height: 160,
             child: ListView.builder(

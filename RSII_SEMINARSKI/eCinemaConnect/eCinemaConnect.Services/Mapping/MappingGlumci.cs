@@ -14,6 +14,7 @@ namespace eCinemaConnect.Services.Mapping
         public MappingGlumci()
         {
             CreateMap<Database.Glumci, Model.ViewRequests.GlumciView>();
+            CreateMap<Model.ViewRequests.GlumciView, Database.Glumci>();
             CreateMap<GlumciInsert, Database.Glumci>();
             CreateMap<GlumciUpdate, Database.Glumci>();
         }

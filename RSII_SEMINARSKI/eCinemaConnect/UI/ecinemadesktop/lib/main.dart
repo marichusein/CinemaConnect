@@ -1,3 +1,4 @@
+import 'package:ecinemadesktop/forms/movieform.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -25,14 +26,21 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController _passwordController = TextEditingController();
 
   void _performLogin() {
-    String enteredUsername = _usernameController.text;
-    String enteredPassword = _passwordController.text;
+  String enteredUsername = _usernameController.text;
+  String enteredPassword = _passwordController.text;
 
-    // TODO: Implement actual authentication logic
-    // For now, let's just print the entered credentials
-    print("Entered Username: $enteredUsername");
-    print("Entered Password: $enteredPassword");
-  }
+  // TODO: Implement actual authentication logic
+  // For now, let's just print the entered credentials
+  print("Entered Username: $enteredUsername");
+  print("Entered Password: $enteredPassword");
+
+  // Navigate to the MovieForm screen after login
+  Navigator.of(context).push(
+    MaterialPageRoute(
+      builder: (context) => MovieForm(), // Create an instance of MovieForm
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {

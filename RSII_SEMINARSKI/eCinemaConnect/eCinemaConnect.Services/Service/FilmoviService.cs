@@ -42,12 +42,11 @@ namespace eCinemaConnect.Services.Service
                     var glumacBaza = _mapper.Map<Glumci>(g);
                     var newFilmoviGlumic = new GlumciFilmovi()
                     {
-                        Film = newFilm,
                         FilmId = newFilm.Idfilma,
-                        Glumac = glumacBaza,
                         GlumacId = glumacBaza.Idglumca
                     };
                     _context.GlumciFilmovis.Add(newFilmoviGlumic);
+                    _context.SaveChanges();
                 }
             }
            
