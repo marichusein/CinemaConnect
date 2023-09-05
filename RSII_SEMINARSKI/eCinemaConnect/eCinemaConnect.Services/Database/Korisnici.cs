@@ -20,7 +20,7 @@ public partial class Korisnici
     public string? Telefon { get; set; }
 
     public int? TipGledateljaId { get; set; }
-
+    public byte[]? Salt { get; set; }
     public virtual ICollection<KomentariObavijesti> KomentariObavijestis { get; set; } = new List<KomentariObavijesti>();
 
     public virtual ICollection<Obavijesti> Obavijestis { get; set; } = new List<Obavijesti>();
