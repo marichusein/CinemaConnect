@@ -14,6 +14,7 @@ public partial class Rezervacije
     public int? BrojRezervisanihKarata { get; set; }
 
     public bool? Kupljeno { get; set; }
+    public string? QRCode { get; set; }
 
     public virtual Korisnici? Korisnik { get; set; }
 

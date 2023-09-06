@@ -1,4 +1,4 @@
-using eCinemaConnect.Model;
+﻿using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
 using eCinemaConnect.Services;
@@ -43,10 +43,22 @@ namespace eCinemaConnect.Controllers
             return _korisnici.Login(obj);
         }
         [HttpPost("siginup")]
-        public Model.ViewRequests.KorisniciView SiginUp(KorisniciRegistration obj)
+        public IActionResult SiginUp(KorisniciRegistration obj)
         {
-            return _korisnici.SiginUp(obj);
+            var result = _korisnici.SiginUp(obj);
+
+            if (result.Success)
+            {
+                // Registracija uspesna, vratite KorisniciView
+                return Ok(result.RegisteredKorisnik);
+            }
+            else
+            {
+                // Registracija nije uspela, vratite odgovarajuću poruku o gresci
+                return BadRequest(result.ErrorMessage);
+            }
         }
+
 
         [HttpPut("{id}")]
         public Model.ViewRequests.KorisniciView UpdateGlumca(int id, KorisniciUpdate obj)

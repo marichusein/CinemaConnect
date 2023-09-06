@@ -6,13 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static eCinemaConnect.Services.Service.KorisniciService;
 
 namespace eCinemaConnect.Services.Interface
 {
     public interface IKorisnici : IService<KorisniciView, KorisniciInsert, KorisniciUpdate>
     {
         KorisniciView Login(KorisniciLogin login);
-        KorisniciView SiginUp(KorisniciRegistration registration);
+        SiginUpResult SiginUp(KorisniciRegistration registration);
 
     }
 }

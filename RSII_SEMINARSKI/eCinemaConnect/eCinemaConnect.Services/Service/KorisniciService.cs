@@ -63,7 +63,7 @@ namespace eCinemaConnect.Services.Service
         {
             using (Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000))
             {
-                return pbkdf2.GetBytes(32); 
+                return pbkdf2.GetBytes(32);
             }
         }
 
@@ -79,7 +79,14 @@ namespace eCinemaConnect.Services.Service
             return enteredPasswordHashString == storedPasswordHash;
         }
 
-        public KorisniciView SiginUp(KorisniciRegistration registration)
+        public class SiginUpResult
+        {
+            public bool Success { get; set; }
+            public string ErrorMessage { get; set; }
+            public KorisniciView RegisteredKorisnik { get; set; }
+        }
+
+        public SiginUpResult SiginUp(KorisniciRegistration registration)
         {
             // Generišite sol (salt) za novog korisnika
             byte[] salt = GenerateSalt();
@@ -90,6 +97,19 @@ namespace eCinemaConnect.Services.Service
             // Pretvorite hashiranu lozinku u string
             string hashedPasswordString = BitConverter.ToString(hashedPassword).Replace("-", "").ToLower();
 
+            // Provera da li već postoji korisnik sa istim emailom ili korisničkim imenom
+            var existingKorisnik = _context.Korisnicis.FirstOrDefault(k => k.KorisnickoIme == registration.KorisnickoIme || k.Email == registration.Email);
+
+            if (existingKorisnik != null)
+            {
+                return new SiginUpResult
+                {
+                    Success = false,
+                    ErrorMessage = "Korisničko ime ili email već postoje.",
+                    RegisteredKorisnik = null
+                };
+            }
+
             // Kreirajte novog korisnika sa hash-iranom lozinkom i solju
             var newKorisnik = _mapper.Map<Korisnici>(registration);
             newKorisnik.Salt = salt;
@@ -99,9 +119,15 @@ namespace eCinemaConnect.Services.Service
             _context.Korisnicis.Add(newKorisnik);
             _context.SaveChanges();
 
-            // Ovde možete vratiti KorisniciView sa podacima o registrovanom korisniku
+            // Vratite KorisniciView sa podacima o registrovanom korisniku
             var korisnikView = _mapper.Map<KorisniciView>(newKorisnik);
-            return korisnikView;
+
+            return new SiginUpResult
+            {
+                Success = true,
+                ErrorMessage = null,
+                RegisteredKorisnik = korisnikView
+            };
         }
     }
 }

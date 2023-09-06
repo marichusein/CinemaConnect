@@ -1,4 +1,6 @@
+import 'package:ecinemadesktop/forms/CreateAccountForm.dart';
 import 'package:ecinemadesktop/forms/MovieForm.dart';
+import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -25,21 +27,43 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController _usernameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
-  void _performLogin(BuildContext context) {
+  void _performLogin(BuildContext context) async {
     String enteredUsername = _usernameController.text;
     String enteredPassword = _passwordController.text;
 
-    // TODO: Implement actual authentication logic
-    // For now, let's just print the entered credentials
-    print("Entered Username: $enteredUsername");
-    print("Entered Password: $enteredPassword");
+    // Stvorite objekt s podacima za prijavu
+    final loginData = {
+      "korisnickoIme": enteredUsername,
+      "lozinka": enteredPassword,
+    };
 
-    // Navigate to the UserDashboard screen after login
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => UserDashboard(), // Create an instance of UserDashboard
-      ),
-    );
+    try {
+      // Pošaljite zahtjev za prijavu koristeći LoginService
+      final userData = await LoginService().login(loginData);
+
+      // Ako je prijava uspješna, prikažite korisničko ime i prezime na ekranu
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              "Prijavljeni ste kao ${userData['ime']} ${userData['prezime']}"),
+        ),
+      );
+
+      // Navigirajte na ekran UserDashboard
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => UserDashboard(),
+        ),
+      );
+    } catch (error) {
+      // U slučaju pogreške, prikažite poruku
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content:
+              Text("Neuspjela prijava. Provjerite korisničko ime i lozinku."),
+        ),
+      );
+    }
   }
 
   @override
@@ -87,7 +111,8 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   SizedBox(height: 40),
                   ElevatedButton(
-                    onPressed: () => _performLogin(context), // Pass context to _performLogin
+                    onPressed: () =>
+                        _performLogin(context), // Pass context to _performLogin
                     style: ElevatedButton.styleFrom(
                       primary: Colors.blue,
                       padding: EdgeInsets.symmetric(horizontal: 40),
@@ -115,7 +140,11 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(height: 40),
                   ElevatedButton.icon(
                     onPressed: () {
-                      // TODO: Navigate to create a new account screen
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => CreateAccountForm(),
+                        ),
+                      );
                     },
                     icon: Icon(Icons.person_add),
                     label: Text('Create New Account'),
@@ -188,8 +217,10 @@ class UserDashboard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      _buildNavItem(Icons.movie, 'Add Movie', context, MovieForm()), // Pass MovieForm as the destination
-                      _buildNavItem(Icons.person, 'Add Actor', context, MovieForm()/* Add Actor screen here */), // Add Actor destination
+                      _buildNavItem(Icons.movie, 'Add Movie', context,
+                          MovieForm()), // Pass MovieForm as the destination
+                      _buildNavItem(Icons.person, 'Add Actor', context,
+                          MovieForm() /* Add Actor screen here */), // Add Actor destination
                       // Add more navigation items as needed
                     ],
                   ),
@@ -223,7 +254,8 @@ class UserDashboard extends StatelessWidget {
     );
   }
 
-  Widget _buildNavItem(IconData icon, String label, BuildContext context, Widget destination) {
+  Widget _buildNavItem(
+      IconData icon, String label, BuildContext context, Widget destination) {
     return ListTile(
       leading: Icon(icon, color: Colors.white),
       title: Text(
