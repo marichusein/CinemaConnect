@@ -1,3 +1,5 @@
+import 'package:ecinemadesktop/forms/ActorForm.dart';
+import 'package:ecinemadesktop/forms/AllActors.dart';
 import 'package:ecinemadesktop/forms/CreateAccountForm.dart';
 import 'package:ecinemadesktop/forms/MovieForm.dart';
 import 'package:ecinemadesktop/services/services.dart';
@@ -172,7 +174,7 @@ class UserDashboard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Dashboard'),
+        title: Text('CINEMA CONNECT'),
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
@@ -217,11 +219,13 @@ class UserDashboard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      _buildNavItem(Icons.movie, 'Add Movie', context,
+                      _buildNavItem(Icons.movie, 'Dodaj film', context,
                           MovieForm()), // Pass MovieForm as the destination
-                      _buildNavItem(Icons.person, 'Add Actor', context,
-                          MovieForm() /* Add Actor screen here */), // Add Actor destination
+                      _buildNavItem(Icons.person, 'Dodaj glumca', context,
+                          ActorForm() /* Add Actor screen here */), // Add Actor destination
                       // Add more navigation items as needed
+                       _buildNavItem(Icons.person_2_outlined, 'Pregled glumaca', context,
+                          GlumciScreen()),
                     ],
                   ),
                 ],

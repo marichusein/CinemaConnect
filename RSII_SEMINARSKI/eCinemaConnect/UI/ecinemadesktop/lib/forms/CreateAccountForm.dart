@@ -18,8 +18,11 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
   final TextEditingController _telefonController = TextEditingController();
 
   String _errorText = '';
-
+   bool _isLoading = false; 
   void _submitForm() async {
+    setState(() {
+      _isLoading = true; // Postavite _isLoading na true pri početku slanja zahtjeva
+    });
     if (_formKey.currentState!.validate()) {
       // Sva polja su validna, kreirajte objekt za registraciju
       final registrationData = {
@@ -53,6 +56,9 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
           _lozinkaController.clear();
           _emailController.clear();
           _telefonController.clear();
+          setState(() {
+          _isLoading = false; // Postavite _isLoading na false nakon uspješnog slanja zahtjeva
+        });
         } else if (response.statusCode == 400) {
           // Greška pri registraciji - prikaži poruku iz odgovora servera
           ScaffoldMessenger.of(context).showSnackBar(
@@ -61,6 +67,9 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                   response.body), // Prikazi telo odgovora kao plain text poruku
             ),
           );
+          setState(() {
+          _isLoading = false; // Postavite _isLoading na false nakon uspješnog slanja zahtjeva
+        });
         } else {
           // Drugačiji status kod, prikaži generičku poruku o grešci
           ScaffoldMessenger.of(context).showSnackBar(
@@ -68,6 +77,9 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
               content: Text('Neuspješna registracija. Pokušajte ponovo.'),
             ),
           );
+          setState(() {
+          _isLoading = false; // Postavite _isLoading na false nakon uspješnog slanja zahtjeva
+        });
         }
       } catch (error) {
         String errorMessage = 'Greška pri registraciji. Pokušajte ponovo.';
@@ -106,7 +118,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
             children: [
               TextFormField(
                 controller: _imeController,
-                decoration: InputDecoration(labelText: 'Ime'),
+                decoration: InputDecoration(labelText: 'Ime', prefixIcon: Icon(Icons.person)),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Molimo unesite ime.';
@@ -116,7 +128,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
               ),
               TextFormField(
                 controller: _prezimeController,
-                decoration: InputDecoration(labelText: 'Prezime'),
+                decoration: InputDecoration(labelText: 'Prezime', prefixIcon: Icon(Icons.person)),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Molimo unesite prezime.';
@@ -126,7 +138,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
               ),
               TextFormField(
                 controller: _korisnickoImeController,
-                decoration: InputDecoration(labelText: 'Korisničko ime'),
+                decoration: InputDecoration(labelText: 'Korisničko ime', prefixIcon: Icon(Icons.account_circle_sharp)),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Molimo unesite korisničko ime.';
@@ -136,7 +148,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
               ),
               TextFormField(
                 controller: _lozinkaController,
-                decoration: InputDecoration(labelText: 'Lozinka'),
+                decoration: InputDecoration(labelText: 'Lozinka', prefixIcon: Icon(Icons.password)),
                 obscureText: true,
                 validator: (value) {
                   if (value!.isEmpty) {
@@ -147,7 +159,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
               ),
               TextFormField(
                 controller: _emailController,
-                decoration: InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email_rounded)),
                 validator: (value) {
                   final emailRegex = RegExp(
                       r'^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$');
@@ -161,7 +173,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
               ),
               TextFormField(
                 controller: _telefonController,
-                decoration: InputDecoration(labelText: 'Telefon'),
+                decoration: InputDecoration(labelText: 'Telefon', prefixIcon: Icon(Icons.phone)),
                 validator: (value) {
                   final phoneRegex = RegExp(r'^06\d{7,8}$');
                   if (value!.isEmpty) {
@@ -177,10 +189,16 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
                 style: TextStyle(color: Colors.red),
               ),
               SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: Text('Registruj se'),
-              ),
+             ElevatedButton(
+  onPressed: _submitForm,
+  child: AnimatedSwitcher(
+    duration: Duration(milliseconds: 300),
+    child: _isLoading
+        ? CircularProgressIndicator() // Prikaži loader dok se šalje zahtjev
+        : Text('Registruj se'),
+  ),
+),
+
             ],
           ),
         ),
