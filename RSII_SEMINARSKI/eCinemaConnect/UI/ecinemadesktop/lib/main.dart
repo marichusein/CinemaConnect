@@ -3,6 +3,8 @@ import 'package:ecinemadesktop/forms/AllActors.dart';
 import 'package:ecinemadesktop/forms/CreateAccountForm.dart';
 import 'package:ecinemadesktop/forms/DirectorForm.dart';
 import 'package:ecinemadesktop/forms/MovieForm.dart';
+import 'package:ecinemadesktop/forms/AddObavijestiForm.dart';
+import 'package:ecinemadesktop/forms/PregeldObavijesti.dart';
 import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
 
@@ -237,6 +239,15 @@ class UserDashboard extends StatelessWidget {
                           context, GlumciScreen()),
                       _buildNavItem(Icons.person_add, 'Dodaj režisera', context,
                           DodajReziseraForma()),
+                      _buildNavItem(
+                          Icons.newspaper,
+                          'Dodaj obavijest',
+                          context,
+                          ObavijestForm(
+                            korisnikId: idkorisnika,
+                          )),
+                      _buildNavItem(Icons.newspaper_rounded,
+                          'Pregled obavijesti', context, NotificationScreen()),
                     ],
                   ),
                 ],
