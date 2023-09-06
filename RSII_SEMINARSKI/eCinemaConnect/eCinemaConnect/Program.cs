@@ -23,6 +23,8 @@ builder.Services.AddTransient<IRepertoar, RepertoarService>();
 builder.Services.AddTransient<IRecenzije, RecenzijeService>();
 builder.Services.AddTransient<ISjediste, SjedisteService>();
 builder.Services.AddTransient<IKorisnici, KorisniciService>();
+builder.Services.AddTransient<IObavijesti, ObavijestiService>();
+
 
 
 
@@ -54,6 +56,8 @@ builder.Services.AddAutoMapper(typeof(IRepertoar));
 builder.Services.AddAutoMapper(typeof(IRecenzije));
 builder.Services.AddAutoMapper(typeof(ISjediste));
 builder.Services.AddAutoMapper(typeof(IKorisnici));
+builder.Services.AddAutoMapper(typeof(IObavijesti));
+
 
 
 

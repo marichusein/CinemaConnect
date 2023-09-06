@@ -55,7 +55,10 @@ class _LoginPageState extends State<LoginPage> {
       // Navigirajte na ekran UserDashboard
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => UserDashboard(),
+          builder: (context) => UserDashboard(
+            idkorisnika: userData['idkorisnika'],
+            Username: userData['ime'] + ' ' + userData['prezime'],
+          ),
         ),
       );
     } catch (error) {
@@ -171,6 +174,11 @@ class _LoginPageState extends State<LoginPage> {
 }
 
 class UserDashboard extends StatelessWidget {
+  final int idkorisnika;
+  final String Username;
+
+  const UserDashboard(
+      {super.key, required this.idkorisnika, required this.Username});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -209,8 +217,8 @@ class UserDashboard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const Text(
-                    'User Name',
+                  Text(
+                    this.Username,
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -225,9 +233,9 @@ class UserDashboard extends StatelessWidget {
                       _buildNavItem(Icons.person, 'Dodaj glumca', context,
                           ActorForm() /* Add Actor screen here */), // Add Actor destination
                       // Add more navigation items as needed
-                       _buildNavItem(Icons.person_2_outlined, 'Pregled glumaca', context,
-                          GlumciScreen()),
-                          _buildNavItem(Icons.person_add, 'Dodaj režisera', context,
+                      _buildNavItem(Icons.person_2_outlined, 'Pregled glumaca',
+                          context, GlumciScreen()),
+                      _buildNavItem(Icons.person_add, 'Dodaj režisera', context,
                           DodajReziseraForma()),
                     ],
                   ),

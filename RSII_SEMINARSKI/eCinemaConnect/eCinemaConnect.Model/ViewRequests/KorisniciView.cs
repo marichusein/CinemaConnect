@@ -8,6 +8,8 @@ namespace eCinemaConnect.Model.ViewRequests
 {
     public class KorisniciView
     {
+        public int Idkorisnika { get; set; }
+
         public string? Ime { get; set; }
 
         public string? Prezime { get; set; }
