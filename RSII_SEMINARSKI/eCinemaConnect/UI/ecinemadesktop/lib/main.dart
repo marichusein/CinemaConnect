@@ -1,6 +1,7 @@
 import 'package:ecinemadesktop/forms/ActorForm.dart';
 import 'package:ecinemadesktop/forms/AllActors.dart';
 import 'package:ecinemadesktop/forms/CreateAccountForm.dart';
+import 'package:ecinemadesktop/forms/DirectorForm.dart';
 import 'package:ecinemadesktop/forms/MovieForm.dart';
 import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
@@ -226,6 +227,8 @@ class UserDashboard extends StatelessWidget {
                       // Add more navigation items as needed
                        _buildNavItem(Icons.person_2_outlined, 'Pregled glumaca', context,
                           GlumciScreen()),
+                          _buildNavItem(Icons.person_add, 'Dodaj režisera', context,
+                          DodajReziseraForma()),
                     ],
                   ),
                 ],

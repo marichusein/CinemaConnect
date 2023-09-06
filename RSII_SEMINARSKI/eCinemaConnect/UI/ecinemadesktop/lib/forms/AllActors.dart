@@ -21,9 +21,12 @@ class Glumac {
   String prezime;
   final String slika; // Promenljiva za sliku koja može biti null
 
-  Glumac({required this.id, required this.ime, required this.prezime, required this.slika});
+  Glumac(
+      {required this.id,
+      required this.ime,
+      required this.prezime,
+      required this.slika});
 }
-
 
 class GlumciScreen extends StatefulWidget {
   @override
@@ -49,12 +52,14 @@ class _GlumciScreenState extends State<GlumciScreen> {
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body) as List<dynamic>;
       setState(() {
-        glumci = jsonData.map((data) => Glumac(
-          id: data['idglumca'],
-          ime: data['ime'],
-          prezime: data['prezime'],
-          slika: data['slika'],
-        )).toList();
+        glumci = jsonData
+            .map((data) => Glumac(
+                  id: data['idglumca'],
+                  ime: data['ime'],
+                  prezime: data['prezime'],
+                  slika: data['slika'],
+                ))
+            .toList();
         filteredGlumci = glumci;
       });
     }
@@ -143,7 +148,8 @@ class _GlumciScreenState extends State<GlumciScreen> {
       ));
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Došlo je do greške prilikom ažuriranja podataka o glumcu.'),
+        content:
+            Text('Došlo je do greške prilikom ažuriranja podataka o glumcu.'),
       ));
     }
   }
@@ -170,8 +176,14 @@ class _GlumciScreenState extends State<GlumciScreen> {
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
+            child: GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4, // Broj kartica u redu
+                crossAxisSpacing: 16.0, // Razmak između kartica po horizontali
+                mainAxisSpacing: 16.0, // Razmak između kartica po vertikali
+                childAspectRatio:
+                    5 / 3, // Omjer širine i visine kartice (50% visine)
+              ),
               itemCount: filteredGlumci.length,
               itemBuilder: (context, index) {
                 final glumac = filteredGlumci[index];
@@ -181,17 +193,25 @@ class _GlumciScreenState extends State<GlumciScreen> {
                   },
                   child: Card(
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Image.memory(
-  glumac.slika.isNotEmpty
-      ? base64Decode(glumac.slika)
-      : base64Decode(base64Encode(Uint8List.fromList(
-          File('assets/noPhoto.jpg')
-              .readAsBytesSync()))), // Putanja zamjenske slike
-  width: 100,
-  height: 100,
-),
-                        Text('${glumac.ime} ${glumac.prezime}'),
+                          glumac.slika.isNotEmpty
+                              ? base64Decode(glumac.slika)
+                              : base64Decode(base64Encode(Uint8List.fromList(File(
+                                      'assets/noPhoto.jpg')
+                                  .readAsBytesSync()))), // Putanja zamjenske slike
+                          width: 150, // Povećana širina slike
+                          height: 150, // Povećana visina slike
+                        ),
+                        SizedBox(height: 8.0), // Razmak između slike i teksta
+                        Text(
+                          '${glumac.ime} ${glumac.prezime}',
+                          style: TextStyle(
+                            fontSize: 18.0, // Povećana veličina teksta
+                            fontWeight: FontWeight.bold, // Boldirani tekst
+                          ),
+                        ),
                       ],
                     ),
                   ),
