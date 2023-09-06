@@ -127,12 +127,74 @@ class _NotificationScreenState extends State<NotificationScreen> {
               filterTitle: filterTitle,
               filterDate: filterDate,
               fetchUser: fetchUser,
+              showNotificationDetails: _showNotificationDetails, // Dodato
             ),
           ),
         ],
       ),
     );
   }
+
+  // Dodato
+  void _showNotificationDetails(BuildContext context, Map<String, dynamic> notification) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(notification['naslov']),
+        content: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 1,
+              child: Image.memory(
+                base64Decode(notification['slika']),
+                height: 300,
+                fit: BoxFit.cover,
+              ),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(notification['sadrzaj'] ?? 'No content'),
+                  SizedBox(height: 16),
+                  FutureBuilder<Map<String, dynamic>>(
+                    future: fetchUser(notification['korisnikId']),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return Text("Error fetching author data: ${snapshot.error}");
+                      } else if (snapshot.hasData) {
+                        final authorData = snapshot.data!;
+                        return Text("Autor: ${authorData['ime']} ${authorData['prezime']}");
+                      } else {
+                        return Text("N/A");
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Zatvori dijalog
+            },
+            child: Text("Zatvori"),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 }
 
 class NotificationGrid extends StatelessWidget {
@@ -140,12 +202,14 @@ class NotificationGrid extends StatelessWidget {
   final String filterTitle;
   final String filterDate;
   final Future<Map<String, dynamic>> Function(int userId) fetchUser;
+  final void Function(BuildContext context, Map<String, dynamic> notification) showNotificationDetails; // Dodato
 
   NotificationGrid({
     required this.notifications,
     required this.filterTitle,
     required this.filterDate,
     required this.fetchUser,
+    required this.showNotificationDetails, // Dodato
   });
 
   @override
@@ -171,6 +235,7 @@ class NotificationGrid extends StatelessWidget {
         return NotificationCard(
           notification: notification,
           fetchUser: fetchUser,
+          showNotificationDetails: () => showNotificationDetails(context, notification), // Dodato
         );
       },
     );
@@ -180,8 +245,13 @@ class NotificationGrid extends StatelessWidget {
 class NotificationCard extends StatefulWidget {
   final Map<String, dynamic> notification;
   final Future<Map<String, dynamic>> Function(int userId) fetchUser;
+  final VoidCallback showNotificationDetails; // Dodato
 
-  NotificationCard({required this.notification, required this.fetchUser});
+  NotificationCard({
+    required this.notification,
+    required this.fetchUser,
+    required this.showNotificationDetails, // Dodato
+  });
 
   @override
   _NotificationCardState createState() => _NotificationCardState();
@@ -210,45 +280,50 @@ class _NotificationCardState extends State<NotificationCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.all(8),
-      child: ListView( // Dodali smo ListView oko sadržaja kartice
-        children: [
-          Image.memory(
-            base64Decode(
-                widget.notification['slika']), // Decode the base64 image data
-            height: 300,
-            fit: BoxFit.cover,
-          ),
-          Padding(
-            padding: EdgeInsets.all(8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.notification['naslov'],
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  widget.notification['sadrzaj'] != null &&
-                          widget.notification['sadrzaj'].length > 40
-                      ? widget.notification['sadrzaj'].substring(0, 40) + "..."
-                      : widget.notification['sadrzaj'] ?? 'No content',
-                  style: TextStyle(fontSize: 16),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  "Autor: ${authorData != null ? '${authorData!['ime']} ${authorData!['prezime']}' : 'N/A'}",
-                  style: TextStyle(fontSize: 14),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () {
+        // Ovdje pozovite funkciju za prikaz detalja obavijesti
+        widget.showNotificationDetails();
+      },
+      child: Card(
+        margin: EdgeInsets.all(8),
+        child: ListView(
+          children: [
+            Image.memory(
+              base64Decode(widget.notification['slika']),
+              height: 300,
+              fit: BoxFit.cover,
             ),
-          ),
-        ],
+            Padding(
+              padding: EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    widget.notification['naslov'],
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    widget.notification['sadrzaj'] != null &&
+                        widget.notification['sadrzaj'].length > 40
+                        ? widget.notification['sadrzaj'].substring(0, 40) + "..."
+                        : widget.notification['sadrzaj'] ?? 'No content',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    "Autor: ${authorData != null ? '${authorData!['ime']} ${authorData!['prezime']}' : 'N/A'}",
+                    style: TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
