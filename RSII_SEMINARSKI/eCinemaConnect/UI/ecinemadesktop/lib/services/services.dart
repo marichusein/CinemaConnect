@@ -96,3 +96,36 @@ class LoginService {
     }
   }
 }
+
+class ProfileService {
+  final String baseUrl = 'https://localhost:7036';
+
+  Future<void> updateProfile(Map<String, dynamic> profileData) async {
+    final url = Uri.parse('$baseUrl/Korisnici/${profileData["idkorisnika"]}');
+
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(profileData),
+    );
+
+    if (response.statusCode == 200) {
+      // Profil je uspješno ažuriran
+    } else {
+      // Tretirajte grešku
+      throw Exception('Neuspješno ažuriranje profila');
+    }
+  }
+
+  Future<Map<String, dynamic>> getUserProfile(int idkorisnika) async {
+  final url = Uri.parse('$baseUrl/Korisnici/$idkorisnika');
+
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    return json.decode(response.body);
+  } else {
+    throw Exception('Neuspješno dohvaćanje profila korisnika');
+  }
+}
+}

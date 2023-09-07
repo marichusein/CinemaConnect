@@ -2,9 +2,11 @@ import 'package:ecinemadesktop/forms/ActorForm.dart';
 import 'package:ecinemadesktop/forms/AllActors.dart';
 import 'package:ecinemadesktop/forms/CreateAccountForm.dart';
 import 'package:ecinemadesktop/forms/DirectorForm.dart';
+import 'package:ecinemadesktop/forms/EditProfile.dart';
 import 'package:ecinemadesktop/forms/MovieForm.dart';
 import 'package:ecinemadesktop/forms/AddObavijestiForm.dart';
 import 'package:ecinemadesktop/forms/PregeldObavijesti.dart';
+import 'package:ecinemadesktop/forms/ProjekcijaForm.dart';
 import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +21,7 @@ class LoginApp extends StatelessWidget {
       title: 'Cinema Login App',
       theme: ThemeData(primarySwatch: Colors.blue),
       home: LoginPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -187,15 +190,32 @@ class UserDashboard extends StatelessWidget {
       appBar: AppBar(
         title: Text('CINEMA CONNECT'),
         actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () {
-              // Navigate back to the LoginPage
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (context) => LoginPage(),
-                ),
-              );
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'Uredi profil') {
+                // Navigirajte na ekran za uređivanje profila
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        EditProfileForm(idkorisnika: idkorisnika),
+                  ),
+                );
+              } else if (value == 'Odjava') {
+                // Odjava korisnika i povratak na ekran za prijavu
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => LoginPage(),
+                  ),
+                );
+              }
+            },
+            itemBuilder: (BuildContext context) {
+              return ['Uredi profil', 'Odjava'].map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
             },
           ),
         ],
@@ -248,6 +268,8 @@ class UserDashboard extends StatelessWidget {
                           )),
                       _buildNavItem(Icons.newspaper_rounded,
                           'Pregled obavijesti', context, NotificationScreen()),
+                            _buildNavItem(Icons.movie_edit,
+                          'Nova projekcija', context, DodavanjeProjekcijeScreen()),
                     ],
                   ),
                 ],

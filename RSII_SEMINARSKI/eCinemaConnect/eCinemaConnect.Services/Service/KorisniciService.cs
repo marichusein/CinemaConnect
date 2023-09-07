@@ -129,5 +129,50 @@ namespace eCinemaConnect.Services.Service
                 RegisteredKorisnik = korisnikView
             };
         }
+
+        public KorisniciView UpdateProfiil(int id, KorisniciUpdate obj)
+        {
+            // Pronađite korisnika u bazi podataka na osnovu ID-ja
+            var korisnik = _context.Korisnicis.SingleOrDefault(k => k.Idkorisnika == id);
+
+            if (korisnik == null)
+            {
+                // Ako korisnik nije pronađen, možete vratiti odgovarajuću poruku o grešci ili null
+                return null;
+            }
+
+            // Ažurirajte ime, prezime i/ili lozinku korisnika prema objektu KorisniciUpdate
+            if (!string.IsNullOrEmpty(obj.Ime))
+            {
+                korisnik.Ime = obj.Ime;
+            }
+
+            if (!string.IsNullOrEmpty(obj.Prezime))
+            {
+                korisnik.Prezime = obj.Prezime;
+            }
+
+            if (!string.IsNullOrEmpty(obj.Lozinka))
+            {
+                // Generišite novu sol za korisnika
+                byte[] newSalt = GenerateSalt();
+
+                // Hashirajte novu lozinku
+                byte[] newHashedPassword = HashPassword(obj.Lozinka, newSalt);
+                string newHashedPasswordString = BitConverter.ToString(newHashedPassword).Replace("-", "").ToLower();
+
+                // Ažurirajte lozinku i sol korisnika
+                korisnik.Lozinka = newHashedPasswordString;
+                korisnik.Salt = newSalt;
+            }
+
+            // Sačuvajte promene u bazi podataka
+            _context.SaveChanges();
+
+            // Vratite ažurirani KorisniciView sa novim podacima
+            var updatedKorisnikView = _mapper.Map<KorisniciView>(korisnik);
+            return updatedKorisnikView;
+        }
+
     }
 }

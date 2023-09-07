@@ -63,7 +63,7 @@ namespace eCinemaConnect.Controllers
         [HttpPut("{id}")]
         public Model.ViewRequests.KorisniciView UpdateGlumca(int id, KorisniciUpdate obj)
         {
-            return _korisnici.UpdateObj(id, obj);
+            return _korisnici.UpdateProfiil(id, obj);
         }
 
         [HttpDelete("{id}")]
