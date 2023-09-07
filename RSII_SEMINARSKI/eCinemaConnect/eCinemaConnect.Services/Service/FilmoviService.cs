@@ -34,6 +34,7 @@ namespace eCinemaConnect.Services.Service
             newFilm.Zanr = _context.Zanrovis.Find(filmoviInsert.ZanrId);
 
 
+
             _context.Add(newFilm);
             _context.SaveChanges();
             if(filmoviInsert.glumciUFlimu != null) {

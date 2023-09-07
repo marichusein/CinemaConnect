@@ -38,18 +38,18 @@ class Sala {
 class Film {
   final int idfilma;
   final String nazivFilma;
-  final String plakatFilma;
+  final String filmPlakat;
 
   Film(
       {required this.idfilma,
       required this.nazivFilma,
-      required this.plakatFilma});
+      required this.filmPlakat});
 
   factory Film.fromJson(Map<String, dynamic> json) {
     return Film(
       idfilma: json['idfilma'],
       nazivFilma: json['nazivFilma'],
-      plakatFilma: json['plakatFilma'],
+      filmPlakat: json['filmPlakat'],
     );
   }
 }
@@ -164,7 +164,7 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
                     final selectedFilm =
                         filmovi.firstWhere((film) => film.idfilma == newValue);
                     plakatFilma =
-                        selectedFilm.plakatFilma ?? "assets/noPhoto.jpg";
+                        selectedFilm.filmPlakat ?? "assets/noPhoto.jpg";
                   });
                 },
                 items: filmovi.map<DropdownMenuItem<int>>((film) {

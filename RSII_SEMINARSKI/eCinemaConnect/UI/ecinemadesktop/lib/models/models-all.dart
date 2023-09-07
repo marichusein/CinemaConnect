@@ -8,6 +8,8 @@ class Movie {
   String plakatFilma;
   List<Actor> glumciUFlimu;
 
+  String filmPlakat;
+
   Movie({
     required this.nazivFilma,
     required this.zanrId,
@@ -16,6 +18,8 @@ class Movie {
     required this.godinaIzdanja,
     required this.reziserId,
     required this.plakatFilma,
+    required this.filmPlakat,
+
     required this.glumciUFlimu,
   });
 
@@ -28,6 +32,7 @@ class Movie {
       'godinaIzdanja': godinaIzdanja,
       'reziserId': reziserId,
       'plakatFilma': plakatFilma,
+      'filmPlakat':filmPlakat,
       'glumciUFlimu': glumciUFlimu.map((actor) => actor.toJson()).toList(),
     };
   }

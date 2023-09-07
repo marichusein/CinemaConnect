@@ -1,6 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:ecinemadesktop/models/models-all.dart';
 import 'package:ecinemadesktop/services/services.dart';
+import 'dart:typed_data';
+import 'dart:io';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // Import font awesome
 
 class MovieFormWithFutureBuilder extends StatelessWidget {
   final MovieService _movieService = MovieService();
@@ -30,7 +35,6 @@ class MovieFormWithFutureBuilder extends StatelessWidget {
       final List<Actor> actors = await _movieService.fetchActors();
 
       // Do something with the fetched data if needed
-
     } catch (e) {
       // Handle errors
     }
@@ -54,6 +58,7 @@ class _MovieFormState extends State<MovieForm> {
     godinaIzdanja: 0,
     reziserId: 0,
     plakatFilma: '',
+    filmPlakat: '',
     glumciUFlimu: [],
   );
 
@@ -65,36 +70,49 @@ class _MovieFormState extends State<MovieForm> {
   Director? _selectedDirector;
   List<Actor> _selectedActors = [];
 
+  XFile? _selectedImage;
+
+  String _message = '';
+
   @override
   void initState() {
     super.initState();
-    // Fetch data when the widget is initialized
     _fetchData();
   }
 
- Future<void> _fetchData() async {
-  try {
-    final List<Genre> genres = await _movieService.fetchGenres();
-    final List<Director> directors = await _movieService.fetchDirectors();
-    final List<Actor> actors = await _movieService.fetchActors();
+  Future<void> _fetchData() async {
+    try {
+      final List<Genre> genres = await _movieService.fetchGenres();
+      final List<Director> directors = await _movieService.fetchDirectors();
+      final List<Actor> actors = await _movieService.fetchActors();
 
-    setState(() {
-      _genres = genres;
-      _directors = directors;
-      _actors = actors;
-    });
-  } catch (e) {
-    print('Error fetching data: $e');
-    // Handle error
+      setState(() {
+        _genres = genres;
+        _directors = directors;
+        _actors = actors;
+      });
+    } catch (e) {
+      print('Error fetching data: $e');
+    }
   }
-}
 
+  Future<void> _pickImage() async {
+    final imagePicker = ImagePicker();
+    final XFile? pickedImage =
+        await imagePicker.pickImage(source: ImageSource.gallery);
+
+    if (pickedImage != null) {
+      setState(() {
+        _selectedImage = pickedImage;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add New Movie'),
+        title: Text('Dodajte novi film'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -104,11 +122,11 @@ class _MovieFormState extends State<MovieForm> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               TextFormField(
-                decoration: InputDecoration(labelText: 'Movie Title'),
+                decoration: InputDecoration(labelText: 'Naslov filma'),
                 onSaved: (value) => _newMovie.nazivFilma = value ?? '',
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a title';
+                    return 'Unesite naslov filma';
                   }
                   return null;
                 },
@@ -127,7 +145,7 @@ class _MovieFormState extends State<MovieForm> {
                     _newMovie.zanrId = selectedGenre?.idzanra ?? 0;
                   });
                 },
-                decoration: InputDecoration(labelText: 'Genre'),
+                decoration: InputDecoration(labelText: 'Žanr'),
               ),
               DropdownButtonFormField<Director>(
                 value: _selectedDirector,
@@ -143,42 +161,44 @@ class _MovieFormState extends State<MovieForm> {
                     _newMovie.reziserId = selectedDirector?.idrezisera ?? 0;
                   });
                 },
-                decoration: InputDecoration(labelText: 'Director'),
+                decoration: InputDecoration(labelText: 'Režiser'),
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Description'),
+                decoration: InputDecoration(labelText: 'Opis'),
                 onSaved: (value) => _newMovie.opis = value ?? '',
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a description';
+                    return 'Unesite opis';
                   }
                   return null;
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Duration (in minutes)'),
+                decoration: InputDecoration(labelText: 'Trajanje (u minutama)'),
                 keyboardType: TextInputType.number,
-                onSaved: (value) => _newMovie.trajanje = int.parse(value ?? '0'),
+                onSaved: (value) =>
+                    _newMovie.trajanje = int.parse(value ?? '0'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter the duration';
+                    return 'Unesite trajanje';
                   }
                   return null;
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Release Year'),
+                decoration: InputDecoration(labelText: 'Godina izdanja'),
                 keyboardType: TextInputType.number,
-                onSaved: (value) => _newMovie.godinaIzdanja = int.parse(value ?? '0'),
+                onSaved: (value) =>
+                    _newMovie.godinaIzdanja = int.parse(value ?? '0'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter the release year';
+                    return 'Unesite godinu izdanja';
                   }
                   return null;
                 },
               ),
               DropdownButtonFormField<Actor>(
-                value: null, // Initially, no actor is selected
+                value: null,
                 items: _actors.map((actor) {
                   return DropdownMenuItem<Actor>(
                     value: actor,
@@ -192,12 +212,11 @@ class _MovieFormState extends State<MovieForm> {
                     }
                   });
                 },
-                decoration: InputDecoration(labelText: 'Select Actors'),
-                isDense: true, // Reduce the dropdown's height
-                isExpanded: true, // Allow the dropdown to take up available horizontal space
+                decoration: InputDecoration(labelText: 'Odaberite glumce'),
+                isDense: true,
+                isExpanded: true,
               ),
-              // Display the selected actors
-              Text('Selected Actors:'),
+              Text('Odabrani glumci:'),
               Wrap(
                 children: _selectedActors.map((actor) {
                   return Chip(
@@ -211,13 +230,40 @@ class _MovieFormState extends State<MovieForm> {
                 }).toList(),
               ),
               ElevatedButton(
+                onPressed: _pickImage,
+                child: Text('Odaberite poster filma'),
+              ),
+              if (_selectedImage != null)
+                Image.file(File(_selectedImage!.path), width: 100, height: 100),
+              // Prikaz poruke nakon spremanja filma
+              if (_message.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                      ),
+                      SizedBox(width: 8),
+                      Text(
+                        _message,
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
                     _addMovie();
                   }
                 },
-                child: Text('Add Movie'),
+                child: Text('Dodajte film'),
               ),
             ],
           ),
@@ -227,13 +273,40 @@ class _MovieFormState extends State<MovieForm> {
   }
 
   void _addMovie() async {
-    _newMovie.glumciUFlimu = _selectedActors;
+  _newMovie.glumciUFlimu = _selectedActors;
 
+  if (_selectedImage != null) {
     try {
-      await _movieService.addMovie(_newMovie);
-      // Movie added successfully, you can show a success message or navigate to another screen
+      final imageBytes = await File(_selectedImage!.path).readAsBytes();
+      final base64Image = base64Encode(imageBytes);
+      _newMovie.filmPlakat = base64Image;
     } catch (e) {
-      // Handle API error, display an error message
+      print('Error encoding image: $e');
+      setState(() {
+        _message = 'Greška prilikom spremanja filma.';
+      });
+      return;
     }
   }
+
+  try {
+    await _movieService.addMovie(_newMovie);
+    setState(() {
+      _message = 'Film je uspješno spremljen!';
+    });
+    
+    // Očistite formu nakon uspješnog unosa
+    _formKey.currentState!.reset();
+    _selectedGenre = null;
+    _selectedDirector = null;
+    _selectedActors.clear();
+    _selectedImage = null;
+  } catch (e) {
+    print('API error: $e');
+    setState(() {
+      _message = 'Greška prilikom spremanja filma.';
+    });
+  }
+}
+
 }

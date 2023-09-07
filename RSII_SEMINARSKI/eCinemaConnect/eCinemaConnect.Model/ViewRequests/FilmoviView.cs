@@ -22,6 +22,6 @@ namespace eCinemaConnect.Model.ViewRequests
 
         public ReziseriView? Reziser { get; set; }
 
-        public string? PlakatFilma { get; set; }
+        public byte[]? FilmPlakat { get; set; }
     }
 }

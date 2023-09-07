@@ -20,8 +20,9 @@ namespace eCinemaConnect.Model.InsertRequests
         public int? GodinaIzdanja { get; set; }
 
         public int? ReziserId { get; set; }
+        public byte[]? FilmPlakat { get; set; }
 
-        public string? PlakatFilma { get; set; }
+        // public string? PlakatFilma { get; set; }
         public List<GlumciView>? glumciUFlimu { get; set; }
     }
 }

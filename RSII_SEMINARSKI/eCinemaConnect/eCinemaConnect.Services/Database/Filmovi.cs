@@ -20,6 +20,7 @@ public partial class Filmovi
     public int? ReziserId { get; set; }
 
     public string? PlakatFilma { get; set; }
+    public byte[]? FilmPlakat { get; set; }
 
     public virtual ICollection<GlumciFilmovi> GlumciFilmovis { get; set; } = new List<GlumciFilmovi>();
 
