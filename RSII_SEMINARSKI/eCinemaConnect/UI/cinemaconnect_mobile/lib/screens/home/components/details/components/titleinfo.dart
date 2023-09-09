@@ -33,7 +33,7 @@ class TitleAndBasicInfo extends StatelessWidget {
                         const SizedBox(width: kDefaultPadding,),
                         const Text("PG-13", style: TextStyle(color: kTextLightColor),),
                         const SizedBox(width: kDefaultPadding,),
-                        const Text("1h 53min", style: TextStyle(color: kTextLightColor),),
+                         Text("${movie.numOfRatings} min" , style: TextStyle(color: kTextLightColor),),
                       ],
                     ),
                   ],

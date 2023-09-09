@@ -3,11 +3,12 @@ import 'package:cinemaconnect_mobile/screens/home/components/details/components/
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:cinemaconnect_mobile/const.dart';
+import 'dart:convert';
 
 class BackdropRating extends StatelessWidget {
   final Size size;
   final Movie movie;
-  const BackdropRating({super.key, required this.size, required this.movie});
+  const BackdropRating({Key? key, required this.size, required this.movie});
 
   @override
   Widget build(BuildContext context) {
@@ -18,10 +19,15 @@ class BackdropRating extends StatelessWidget {
           Container(
             height: size.height * 0.4 - 50,
             decoration: BoxDecoration(
-                borderRadius:
-                    const BorderRadius.only(bottomLeft: Radius.circular(50)),
-                image: DecorationImage(
-                    fit: BoxFit.cover, image: AssetImage(movie.poster))),
+              borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(50)),
+              image: DecorationImage(
+                fit: BoxFit.cover,
+                image:MemoryImage(
+                      base64Decode(movie.poster.split(',').last),
+                    ),
+                  
+              ),
+            ),
           ),
           Positioned(
             bottom: 0,
@@ -32,13 +38,15 @@ class BackdropRating extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(50),
-                    topLeft: Radius.circular(50)),
+                  bottomLeft: Radius.circular(50),
+                  topLeft: Radius.circular(50),
+                ),
                 boxShadow: [
                   BoxShadow(
-                      offset: const Offset(0, 5),
-                      blurRadius: 50,
-                      color: const Color(0xFF12153D).withOpacity(0.2)),
+                    offset: const Offset(0, 5),
+                    blurRadius: 50,
+                    color: const Color(0xFF12153D).withOpacity(0.2),
+                  ),
                 ],
               ),
               child: Row(
@@ -62,10 +70,10 @@ class BackdropRating extends StatelessWidget {
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),
-                            )
+                            ),
                           ],
                         ),
-                      )
+                      ),
                     ],
                   ),
                   Column(
@@ -77,7 +85,7 @@ class BackdropRating extends StatelessWidget {
                       ),
                       GestureDetector(
                         onTap: () async {
-                          double userRating = await showDialog(
+                          double? userRating = await showDialog(
                             context: context,
                             builder: (BuildContext context) {
                               return RatingDialog(movieId: movie.id);
@@ -86,15 +94,14 @@ class BackdropRating extends StatelessWidget {
 
                           if (userRating != null) {
                             // Handle the user's rating here, for example, you can send it to a backend API
-                            print(
-                                "User rated movie ${movie.id} with $userRating stars");
+                            print("User rated movie ${movie.id} with $userRating stars");
                           }
                         },
                         child: Text(
                           "Ocijeni",
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
-                      )
+                      ),
                     ],
                   ),
                   Column(
@@ -103,8 +110,9 @@ class BackdropRating extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(6),
                         decoration: BoxDecoration(
-                            color: const Color(0xFF51CF66),
-                            borderRadius: BorderRadius.circular(2)),
+                          color: const Color(0xFF51CF66),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                         child: Text(
                           "${movie.metascoreRating}",
                           style: const TextStyle(
@@ -127,14 +135,16 @@ class BackdropRating extends StatelessWidget {
                       const Text(
                         "65 kritika",
                         style: TextStyle(color: kTextLightColor),
-                      )
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
           ),
-          const SafeArea(child: BackButton())
+          SafeArea(
+            child: BackButton(),
+          ),
         ],
       ),
     );
