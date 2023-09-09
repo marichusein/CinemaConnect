@@ -1,6 +1,5 @@
 import 'package:cinemaconnect_mobile/const.dart';
 import 'package:cinemaconnect_mobile/models/movie.dart';
-import 'package:cinemaconnect_mobile/screens/home/components/gener_card.dart';
 import 'package:flutter/material.dart';
 
 class Geners extends StatelessWidget {

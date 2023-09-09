@@ -9,7 +9,7 @@ class Category extends StatefulWidget {
 
 class _CategoryState extends State<Category> {
   int selectedCategory = 0;
-  List<String> categories = ["Trenutno u kinu", "Uskoro dolazi", "Novosti"];
+  List<String> categories = ["Trenutno u kinu",  "Novosti", "Preporuka"];
   
   double kDefaultPadding = 16.0; // Adjust the value as needed;
 

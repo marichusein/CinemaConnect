@@ -4,7 +4,6 @@ import 'package:cinemaconnect_mobile/models/movie.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/details/components/castandcrew.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/details/components/geners.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/details/components/titleinfo.dart';
-import 'package:cinemaconnect_mobile/screens/home/components/gener_card.dart';
 import 'backdrop_rating.dart';
 
 class BodyD extends StatelessWidget {

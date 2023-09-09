@@ -41,6 +41,7 @@ class _MovieCarouselState extends State<MovieCarousel> {
         final String filmPlakatBase64 = apiMovie['filmPlakat'];
         String poster;
 
+        // ignore: unnecessary_null_comparison
         if (filmPlakatBase64 != null) {
           // Dekodirajte Base64 string u bajt niz
           List<int> decodedBytes = base64Decode(filmPlakatBase64);
