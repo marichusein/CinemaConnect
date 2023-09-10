@@ -1,8 +1,10 @@
 import 'package:cinemaconnect_mobile/const.dart';
+import 'package:cinemaconnect_mobile/screens/home/components/categories.dart';
+import 'package:cinemaconnect_mobile/screens/home/components/details/components/NewsCards.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/gener_card.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/moviecarousel.dart';
 import 'package:flutter/material.dart';
-import 'Categories.dart';
+
 
 class Body extends StatefulWidget {
   const Body({Key? key}) : super(key: key);
@@ -13,36 +15,48 @@ class Body extends StatefulWidget {
 
 class _BodyState extends State<Body> {
   String selectedGenre = "";
-  bool isLoading = false; // Dodajte varijablu za praćenje stanja učitavanja
+  String selectedCategory = "Trenutno u kinu";
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: <Widget>[
-          Category(),
-          Genres(
-            onGenreSelected: (genre) {
+          Category(
+            onCategorySelected: (category) {
               setState(() {
-                selectedGenre = genre;
-                isLoading = true; // Postavite isLoading na true pri promjeni žanra
-              });
-              Future.delayed(Duration(milliseconds: 1500), () {
-                setState(() {
-                  isLoading = false; // Postavite isLoading na false nakon što se podaci učitaju
-                });
+                selectedCategory = category;
               });
             },
           ),
-          SizedBox(
-            height: kDefaultPadding,
-          ),
-          isLoading
-              ? Center(child: CircularProgressIndicator())
-              : MovieCarousel(
-                  key: Key(selectedGenre),
-                  selectedGenre: selectedGenre,
-                ),
+          if (selectedCategory == "Trenutno u kinu")
+            Genres(
+              onGenreSelected: (genre) {
+                setState(() {
+                  selectedGenre = genre;
+                  isLoading = true;
+                });
+                Future.delayed(const Duration(milliseconds: 1500), () {
+                  setState(() {
+                    isLoading = false;
+                  });
+                });
+              },
+            ),
+          if (selectedCategory == "Trenutno u kinu")
+            const SizedBox(
+              height: kDefaultPadding,
+            ),
+          if (selectedCategory == "Trenutno u kinu")
+            isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : MovieCarousel(
+                    key: Key(selectedGenre),
+                    selectedGenre: selectedGenre,
+                  ),
+          if (selectedCategory == "Novosti")
+            NewsCarousel(), // Replace with your NewsCards widget
         ],
       ),
     );
