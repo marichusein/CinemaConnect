@@ -14,6 +14,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _isSearching = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  TextEditingController searchController = TextEditingController();
+  String searchQuery = ""; // Dodajte searchQuery
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: buildAppBar(),
       drawer: buildDrawer(),
       body: SingleChildScrollView(
-        child: Body(),
+        child: Body(searchQuery: searchQuery), // Dodajte searchQuery
       ),
     );
   }
@@ -40,9 +42,9 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       title: _isSearching
           ? TextField(
-              // Add your text field properties here
+              controller: searchController,
               onChanged: (query) {
-                // Handle search query
+                filterResults(query);
               },
             )
           : Text(
@@ -82,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontFamily: "SFUIText",
                 color: Colors.black87,
               ),
-            ), // Replace with the user's name
+            ),
             accountEmail: Text(
               "husein.maric@edu.fit.ba",
               style: TextStyle(
@@ -91,10 +93,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 fontFamily: "SFUIText",
                 color: Colors.black87,
               ),
-            ), // Replace with the user's email
+            ),
             currentAccountPicture: CircleAvatar(
               backgroundImage: AssetImage(
-                  "assets/images/profile_picture.jpg"), // Replace with the user's profile picture
+                  "assets/images/profile_picture.jpg"),
             ),
             decoration: BoxDecoration(
               color: Color.fromARGB(31, 194, 186, 95),
@@ -112,8 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             onTap: () {
-              // Handle navigation to profile or any other action
-              Navigator.pop(context); // Close the drawer
+              Navigator.pop(context);
             },
           ),
           ListTile(
@@ -128,8 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             onTap: () {
-              // Handle navigation to reservations or any other action
-              Navigator.pop(context); // Close the drawer
+              Navigator.pop(context);
             },
           ),
           ListTile(
@@ -144,8 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             onTap: () {
-              // Handle navigation to recommendations or any other action
-              Navigator.pop(context); // Close the drawer
+              Navigator.pop(context);
             },
           ),
           Divider(),
@@ -161,13 +160,18 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             onTap: () {
-              // Handle navigation to settings or any other action
-              Navigator.pop(context); // Close the drawer
+              Navigator.pop(context);
             },
           ),
         ],
       ),
     );
+  }
+
+  void filterResults(String query) {
+    setState(() {
+      searchQuery = query; // Ažurirajte searchQuery sa unesenom vrijednošću
+    });
   }
 }
 

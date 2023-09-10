@@ -7,7 +7,11 @@ import 'package:http/http.dart' as http;
 import 'dart:math' as math;
 
 class NewsCarousel extends StatefulWidget {
-  @override
+  final String searchQuery;
+  const NewsCarousel({
+    required this.searchQuery,
+    required Key key, // Dodajte key kao obavezni parametar
+  }) : super(key: key);
   State<NewsCarousel> createState() => _NewsCarouselState();
 }
 
@@ -22,51 +26,67 @@ class _NewsCarouselState extends State<NewsCarousel> {
     fetchNews(); // Dohvati novosti kada se widget inicijalizira.
   }
 
-  Future<void> fetchNews() async {
-    final Uri url = Uri.parse('https://localhost:7036/Obavijesti');
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> apiNews = json.decode(response.body);
-
-      // Očisti postojeću listu novosti
-      news.clear();
-
-      for (var apiNewsItem in apiNews) {
-        final String slikaBase64 = apiNewsItem['slika'];
-        String slika;
-
-        // Dekodirajte Base64 string u bajt niz
-        List<int> decodedBytes = base64Decode(slikaBase64);
-
-        // Kreirajte Image.memory widget sa dekodiranim bajt nizom
-        slika = 'data:image/jpeg;base64,${base64Encode(decodedBytes)}';
-
-        final News newsItem = News(
-          id: apiNewsItem['idobavijesti'],
-          korisnikId: apiNewsItem['korisnikId'],
-          naslov: apiNewsItem['naslov'],
-          sadrzaj: apiNewsItem['sadrzaj'],
-          datumObjave: DateTime.parse(apiNewsItem['datumObjave']),
-          slika: slika,
-          datumUredjivanja: DateTime.parse(apiNewsItem['datumUredjivanja']),
-          autorIme: '', // Postavit ćemo autorovo ime kasnije
-          autorPrezime: '', // Postavit ćemo autorovo prezime kasnije
-        );
-
-        // Dohvatite detalje o korisniku (autoru)
-        await fetchAuthorDetails(newsItem);
-
-        news.add(newsItem);
-      }
-      setState(() {}); // Pokreni ponovnu izgradnju nakon što se podaci dobave.
-    } else {
-      throw Exception('Pogreška prilikom učitavanja novosti');
-    }
+  String getSearchQuery() {
+    // Ako je searchQuery prazan, vratite prazan string, inače vratite trenutni searchQuery
+    return widget.searchQuery.isEmpty ? '' : widget.searchQuery.toLowerCase();
   }
 
+ Future<void> fetchNews() async {
+  final Uri url = Uri.parse('https://localhost:7036/Obavijesti');
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    final List<dynamic> apiNews = json.decode(response.body);
+
+    // Očisti postojeću listu novosti
+    news.clear();
+
+    for (var apiNewsItem in apiNews) {
+      final String slikaBase64 = apiNewsItem['slika'];
+      String slika;
+
+      // Dekodirajte Base64 string u bajt niz
+      List<int> decodedBytes = base64Decode(slikaBase64);
+
+      // Kreirajte Image.memory widget sa dekodiranim bajt nizom
+      slika = 'data:image/jpeg;base64,${base64Encode(decodedBytes)}';
+
+      final News newsItem = News(
+        id: apiNewsItem['idobavijesti'],
+        korisnikId: apiNewsItem['korisnikId'],
+        naslov: apiNewsItem['naslov'],
+        sadrzaj: apiNewsItem['sadrzaj'],
+        datumObjave: DateTime.parse(apiNewsItem['datumObjave']),
+        slika: slika,
+        datumUredjivanja: DateTime.parse(apiNewsItem['datumUredjivanja']),
+        autorIme: '', // Postavit ćemo autorovo ime kasnije
+        autorPrezime: '', // Postavit ćemo autorovo prezime kasnije
+      );
+
+      // Dohvatite detalje o korisniku (autoru)
+      await fetchAuthorDetails(newsItem);
+
+      if (getSearchQuery().isEmpty ||
+          newsItem.naslov.toLowerCase().contains(getSearchQuery())) {
+        // Provjerite je li widget još uvijek montiran prije setState
+        if (mounted) {
+          news.add(newsItem);
+        }
+      }
+    }
+    // Provjerite je li widget još uvijek montiran prije setState
+    if (mounted) {
+      setState(() {}); // Pokreni ponovnu izgradnju nakon što se podaci dobave.
+    }
+  } else {
+    throw Exception('Pogreška prilikom učitavanja novosti');
+  }
+}
+
+
   Future<void> fetchAuthorDetails(News newsItem) async {
-    final Uri url = Uri.parse('https://localhost:7036/Korisnici/${newsItem.korisnikId}');
+    final Uri url =
+        Uri.parse('https://localhost:7036/Korisnici/${newsItem.korisnikId}');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

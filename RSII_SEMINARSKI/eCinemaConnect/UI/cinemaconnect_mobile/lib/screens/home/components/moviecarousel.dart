@@ -8,8 +8,13 @@ import 'package:cinemaconnect_mobile/models/movie.dart';
 
 class MovieCarousel extends StatefulWidget {
   final String selectedGenre;
+  final String searchQuery; // Dodajte searchQuery
 
-  const MovieCarousel({Key? key, required this.selectedGenre}) : super(key: key);
+  const MovieCarousel({
+    Key? key,
+    required this.selectedGenre,
+    required this.searchQuery, // Dodajte searchQuery
+  }) : super(key: key);
 
   @override
   State<MovieCarousel> createState() => _MovieCarouselState();
@@ -27,10 +32,17 @@ class _MovieCarouselState extends State<MovieCarousel> {
     fetchMovies(); // Dohvati filmove kada se widget inicijalizira.
   }
 
-  Future<void> fetchMovies() async {
-    final Uri url = Uri.parse('https://localhost:7036/Filmovi');
-    final response = await http.get(url);
+  String getSearchQuery() {
+    // Ako je searchQuery prazan, vratite prazan string, inače vratite trenutni searchQuery
+    return widget.searchQuery.isEmpty ? '' : widget.searchQuery.toLowerCase();
+  }
 
+  Future<void> fetchMovies() async {
+  final Uri url = Uri.parse('https://localhost:7036/Filmovi');
+  final response = await http.get(url);
+
+  if (mounted) {
+    // Provjerite je li widget još uvijek montiran prije poziva setState
     if (response.statusCode == 200) {
       final List<dynamic> apiMovies = json.decode(response.body);
 
@@ -69,15 +81,26 @@ class _MovieCarouselState extends State<MovieCarousel> {
         );
 
         // Provjeri je li odabrani žanr prazan ili odgovara žanru filma
-        if (widget.selectedGenre.isEmpty || movie.genra.contains(widget.selectedGenre)) {
+        // Provjeri je li pretraga prazna ili sadrži naziv filma
+        if ((widget.selectedGenre.isEmpty || movie.genra.contains(widget.selectedGenre)) &&
+            (getSearchQuery().isEmpty || movie.title.toLowerCase().contains(getSearchQuery()))) {
           movies.add(movie);
         }
       }
-      setState(() {}); // Pokreni ponovnu izgradnju nakon što se podaci dobave.
+      
+      if (mounted) {
+        // Dodatna provjera mounted prije poziva setState
+        setState(() {}); // Pokreni ponovnu izgradnju nakon što se podaci dobave.
+      }
     } else {
-      throw Exception('Pogreška prilikom učitavanja filmova');
+      if (mounted) {
+        // Dodatna provjera mounted prije bacanja iznimke
+        throw Exception('Pogreška prilikom učitavanja filmova');
+      }
     }
   }
+}
+
 
   @override
   void dispose() {

@@ -5,9 +5,10 @@ import 'package:cinemaconnect_mobile/screens/home/components/gener_card.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/moviecarousel.dart';
 import 'package:flutter/material.dart';
 
-
 class Body extends StatefulWidget {
-  const Body({Key? key}) : super(key: key);
+  final String searchQuery;
+
+  const Body({Key? key, required this.searchQuery}) : super(key: key);
 
   @override
   _BodyState createState() => _BodyState();
@@ -52,11 +53,14 @@ class _BodyState extends State<Body> {
             isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : MovieCarousel(
-                    key: Key(selectedGenre),
+                    key: Key(selectedGenre + widget.searchQuery),
                     selectedGenre: selectedGenre,
+                    searchQuery: widget.searchQuery, // Dodajte searchQuery
                   ),
           if (selectedCategory == "Novosti")
-            NewsCarousel(), // Replace with your NewsCards widget
+            NewsCarousel(
+              key: Key('news_${widget.searchQuery}'),
+                searchQuery: widget.searchQuery), // Dodajte searchQuery
         ],
       ),
     );
