@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:cinemaconnect_mobile/components/home_screen.dart';
+import 'package:cinemaconnect_mobile/screens/home/components/Prijava.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -141,7 +142,13 @@ class LoginScreen extends StatelessWidget {
                 SizedBox(height: 10),
                 TextButton(
                   onPressed: () {
-                    // Dodajte funkcionalnost za kreiranje novog računa ovde
+                     Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (BuildContext context) => SignupScreen(),
+      ),
+    );
+
+
                   },
                   child: Text('Kreiraj novi račun'),
                 ),
