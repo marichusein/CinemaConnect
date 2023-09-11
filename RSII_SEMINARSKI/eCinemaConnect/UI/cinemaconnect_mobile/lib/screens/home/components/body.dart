@@ -62,7 +62,8 @@ class _BodyState extends State<Body> {
           if (selectedCategory == "Novosti")
             NewsCarousel(
               key: Key('news_${widget.searchQuery}'),
-                searchQuery: widget.searchQuery), // Dodajte searchQuery
+                searchQuery: widget.searchQuery,
+                KorisnikID: widget.KorisnikID), // Dodajte searchQuery
         ],
       ),
     );

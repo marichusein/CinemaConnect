@@ -8,9 +8,10 @@ import 'dart:math' as math;
 
 class NewsCarousel extends StatefulWidget {
   final String searchQuery;
+  final int KorisnikID;
   const NewsCarousel({
     required this.searchQuery,
-    required Key key, // Dodajte key kao obavezni parametar
+    required Key key, required this.KorisnikID, // Dodajte key kao obavezni parametar
   }) : super(key: key);
   State<NewsCarousel> createState() => _NewsCarouselState();
 }
@@ -134,7 +135,7 @@ class _NewsCarouselState extends State<NewsCarousel> {
         }
         return Transform.rotate(
           angle: math.pi * value,
-          child: NewsCard(news: newsItem),
+          child: NewsCard(news: newsItem, KorisnikID:widget.KorisnikID,),
         );
       },
     );
@@ -143,8 +144,8 @@ class _NewsCarouselState extends State<NewsCarousel> {
 
 class NewsCard extends StatelessWidget {
   final News news;
-
-  const NewsCard({Key? key, required this.news});
+  final int KorisnikID;
+  const NewsCard({Key? key, required this.news, required this.KorisnikID});
 
   @override
   Widget build(BuildContext context) {
@@ -154,7 +155,7 @@ class NewsCard extends StatelessWidget {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => NewsDetailsScreen(news: news),
+            builder: (context) => NewsDetailsScreen(news: news, KorisnikID: KorisnikID,),
           ),
         ),
         child: Column(
