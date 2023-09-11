@@ -28,7 +28,8 @@ class _MovieCarouselState extends State<MovieCarousel> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController(viewportFraction: 0.8, initialPage: initialPage);
+    _pageController =
+        PageController(viewportFraction: 0.8, initialPage: initialPage);
     fetchMovies(); // Dohvati filmove kada se widget inicijalizira.
   }
 
@@ -38,69 +39,73 @@ class _MovieCarouselState extends State<MovieCarousel> {
   }
 
   Future<void> fetchMovies() async {
-  final Uri url = Uri.parse('https://localhost:7036/Filmovi');
-  final response = await http.get(url);
+    final Uri url = Uri.parse('https://localhost:7036/Filmovi');
+    final response = await http.get(url);
 
-  if (mounted) {
-    // Provjerite je li widget još uvijek montiran prije poziva setState
-    if (response.statusCode == 200) {
-      final List<dynamic> apiMovies = json.decode(response.body);
+    if (mounted) {
+      // Provjerite je li widget još uvijek montiran prije poziva setState
+      if (response.statusCode == 200) {
+        final List<dynamic> apiMovies = json.decode(response.body);
 
-      // Očisti postojeću listu filmova
-      movies.clear();
+        // Očisti postojeću listu filmova
+        movies.clear();
 
-      for (var apiMovie in apiMovies) {
-        final String filmPlakatBase64 = apiMovie['filmPlakat'];
-        String poster;
+        for (var apiMovie in apiMovies) {
+          final String filmPlakatBase64 = apiMovie['filmPlakat'];
+          String poster;
 
-        // ignore: unnecessary_null_comparison
-        if (filmPlakatBase64 != null) {
-          // Dekodirajte Base64 string u bajt niz
-          List<int> decodedBytes = base64Decode(filmPlakatBase64);
+          // ignore: unnecessary_null_comparison
+          if (filmPlakatBase64 != null) {
+            // Dekodirajte Base64 string u bajt niz
+            List<int> decodedBytes = base64Decode(filmPlakatBase64);
 
-          // Kreirajte Image.memory widget sa dekodiranim bajt nizom
-          poster = 'data:image/jpeg;base64,${base64Encode(decodedBytes)}';
-        } else {
-          // Ako filmPlakatBase64 nije dostupan, koristite rezervnu sliku
-          poster = "assets/images/poster_5.jpg";
+            // Kreirajte Image.memory widget sa dekodiranim bajt nizom
+            poster = 'data:image/jpeg;base64,${base64Encode(decodedBytes)}';
+          } else {
+            // Ako filmPlakatBase64 nije dostupan, koristite rezervnu sliku
+            poster = "assets/images/poster_5.jpg";
+          }
+
+          final Movie movie = Movie(
+            id: apiMovie['idfilma'],
+            title: apiMovie['nazivFilma'],
+            year: apiMovie['godinaIzdanja'],
+            poster: poster,
+            backdrop:
+                "assets/images/backdrop_1.jpg", // Možete postaviti ovo prema potrebi
+            numOfRatings:
+                apiMovie['trajanje'], // Možete postaviti ovo prema potrebi
+            rating: 0.0, // Možete postaviti ovo prema potrebi
+            criticsReview: 0, // Možete postaviti ovo prema potrebi
+            metascoreRating: 0, // Možete postaviti ovo prema potrebi
+            genra: [apiMovie['zanr']['nazivZanra']],
+            plot: apiMovie['opis'],
+            cast: [], // Možete postaviti ovo prema potrebi
+          );
+
+          // Provjeri je li odabrani žanr prazan ili odgovara žanru filma
+          // Provjeri je li pretraga prazna ili sadrži naziv filma
+          if ((widget.selectedGenre.isEmpty ||
+                  movie.genra.contains(widget.selectedGenre)) &&
+              (getSearchQuery().isEmpty ||
+                  movie.title.toLowerCase().contains(getSearchQuery()))) {
+            movies.add(movie);
+          }
         }
 
-        final Movie movie = Movie(
-          id: apiMovie['idfilma'],
-          title: apiMovie['nazivFilma'],
-          year: apiMovie['godinaIzdanja'],
-          poster: poster,
-          backdrop: "assets/images/backdrop_1.jpg", // Možete postaviti ovo prema potrebi
-          numOfRatings: apiMovie['trajanje'], // Možete postaviti ovo prema potrebi
-          rating: 0.0, // Možete postaviti ovo prema potrebi
-          criticsReview: 0, // Možete postaviti ovo prema potrebi
-          metascoreRating: 0, // Možete postaviti ovo prema potrebi
-          genra: [apiMovie['zanr']['nazivZanra']],
-          plot: apiMovie['opis'],
-          cast: [], // Možete postaviti ovo prema potrebi
-        );
-
-        // Provjeri je li odabrani žanr prazan ili odgovara žanru filma
-        // Provjeri je li pretraga prazna ili sadrži naziv filma
-        if ((widget.selectedGenre.isEmpty || movie.genra.contains(widget.selectedGenre)) &&
-            (getSearchQuery().isEmpty || movie.title.toLowerCase().contains(getSearchQuery()))) {
-          movies.add(movie);
+        if (mounted) {
+          // Dodatna provjera mounted prije poziva setState
+          setState(
+              () {}); // Pokreni ponovnu izgradnju nakon što se podaci dobave.
         }
-      }
-      
-      if (mounted) {
-        // Dodatna provjera mounted prije poziva setState
-        setState(() {}); // Pokreni ponovnu izgradnju nakon što se podaci dobave.
-      }
-    } else {
-      if (mounted) {
-        // Dodatna provjera mounted prije bacanja iznimke
-        throw Exception('Pogreška prilikom učitavanja filmova');
+      } else {
+        if (mounted) {
+          // Dodatna provjera mounted prije bacanja iznimke
+          throw Exception('Pogreška prilikom učitavanja filmova');
+        }
       }
     }
   }
-}
-
 
   @override
   void dispose() {
@@ -130,20 +135,20 @@ class _MovieCarouselState extends State<MovieCarousel> {
   }
 
   Widget buildMovieSlider(int index) => AnimatedBuilder(
-    animation: _pageController,
-    builder: (context, child) {
-      double value = 0;
-      if (_pageController.position.haveDimensions &&
-          _pageController.page != null) {
-        value = index - _pageController.page!;
-        value = (value * 0.038).clamp(-1, 1);
-      }
-      return Transform.rotate(
-        angle: math.pi * value,
-        child: MovieCard(movie: movies[index]),
+        animation: _pageController,
+        builder: (context, child) {
+          double value = 0;
+          if (_pageController.position.haveDimensions &&
+              _pageController.page != null) {
+            value = index - _pageController.page!;
+            value = (value * 0.038).clamp(-1, 1);
+          }
+          return Transform.rotate(
+            angle: math.pi * value,
+            child: MovieCard(movie: movies[index]),
+          );
+        },
       );
-    },
-  );
 }
 
 class MovieCard extends StatelessWidget {
@@ -208,12 +213,82 @@ class MovieCard extends StatelessWidget {
                     fontWeight: FontWeight.w400,
                     fontFamily: 'SFUIText',
                   ),
-                )
+                ),
               ],
-            )
+            ),
+            SizedBox(
+              height: 10, // Dodajte razmak između plakata i projekcija
+            ),
+            Expanded(
+              child: FutureBuilder<List<String>>(
+                future: fetchProjections(movie.id),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return Text('Pogreška prilikom dohvaćanja projekcija: ${snapshot.error}');
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Text('Projekcije još uvijek nisu dostupne');
+                  } else {
+                    final projections = snapshot.data!;
+
+                    return ListView.builder(
+                      itemCount: projections.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          elevation: 2,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: Text(
+                              projections[index],
+                              style: TextStyle(
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  }
+                },
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<List<String>> fetchProjections(int movieId) async {
+    final Uri url =
+        Uri.parse('https://localhost:7036/Projekcije/film/$movieId');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> apiProjections = json.decode(response.body);
+      List<String> projections = [];
+
+      for (var apiProjection in apiProjections) {
+        final DateTime projectionDateTime =
+            DateTime.parse(apiProjection['datumVrijemeProjekcije']);
+         String formattedProjectionDateTime =
+            '${projectionDateTime.day.toString().padLeft(2, '0')}.${projectionDateTime.month.toString().padLeft(2, '0')}.${projectionDateTime.year.toString().substring(2)} '
+            '${projectionDateTime.hour}:${projectionDateTime.minute} ${projectionDateTime.hour < 12 ? 'AM' : 'PM'}';
+            double cijena=apiProjection['cijenaKarte'];
+            formattedProjectionDateTime=formattedProjectionDateTime+" - "+cijena.toString()+" KM";
+            if(apiProjection['sala']['idsale'] == 2){
+              formattedProjectionDateTime=formattedProjectionDateTime + " - 3D ";
+            }
+        projections.add(formattedProjectionDateTime);
+      }
+
+      return projections;
+    } else {
+      throw Exception('Pogreška prilikom dohvaćanja projekcija');
+    }
   }
 }
