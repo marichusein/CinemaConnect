@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 
 class DetailsScreen extends StatelessWidget {
   final Movie movie;
-  const DetailsScreen({super.key, required this.movie});
+  final int KorisnikID;
+  const DetailsScreen({super.key, required this.movie, required this.KorisnikID});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: BodyD(movie: movie,),);
+    return Scaffold(body: BodyD(movie: movie, KorisnikID: KorisnikID,),);
   }
 }

@@ -8,7 +8,8 @@ import 'backdrop_rating.dart';
 
 class BodyD extends StatelessWidget {
   final Movie movie;
-  const BodyD({super.key, required this.movie});
+  final int KorisnikID;
+  const BodyD({super.key, required this.movie, required this.KorisnikID});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +19,7 @@ class BodyD extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          BackdropRating(size: size, movie: movie),
+          BackdropRating(size: size, movie: movie, korisnikID: KorisnikID,),
           const SizedBox(
             height: kDefaultPadding / 2,
           ),

@@ -8,7 +8,8 @@ import 'dart:convert';
 class BackdropRating extends StatelessWidget {
   final Size size;
   final Movie movie;
-  const BackdropRating({Key? key, required this.size, required this.movie});
+  final int korisnikID;
+  const BackdropRating({Key? key, required this.size, required this.movie, required this.korisnikID});
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +89,7 @@ class BackdropRating extends StatelessWidget {
                           double? userRating = await showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              return RatingDialog(movieId: movie.id);
+                              return RatingDialog(movieId: movie.id, korisnikID: korisnikID,);
                             },
                           );
 

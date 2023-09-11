@@ -9,11 +9,12 @@ import 'package:cinemaconnect_mobile/models/movie.dart';
 class MovieCarousel extends StatefulWidget {
   final String selectedGenre;
   final String searchQuery; // Dodajte searchQuery
+  final int IDKorisnika;
 
   const MovieCarousel({
     Key? key,
     required this.selectedGenre,
-    required this.searchQuery, // Dodajte searchQuery
+    required this.searchQuery, required this.IDKorisnika, // Dodajte searchQuery
   }) : super(key: key);
 
   @override
@@ -37,6 +38,20 @@ class _MovieCarouselState extends State<MovieCarousel> {
     // Ako je searchQuery prazan, vratite prazan string, inače vratite trenutni searchQuery
     return widget.searchQuery.isEmpty ? '' : widget.searchQuery.toLowerCase();
   }
+
+  Future<double> fetchMovieRating(int movieId) async {
+  final Uri url = Uri.parse('https://localhost:7036/film?id=$movieId');
+  final response = await http.get(url);
+
+  if (response.statusCode == 200) {
+    final dynamic apiMovie = json.decode(response.body);
+    final double rating = apiMovie; 
+    return rating;
+  } else {
+    throw Exception('Pogreška prilikom dohvaćanja ocjene filma');
+  }
+}
+
 
   Future<void> fetchMovies() async {
     final Uri url = Uri.parse('https://localhost:7036/Filmovi');
@@ -65,7 +80,7 @@ class _MovieCarouselState extends State<MovieCarousel> {
             // Ako filmPlakatBase64 nije dostupan, koristite rezervnu sliku
             poster = "assets/images/poster_5.jpg";
           }
-
+          final double ratingF = await fetchMovieRating(apiMovie['idfilma']);
           final Movie movie = Movie(
             id: apiMovie['idfilma'],
             title: apiMovie['nazivFilma'],
@@ -75,7 +90,7 @@ class _MovieCarouselState extends State<MovieCarousel> {
                 "assets/images/backdrop_1.jpg", // Možete postaviti ovo prema potrebi
             numOfRatings:
                 apiMovie['trajanje'], // Možete postaviti ovo prema potrebi
-            rating: 0.0, // Možete postaviti ovo prema potrebi
+            rating: ratingF, // Možete postaviti ovo prema potrebi
             criticsReview: 0, // Možete postaviti ovo prema potrebi
             metascoreRating: 0, // Možete postaviti ovo prema potrebi
             genra: [apiMovie['zanr']['nazivZanra']],
@@ -145,7 +160,7 @@ class _MovieCarouselState extends State<MovieCarousel> {
           }
           return Transform.rotate(
             angle: math.pi * value,
-            child: MovieCard(movie: movies[index]),
+            child: MovieCard(movie: movies[index], KorisnikID: widget.IDKorisnika,),
           );
         },
       );
@@ -153,7 +168,8 @@ class _MovieCarouselState extends State<MovieCarousel> {
 
 class MovieCard extends StatelessWidget {
   final Movie movie;
-  const MovieCard({Key? key, required this.movie});
+  final int KorisnikID;
+  const MovieCard({Key? key, required this.movie, required this.KorisnikID});
 
   @override
   Widget build(BuildContext context) {
@@ -163,7 +179,7 @@ class MovieCard extends StatelessWidget {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DetailsScreen(movie: movie),
+            builder: (context) => DetailsScreen(movie: movie, KorisnikID: KorisnikID,),
           ),
         ),
         child: Column(

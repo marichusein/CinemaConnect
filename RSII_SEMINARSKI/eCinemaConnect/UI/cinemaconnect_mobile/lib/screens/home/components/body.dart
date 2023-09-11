@@ -7,8 +7,9 @@ import 'package:flutter/material.dart';
 
 class Body extends StatefulWidget {
   final String searchQuery;
+  final int KorisnikID;
 
-  const Body({Key? key, required this.searchQuery}) : super(key: key);
+  const Body({Key? key, required this.searchQuery, required this.KorisnikID}) : super(key: key);
 
   @override
   _BodyState createState() => _BodyState();
@@ -55,7 +56,8 @@ class _BodyState extends State<Body> {
                 : MovieCarousel(
                     key: Key(selectedGenre + widget.searchQuery),
                     selectedGenre: selectedGenre,
-                    searchQuery: widget.searchQuery, // Dodajte searchQuery
+                    searchQuery: widget.searchQuery,
+                    IDKorisnika: widget.KorisnikID, // Dodajte searchQuery
                   ),
           if (selectedCategory == "Novosti")
             NewsCarousel(

@@ -279,7 +279,7 @@ Future<void> fetchUserData() async {
       appBar: buildAppBar(),
       drawer: buildDrawer(),
       body: SingleChildScrollView(
-        child: Body(searchQuery: searchQuery),
+        child: Body(searchQuery: searchQuery, KorisnikID: widget.userId,),
       ),
     );
   }
