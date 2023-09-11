@@ -1,33 +1,73 @@
-import 'dart:ui';
-
-import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:convert';
 import 'package:cinemaconnect_mobile/screens/home/components/body.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final int userId;
+
+  const HomeScreen({Key? key, required this.userId}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool _isSearching = false;
+   bool _isSearching = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController searchController = TextEditingController();
-  String searchQuery = ""; // Dodajte searchQuery
+  String searchQuery = "";
+  late String firstName = "";
+  late String lastName = "";
+  late String email="";
+  late String newPassword = "";
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      backgroundColor: Colors.white,
-      appBar: buildAppBar(),
-      drawer: buildDrawer(),
-      body: SingleChildScrollView(
-        child: Body(searchQuery: searchQuery), // Dodajte searchQuery
-      ),
+  void initState() {
+    super.initState();
+    fetchUserData();
+  }
+Future<void> fetchUserData() async {
+    final response = await http.get(
+      Uri.parse('https://localhost:7036/Korisnici/${widget.userId}'),
     );
+
+    if (response.statusCode == 200) {
+      final userData = jsonDecode(response.body);
+      setState(() {
+        firstName = userData['ime'];
+        lastName = userData['prezime'];
+        email=userData['email'];
+        // Učitajte trenutnu lozinku ako je dostupna
+      });
+    } else {
+      throw Exception('Failed to load user data');
+    }
+  }
+
+
+  Future<void> updateUserData() async {
+    final response = await http.put(
+      Uri.parse('https://localhost:7036/Korisnici/${widget.userId}'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'ime': firstName,
+        'prezime': lastName,
+        'lozinika': newPassword, // Ažurirajte lozinku prema potrebi
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      Navigator.of(context).pop(); // Zatvaranje forme
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Podaci su uspješno ažurirani'+widget.userId.toString())),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ažuriranje podataka nije uspjelo')),
+      );
+    }
   }
 
   AppBar buildAppBar() {
@@ -77,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
         children: <Widget>[
           UserAccountsDrawerHeader(
             accountName: Text(
-              "Husein Marić",
+              "$firstName $lastName",
               style: TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
@@ -86,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             accountEmail: Text(
-              "husein.maric@edu.fit.ba",
+              email,
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
@@ -95,8 +135,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             currentAccountPicture: CircleAvatar(
-              backgroundImage: AssetImage(
-                  "assets/images/profile_picture.jpg"),
+              backgroundImage: AssetImage("assets/images/profile_picture.jpg"),
             ),
             decoration: BoxDecoration(
               color: Color.fromARGB(31, 194, 186, 95),
@@ -114,7 +153,8 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             onTap: () {
-              Navigator.pop(context);
+              // Otvorite formu za uređivanje profila
+              openEditProfileForm();
             },
           ),
           ListTile(
@@ -168,15 +208,79 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void openEditProfileForm() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Uredi profil'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    firstName = value;
+                  });
+                },
+                decoration: InputDecoration(labelText: 'Ime'),
+                controller: TextEditingController(text: firstName),
+              ),
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    lastName = value;
+                  });
+                },
+                decoration: InputDecoration(labelText: 'Prezime'),
+                controller: TextEditingController(text: lastName),
+              ),
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    newPassword = value;
+                  });
+                },
+                decoration: InputDecoration(labelText: 'Nova lozinka'),
+                obscureText: true, // Skrivanje unesene lozinke
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  updateUserData();
+                },
+                child: Text('Spasi promjene'),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Zatvori'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void filterResults(String query) {
     setState(() {
-      searchQuery = query; // Ažurirajte searchQuery sa unesenom vrijednošću
+      searchQuery = query;
     });
   }
-}
 
-void main() {
-  runApp(MaterialApp(
-    home: HomeScreen(),
-  ));
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      backgroundColor: Colors.white,
+      appBar: buildAppBar(),
+      drawer: buildDrawer(),
+      body: SingleChildScrollView(
+        child: Body(searchQuery: searchQuery),
+      ),
+    );
+  }
 }

@@ -51,7 +51,7 @@ class LoginScreen extends StatelessWidget {
       // Navigirajte na sljedeći ekran (ako je potrebno)
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (BuildContext context) => HomeScreen(),
+          builder: (BuildContext context) => HomeScreen(userId: idKorisnika),
         ),
       );
       
