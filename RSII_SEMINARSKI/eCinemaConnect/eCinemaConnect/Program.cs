@@ -25,6 +25,10 @@ builder.Services.AddTransient<ISjediste, SjedisteService>();
 builder.Services.AddTransient<IKorisnici, KorisniciService>();
 builder.Services.AddTransient<IObavijesti, ObavijestiService>();
 builder.Services.AddTransient<IOcijeni, OcijeniFilmService>();
+builder.Services.AddTransient<IKomentariObavijesti, KomentariObavijestiService>();
+builder.Services.AddTransient<IRezervacije, RezervacijeService>();
+
+
 
 
 
@@ -60,6 +64,10 @@ builder.Services.AddAutoMapper(typeof(ISjediste));
 builder.Services.AddAutoMapper(typeof(IKorisnici));
 builder.Services.AddAutoMapper(typeof(IObavijesti));
 builder.Services.AddAutoMapper(typeof(IOcijeni));
+builder.Services.AddAutoMapper(typeof(IKomentariObavijesti));
+builder.Services.AddAutoMapper(typeof(IRezervacije));
+
+
 
 
 
