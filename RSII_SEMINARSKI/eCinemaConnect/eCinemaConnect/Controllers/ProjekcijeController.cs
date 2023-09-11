@@ -36,6 +36,12 @@ namespace eCinemaConnect.Controllers
             return _projekcije.GetById(id);
         }
 
+        [HttpGet("sjedista/{projekcijaID}")]
+        public List<Model.ViewRequests.SjedistaViewProjekcija> GetByIdP(int projekcijaID)
+        {
+            return _projekcije.GetSjedistaByProjekcija(projekcijaID);
+        }
+
         [HttpPost()]
         public Model.ViewRequests.ProjekcijeView AddProjekciju(ProjekcijeInsert obj)
         {

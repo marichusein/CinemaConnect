@@ -93,5 +93,24 @@ namespace eCinemaConnect.Services.Service
             }
             return null;
         }
+
+        public List<SjedistaViewProjekcija> GetSjedistaByProjekcija(int projekcijaID)
+        {
+            List<SjedistaViewProjekcija> sjedista = new List<SjedistaViewProjekcija>();
+            var projekcija = _context.ProjekcijeSjedista.Where(x => x.ProjekcijaId == projekcijaID).ToList();
+            for (int i = 0; i < projekcija.Count; i++)
+            {
+                SjedistaViewProjekcija s = new SjedistaViewProjekcija()
+                {
+                    Idsjedista = (int)projekcija[i].SjedisteId,
+                    Slobodno = (bool)projekcija[i].Slobodno,
+                    BrojSjedista = _context.Sjedista.Where(x => x.Idsjedista == projekcija[i].SjedisteId).FirstOrDefault().BrojSjedista,
+                    
+
+                };
+                sjedista.Add(s);
+            }
+            return sjedista;
+        }
     }
 }
