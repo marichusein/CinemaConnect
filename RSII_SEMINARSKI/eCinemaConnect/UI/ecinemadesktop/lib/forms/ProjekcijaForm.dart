@@ -1,6 +1,9 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart';
 
 void main() {
   runApp(MyApp());
@@ -60,6 +63,8 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
   List<Film> filmovi = [];
   List<Sala> sale = [];
   String plakatFilma = "assets/noPhoto.jpg";
+  late DateTime pickedDateTimef;
+
 
   final TextEditingController datumController = TextEditingController();
   final TextEditingController cijenaController = TextEditingController();
@@ -102,44 +107,99 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
     }
   }
 
-  void dodajProjekciju() {
+  void dodajProjekciju() async {
+    final formattedDate =
+        DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'").format(pickedDateTimef);
+
+// Sada možete koristiti formattedDate u vašem zahtjevu
     final novaProjekcija = {
       "filmId": selectedFilmId,
       "salaId": selectedSalaId,
-      "datumVrijemeProjekcije": datumController.text,
+      "datumVrijemeProjekcije": formattedDate,
       "cijenaKarte": int.parse(cijenaController.text),
     };
 
-    // Simulirajte slanje podataka na API za dodavanje projekcije
-    // Ovdje trebate implementirati stvarnu logiku za slanje podataka na API
+    // Konvertirajte podatke u JSON format
+    final jsonBody = jsonEncode(novaProjekcija);
 
-    // Nakon uspješnog dodavanja projekcije
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Projekcija uspješno dodana!'),
-      ),
-    );
+    // Postavite zaglavlje zahtjeva prema Swagger primjeru
+    final headers = <String, String>{
+      'accept': 'text/plain',
+      'Content-Type': 'application/json',
+    };
 
-    // Ispričavanje polja forme
-    setState(() {
-      selectedFilmId = null;
-      selectedSalaId = null;
-      datumController.clear();
-      cijenaController.clear();
-      plakatFilma = "assets/noPhoto.jpg";
-    });
+    try {
+      print('Sending request...');
+
+      final response = await http.post(
+        Uri.parse('https://localhost:7036/Projekcije'),
+        headers: headers,
+        body: jsonBody,
+      );
+      print('Response received: ${response.statusCode}');
+      print('Response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        // Uspješno dodana projekcija
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Projekcija uspješno dodana!'),
+          ),
+        );
+
+        // Ispričavanje polja forme
+        setState(() {
+          selectedFilmId = null;
+          selectedSalaId = null;
+          datumController.clear();
+          cijenaController.clear();
+          plakatFilma = "assets/noPhoto.jpg";
+        });
+      } else {
+        // Greška prilikom slanja zahtjeva
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Greška prilikom dodavanja projekcije.'),
+          ),
+        );
+      }
+    } catch (error) {
+      // Greška prilikom slanja zahtjeva
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Greška prilikom slanja zahtjeva: $error'),
+        ),
+      );
+    }
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime picked = (await showDatePicker(
+     final DateTime pickedDate = (await showDatePicker(
+    context: context,
+    initialDate: DateTime.now(),
+    firstDate: DateTime.now().subtract(Duration(days: 1)),
+    lastDate: DateTime(DateTime.now().year + 1),
+  ))!;
+
+  if (pickedDate != null) {
+    final TimeOfDay pickedTime = (await showTimePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime.now().subtract(Duration(days: 1)),
-      lastDate: DateTime(DateTime.now().year + 1),
+      initialTime: TimeOfDay.now(),
     ))!;
-    if (picked != null && picked != DateTime.now()) {
-      datumController.text = picked.toLocal().toString();
+
+    if (pickedTime != null) {
+      final DateTime pickedDateTime = DateTime(
+        pickedDate.year,
+        pickedDate.month,
+        pickedDate.day,
+        pickedTime.hour,
+        pickedTime.minute,
+      );
+
+      datumController.text = pickedDateTime.toLocal().toString();
+      pickedDateTimef=pickedDateTime.toLocal();
     }
+  }
   }
 
   @override

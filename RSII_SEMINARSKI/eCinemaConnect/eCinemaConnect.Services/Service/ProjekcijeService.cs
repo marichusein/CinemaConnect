@@ -17,10 +17,12 @@ namespace eCinemaConnect.Services.Service
     {
         CinemaContext _context;
         public IMapper _mapper { get; set; }
-        public ProjekcijeService(CinemaContext context, IMapper mapper)
+        public ISjediste _sjedista { get; set; }
+        public ProjekcijeService(CinemaContext context, IMapper mapper, ISjediste sjedista)
         {
             _context = context;
             _mapper = mapper;
+            _sjedista = sjedista;
         }
 
         public ProjekcijeView AddProjekciju(ProjekcijeInsert projekcijaInsert)
@@ -29,6 +31,20 @@ namespace eCinemaConnect.Services.Service
             _mapper.Map(projekcijaInsert, newProjekcija);
             _context.Add(newProjekcija);
             _context.SaveChanges();
+
+            var sjedista=_sjedista.GetAllBySala((int)projekcijaInsert.SalaId);
+            for (int i = 0; i < sjedista.Count; i++)
+            {
+                var projekcijasjediste = new Database.ProjekcijeSjedistum();
+                projekcijasjediste.SjedisteId = sjedista[i].Idsjedista;
+                projekcijasjediste.ProjekcijaId = newProjekcija.Idprojekcije;
+                projekcijasjediste.Slobodno = true;
+                _context.Add(projekcijasjediste);
+                _context.SaveChanges();
+            }
+
+           
+            
 
             return _mapper.Map<ProjekcijeView>(newProjekcija);
         }
