@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cinemaconnect_mobile/const.dart';
+// import 'package:cinemaconnect_mobile/const.dart';
 import 'package:cinemaconnect_mobile/models/news.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;

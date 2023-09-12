@@ -30,6 +30,11 @@ namespace eCinemaConnect.Controllers
         {
             return _ocijeni.GetObj(id);
         }
+        [HttpGet("film/{id}")]
+        public List<Model.ViewRequests.OcijeniFilmView> GetByIdFilm(int id)
+        {
+            return _ocijeni.GetKomentareZaFilm(id);
+        }
 
         [HttpPost()]
         public Model.ViewRequests.OcijeniFilmView AddGlumca(OcijeniFilmInsert obj)

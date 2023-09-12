@@ -12,5 +12,6 @@ namespace eCinemaConnect.Services.Interface
     public interface IOcijeni: IService<OcijeniFilmView, OcijeniFilmInsert, OcijeniFilmUpdate>
     {
         double getProsjekZaFilm(int idfilma);
+        List<OcijeniFilmView> GetKomentareZaFilm(int idFilma);
     }
 }

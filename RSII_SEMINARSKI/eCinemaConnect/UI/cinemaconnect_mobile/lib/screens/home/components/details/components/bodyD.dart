@@ -5,11 +5,54 @@ import 'package:cinemaconnect_mobile/screens/home/components/details/components/
 import 'package:cinemaconnect_mobile/screens/home/components/details/components/geners.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/details/components/titleinfo.dart';
 import 'backdrop_rating.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class BodyD extends StatelessWidget {
+class BodyD extends StatefulWidget {
   final Movie movie;
   final int KorisnikID;
-  const BodyD({super.key, required this.movie, required this.KorisnikID});
+
+  const BodyD({Key? key, required this.movie, required this.KorisnikID})
+      : super(key: key);
+
+  @override
+  _BodyDState createState() => _BodyDState();
+}
+
+class _BodyDState extends State<BodyD> {
+  List<Comment> comments = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadComments();
+  }
+
+  Future<void> loadComments() async {
+    final url = 'https://localhost:7036/OcijeniFilm/film/${widget.movie.id}'; // Zamijenite s pravim URL-om
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> commentData = json.decode(response.body);
+
+      for (var data in commentData) {
+        final comment = Comment.fromJson(data);
+        final userUrl =
+            'https://localhost:7036/Korisnici/${comment.korisnikId}'; // Zamijenite s pravim URL-om
+        final userResponse = await http.get(Uri.parse(userUrl));
+
+        if (userResponse.statusCode == 200) {
+          final userData = json.decode(userResponse.body);
+          final user = User.fromJson(userData);
+          comment.korisnikImePrezime = '${user.ime} ${user.prezime}';
+        }
+
+        setState(() {
+          comments.add(comment);
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,32 +62,111 @@ class BodyD extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          BackdropRating(size: size, movie: movie, korisnikID: KorisnikID,),
+          BackdropRating(size: size, movie: widget.movie, korisnikID: widget.KorisnikID),
           const SizedBox(
             height: kDefaultPadding / 2,
           ),
-          TitleAndBasicInfo(movie: movie),
-          Geners(movie: movie),
+          TitleAndBasicInfo(movie: widget.movie, KorisnikID: widget.KorisnikID,),
+          Geners(movie: widget.movie),
           Padding(
             padding: const EdgeInsets.symmetric(
-              vertical: kDefaultPadding / 2, 
-              horizontal: kDefaultPadding
-            ),
+                vertical: kDefaultPadding / 2, horizontal: kDefaultPadding),
             child: Text(
-              "SADRŽAJ FILMA", 
+              "SADRŽAJ FILMA",
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: kDefaultPadding),
             child: Text(
-              movie.plot, 
+              widget.movie.plot,
               style: const TextStyle(color: Color(0xFF737599)),
             ),
           ),
-          CastAndCrew(casts: movie.cast),
+          // Prikaz komentara
+          Padding(
+            padding: const EdgeInsets.symmetric(
+                horizontal: kDefaultPadding, vertical: kDefaultPadding / 2),
+            child: Text(
+              "Komentari",
+              style: Theme.of(context).textTheme.headline6,
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: comments.map((comment) {
+              return Card(
+                margin: const EdgeInsets.symmetric(
+                    horizontal: kDefaultPadding,
+                    vertical: kDefaultPadding / 2),
+                child: ListTile(
+                  title: Text(comment.korisnikImePrezime ?? 'Nepoznat korisnik'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.star, color: Colors.yellow),
+                          Text(comment.ocjena.toString()),
+                        ],
+                      ),
+                      Text(comment.komentar),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          CastAndCrew(casts: widget.movie.cast),
         ],
       ),
+    );
+  }
+}
+
+class Comment {
+  final int idocjene;
+  final int korisnikId;
+  final int filmId;
+  final int ocjena;
+  final String komentar;
+  final DateTime datumOcjene;
+  String? korisnikImePrezime;
+
+  Comment({
+    required this.idocjene,
+    required this.korisnikId,
+    required this.filmId,
+    required this.ocjena,
+    required this.komentar,
+    required this.datumOcjene,
+  });
+
+  factory Comment.fromJson(Map<String, dynamic> json) {
+    return Comment(
+      idocjene: json['idocjene'],
+      korisnikId: json['korisnikId'],
+      filmId: json['filmId'],
+      ocjena: json['ocjena'],
+      komentar: json['komentar'],
+      datumOcjene: DateTime.parse(json['datumOcjene']),
+    );
+  }
+}
+
+class User {
+  final String ime;
+  final String prezime;
+
+  User({
+    required this.ime,
+    required this.prezime,
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      ime: json['ime'],
+      prezime: json['prezime'],
     );
   }
 }
