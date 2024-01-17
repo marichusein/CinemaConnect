@@ -68,9 +68,11 @@ class _GrickaliceMenuState extends State<GrickaliceMenu> {
           );
         },
       ),
+      // ignore: unnecessary_null_comparison
       floatingActionButton: selectedItemId != null
           ? FloatingActionButton(
              onPressed: () async {
+  // ignore: unnecessary_null_comparison
   if (selectedItemId != null) {
     // Prvo stvorite objekt koji ćete poslati na server
     final rezervacijaObj = {

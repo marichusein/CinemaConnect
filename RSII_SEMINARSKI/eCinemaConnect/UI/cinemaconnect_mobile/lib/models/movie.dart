@@ -354,6 +354,26 @@ class Movie {
     required this.plot,
     required this.cast,
   });
+
+  
+  factory Movie.fromJson(Map<String, dynamic> json) {
+    final String poster = json['filmPlakat'] ?? "assets/images/poster_5.jpg";
+
+    return Movie(
+      id: json['idfilma'],
+          title: json['nazivFilma'],
+          year: json['godinaIzdanja'],
+          poster: poster,
+          backdrop: "assets/images/backdrop_1.jpg", // You can set this as needed
+          numOfRatings: 0, // You can set this as needed
+          rating: 0.0, // You can set this as needed
+          criticsReview: 0, // You can set this as needed
+          metascoreRating: 0, // You can set this as needed
+          genra: [json['zanr']['nazivZanra']],
+          plot: json['opis'],
+          cast: [], // You can set this as nee
+    );
+  }
 }
 
 List<Movie> movies = [];

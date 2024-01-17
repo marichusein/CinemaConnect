@@ -19,12 +19,14 @@ namespace eCinemaConnect.Services.Service
         public IMapper _mapper { get; set; }
         public IReziser _reziseri { get; set; }
         public IZanrovi _zanrovi { get; set; }
-        public FilmoviService(CinemaContext context, IMapper mapper, IReziser reziseri, IZanrovi zanrovi)
+        public IOcijeni _ocijeni { get; set; }
+        public FilmoviService(CinemaContext context, IMapper mapper, IReziser reziseri, IZanrovi zanrovi, IOcijeni ocijeni)
         {
             _context = context;
             _mapper = mapper;
             _reziseri = reziseri;
             _zanrovi = zanrovi;
+            _ocijeni = ocijeni;
         }
         public FilmoviView AddFilm(FilmoviInsert filmoviInsert)
         {
@@ -37,7 +39,8 @@ namespace eCinemaConnect.Services.Service
 
             _context.Add(newFilm);
             _context.SaveChanges();
-            if(filmoviInsert.glumciUFlimu != null) {
+            if (filmoviInsert.glumciUFlimu != null)
+            {
                 foreach (GlumciView g in filmoviInsert.glumciUFlimu)
                 {
                     var glumacBaza = _mapper.Map<Glumci>(g);
@@ -50,7 +53,7 @@ namespace eCinemaConnect.Services.Service
                     _context.SaveChanges();
                 }
             }
-           
+
 
             return _mapper.Map<FilmoviView>(newFilm);
         }
@@ -149,5 +152,45 @@ namespace eCinemaConnect.Services.Service
 
             return _mapper.Map<FilmoviView>(film);
         }
+
+        public List<FilmoviView> GetPreprukuByKorisnikID(int korisnikId)
+        {
+
+            var ocjeneTrenutnogKorisnika = _context.OcjeneIkomentaris
+                .Where(x => x.KorisnikId == korisnikId)
+                .ToList();
+
+
+            var filmoviKorisnika = ocjeneTrenutnogKorisnika.Select(x => x.FilmId).ToList();
+
+
+            var slicniKorisnici = _context.OcjeneIkomentaris
+                .Where(x => filmoviKorisnika.Contains(x.FilmId) && x.KorisnikId != korisnikId)
+                .GroupBy(x => x.KorisnikId)
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .Take(5)
+                .ToList();
+
+
+            var preporuceniFilmovi = _context.OcjeneIkomentaris
+                .Where(x => slicniKorisnici.Contains(x.KorisnikId) && x.Ocjena > 3)
+                .GroupBy(x => x.FilmId)
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .Take(10)
+                .ToList();
+
+
+            var preporuceniFilmoviDetalji = _context.Filmovis
+                .Where(x => preporuceniFilmovi.Contains(x.Idfilma)).Include(z => z.Zanr).Include(r => r.Reziser)
+                .Select(f => _mapper.Map<FilmoviView>(f))
+                .ToList();
+
+
+            return preporuceniFilmoviDetalji;
+        }
+
+
     }
 }

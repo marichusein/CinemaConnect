@@ -3,6 +3,7 @@ import 'package:cinemaconnect_mobile/screens/home/components/categories.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/details/components/NewsCards.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/gener_card.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/moviecarousel.dart';
+import 'package:cinemaconnect_mobile/screens/home/components/preporuka.dart';
 import 'package:flutter/material.dart';
 
 class Body extends StatefulWidget {
@@ -63,7 +64,12 @@ class _BodyState extends State<Body> {
             NewsCarousel(
               key: Key('news_${widget.searchQuery}'),
                 searchQuery: widget.searchQuery,
-                KorisnikID: widget.KorisnikID), // Dodajte searchQuery
+                KorisnikID: widget.KorisnikID),
+                 // Dodajte searchQuery
+                  if (selectedCategory == "Preporuka")
+            Preporuka(
+              key: Key('news_${widget.searchQuery}'),
+                 IDKorisnika: widget.KorisnikID,),
         ],
       ),
     );

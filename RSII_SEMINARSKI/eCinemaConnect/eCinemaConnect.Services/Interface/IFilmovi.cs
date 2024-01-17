@@ -21,5 +21,7 @@ namespace eCinemaConnect.Services.Interface
         List<Model.ViewRequests.FilmoviView> GetFilmoviByZanr(int id);
         List<Model.ViewRequests.FilmoviView> GetFilmoviByMultipleFilters(int? zanrid, int? glumacid, int? reziserid);
 
+        List<Model.ViewRequests.FilmoviView> GetPreprukuByKorisnikID(int korisnikid);
+
     }
 }

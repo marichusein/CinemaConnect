@@ -4,6 +4,7 @@ using eCinemaConnect.Model.UpdateRequests;
 using eCinemaConnect.Services;
 using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 //using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,13 +18,13 @@ namespace eCinemaConnect.Controllers
 
         public FilmoviController(IFilmovi filmovi)
         {
-           _filmovi=filmovi;
+            _filmovi = filmovi;
         }
 
         [HttpGet()]
         public IEnumerable<Model.ViewRequests.FilmoviView> Get()
         {
-           return _filmovi.GetAll();
+            return _filmovi.GetAll();
         }
 
         [HttpGet("zanr/{zanrid}")]
@@ -63,6 +64,12 @@ namespace eCinemaConnect.Controllers
         public IEnumerable<Model.ViewRequests.FilmoviView> GetByMultipleFilters(int? zanrid, int? glumacid, int? reziserid)
         {
             return _filmovi.GetFilmoviByMultipleFilters(zanrid, glumacid, reziserid);
+        }
+
+        [HttpGet("preporuka")]
+        public IEnumerable<Model.ViewRequests.FilmoviView> GetPreporuka(int korisnikid)
+        {
+            return _filmovi.GetPreprukuByKorisnikID(korisnikid);
         }
 
 

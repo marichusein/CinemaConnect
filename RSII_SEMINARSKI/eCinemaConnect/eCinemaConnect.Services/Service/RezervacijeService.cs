@@ -40,7 +40,7 @@ namespace eCinemaConnect.Services.Service
 
             _context.SaveChanges();
 
-            if (novaRezervacija.MeniGrickalica != null)
+            if (novaRezervacija.MeniGrickalica != null && novaRezervacija.MeniGrickalica!=0)
             {
                 var rezervacijgricklaice = new RezervacijeMeniGrickalica()
                 {

@@ -7,6 +7,8 @@ import 'package:cinemaconnect_mobile/screens/home/components/details/components/
 import 'backdrop_rating.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
 
 class BodyD extends StatefulWidget {
   final Movie movie;
@@ -21,15 +23,18 @@ class BodyD extends StatefulWidget {
 
 class _BodyDState extends State<BodyD> {
   List<Comment> comments = [];
+  List<Movie> recommendedMovies = [];
 
   @override
   void initState() {
     super.initState();
     loadComments();
+    loadRecommendations();
   }
 
   Future<void> loadComments() async {
-    final url = 'https://localhost:7036/OcijeniFilm/film/${widget.movie.id}'; // Zamijenite s pravim URL-om
+    final url =
+        'https://localhost:7036/OcijeniFilm/film/${widget.movie.id}'; // Zamijenite s pravim URL-om
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
@@ -54,6 +59,29 @@ class _BodyDState extends State<BodyD> {
     }
   }
 
+  Future<List<Movie>> fetchRecommendations(int userId) async {
+    final url = 'https://localhost:7036/Filmovi/preporuka?korisnikid=$userId';
+    final response = await http.get(Uri.parse(url));
+
+    if (response.statusCode == 200) {
+      final List<dynamic> movieData = json.decode(response.body);
+      return movieData.map((data) => Movie.fromJson(data)).toList();
+    } else {
+      throw Exception('Failed to load recommendations');
+    }
+  }
+
+  Future<void> loadRecommendations() async {
+    try {
+      final recommendations = await fetchRecommendations(widget.KorisnikID);
+      setState(() {
+        recommendedMovies = recommendations;
+      });
+    } catch (e) {
+      print('Error loading recommendations: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -62,11 +90,15 @@ class _BodyDState extends State<BodyD> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          BackdropRating(size: size, movie: widget.movie, korisnikID: widget.KorisnikID),
+          BackdropRating(
+              size: size, movie: widget.movie, korisnikID: widget.KorisnikID),
           const SizedBox(
             height: kDefaultPadding / 2,
           ),
-          TitleAndBasicInfo(movie: widget.movie, KorisnikID: widget.KorisnikID,),
+          TitleAndBasicInfo(
+            movie: widget.movie,
+            KorisnikID: widget.KorisnikID,
+          ),
           Geners(movie: widget.movie),
           Padding(
             padding: const EdgeInsets.symmetric(
@@ -97,10 +129,10 @@ class _BodyDState extends State<BodyD> {
             children: comments.map((comment) {
               return Card(
                 margin: const EdgeInsets.symmetric(
-                    horizontal: kDefaultPadding,
-                    vertical: kDefaultPadding / 2),
+                    horizontal: kDefaultPadding, vertical: kDefaultPadding / 2),
                 child: ListTile(
-                  title: Text(comment.korisnikImePrezime ?? 'Nepoznat korisnik'),
+                  title:
+                      Text(comment.korisnikImePrezime ?? 'Nepoznat korisnik'),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -117,6 +149,46 @@ class _BodyDState extends State<BodyD> {
               );
             }).toList(),
           ),
+          // Prikaz preporučenih filmova
+         // Prikaz preporučenih filmova
+Padding(
+  padding: const EdgeInsets.symmetric(
+      horizontal: kDefaultPadding, vertical: kDefaultPadding / 2),
+  child: Text(
+    "Preporučeni filmovi",
+    style: Theme.of(context).textTheme.headline6,
+  ),
+),
+recommendedMovies.isEmpty
+    ? SpinKitCircle(color: Colors.blue) // Dodajte animaciju učitavanja
+    : Column(
+        children: recommendedMovies.map((movie) {
+          return GestureDetector(
+            onTap: () {
+              // Otvorite detalje za odabrani film
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => BodyD(
+                    movie: movie,
+                    KorisnikID: widget.KorisnikID,
+                  ),
+                ),
+              );
+            },
+            child: Card(
+              margin: const EdgeInsets.symmetric(
+                  horizontal: kDefaultPadding,
+                  vertical: kDefaultPadding / 2),
+              child: ListTile(
+                title: Text(movie.title),
+                // Dodajte ostale informacije o filmu ovdje
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+
           CastAndCrew(casts: widget.movie.cast),
         ],
       ),
