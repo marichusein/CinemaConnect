@@ -2,6 +2,15 @@
 
 Welcome to **Cinema Connect**, where the magic of cinema comes alive in the palm of your hand. Our cutting-edge Theater Management System User Mobile Application is your gateway to an extraordinary world of entertainment, interaction, and immersion. Get ready to embark on a cinematic journey like never before !
 
+## Login data 🌟
+### Mobile app 
+- Username: korisnik
+- Password: korisnik
+
+### Desktop app
+- Username: admin
+- Password: admin
+
 ## 🌟 Features That Define Your Experience 🌟
 
 ### 🎭 Show Discovery at Your Fingertips
