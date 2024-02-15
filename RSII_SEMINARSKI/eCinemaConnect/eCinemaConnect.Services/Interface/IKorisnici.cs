@@ -15,6 +15,7 @@ namespace eCinemaConnect.Services.Interface
         KorisniciView Login(KorisniciLogin login);
         SiginUpResult SiginUp(KorisniciRegistration registration);
         KorisniciView UpdateProfiil(int id, KorisniciUpdate obj);
+        void SendMail(int korisnikID);
 
     }
 }

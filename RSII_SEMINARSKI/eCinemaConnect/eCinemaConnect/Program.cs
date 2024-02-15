@@ -3,6 +3,7 @@ using eCinemaConnect.Model;
 using eCinemaConnect.Services;
 using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
+using eCinemaConnect.Services.RabbitMQ;
 using eCinemaConnect.Services.Service;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
@@ -29,6 +30,8 @@ builder.Services.AddTransient<IObavijesti, ObavijestiService>();
 builder.Services.AddTransient<IOcijeni, OcijeniFilmService>();
 builder.Services.AddTransient<IKomentariObavijesti, KomentariObavijestiService>();
 builder.Services.AddTransient<IRezervacije, RezervacijeService>();
+builder.Services.AddTransient<IRabbitMQProducer, RabbitMQProducer>();
+
 
 
 

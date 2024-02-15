@@ -229,7 +229,7 @@ class _ProjekcijeSjedistaKomponentaState
                   onPressed: () {
                     Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => GrickaliceMenu(KorisnikID: widget.korisnikID, selektovanaSjedista: selektovanaSjedista, odabranaProjekcija:idprojekcije ,),
+          builder: (context) => GrickaliceMenu(KorisnikID: widget.korisnikID, selektovanaSjedista: selektovanaSjedista, odabranaProjekcija:idprojekcije, Cijena: selektovanaSjedista.length * cijenaProjekcija),
         ),
       );
                   },

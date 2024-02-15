@@ -1,5 +1,6 @@
 import 'package:ecinemadesktop/forms/ActorForm.dart';
 import 'package:ecinemadesktop/forms/AllActors.dart';
+import 'package:ecinemadesktop/forms/BusinessReportForm.dart';
 import 'package:ecinemadesktop/forms/CreateAccountForm.dart';
 import 'package:ecinemadesktop/forms/DirectorForm.dart';
 import 'package:ecinemadesktop/forms/EditProfile.dart';
@@ -268,8 +269,14 @@ class UserDashboard extends StatelessWidget {
                           )),
                       _buildNavItem(Icons.newspaper_rounded,
                           'Pregled obavijesti', context, NotificationScreen()),
-                            _buildNavItem(Icons.movie_edit,
-                          'Nova projekcija', context, DodavanjeProjekcijeScreen()),
+                      _buildNavItem(Icons.movie_edit, 'Nova projekcija',
+                          context, DodavanjeProjekcijeScreen()),
+                      _buildNavItem(
+                        Icons.insert_chart_outlined, // Ikona za izvještaje
+                        'Kreiraj izvještaj poslovanja', // Tekst za dugme
+                        context,
+                        BusinessReportForm(), // Destinacija je BusinessReportForm
+                      ),
                     ],
                   ),
                 ],

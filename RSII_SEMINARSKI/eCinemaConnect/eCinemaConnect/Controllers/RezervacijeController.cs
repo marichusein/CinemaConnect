@@ -25,6 +25,49 @@ namespace eCinemaConnect.Controllers
         {
            return _glumci.GetAll();
         }
+
+        [HttpGet("brojkarata")]
+        public IActionResult GetBrojKarata(DateTime? od = null, DateTime? doo = null)
+        {
+            try
+            {
+                var rezultat = _glumci.BrojKupljenihKarataPoFilmu(od, doo);
+                return Ok(rezultat);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Došlo je do greške prilikom dobavljanja broja karata: " + ex.Message);
+            }
+        }
+
+        [HttpGet("zardaFilma")]
+        public IActionResult GetZaradu(DateTime? od = null, DateTime? doo = null)
+        {
+            try
+            {
+                var rezultat = _glumci.ZaradaOdFilmova(od, doo);
+                return Ok(rezultat);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Došlo je do greške prilikom dobavljanja broja karata: " + ex.Message);
+            }
+        }
+
+        [HttpGet("kartePoZanru")]
+        public IActionResult GetKartePoZanru()
+        {
+            try
+            {
+                var rezultat = _glumci.BrojProdatihKarataPoZanru();
+                return Ok(rezultat);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Došlo je do greške prilikom dobavljanja broja karata: " + ex.Message);
+            }
+        }
+
         [HttpGet("{id}")]
         public Model.ViewRequests.RezervacijaView GetById(int id)
         {

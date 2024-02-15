@@ -31,7 +31,7 @@ class _DodajReziseraFormaState extends State<DodajReziseraForma> {
                 controller: _imeController,
                 decoration: InputDecoration(labelText: 'Ime'),
                 validator: (value) {
-                  if (value!.isEmpty || !value!.startsWith(RegExp(r'[A-Z]'))) {
+                  if (value!.isEmpty || !value.startsWith(RegExp(r'[A-Z]'))) {
                     return 'Unesite ime počevši velikim slovom';
                   }
                   return null;
@@ -41,7 +41,7 @@ class _DodajReziseraFormaState extends State<DodajReziseraForma> {
                 controller: _prezimeController,
                 decoration: InputDecoration(labelText: 'Prezime'),
                 validator: (value) {
-                  if (value!.isEmpty || !value!.startsWith(RegExp(r'[A-Z]'))) {
+                  if (value!.isEmpty || !value.startsWith(RegExp(r'[A-Z]'))) {
                     return 'Unesite prezime počevši velikim slovom';
                   }
                   return null;

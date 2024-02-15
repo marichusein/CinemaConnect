@@ -4,6 +4,7 @@ using eCinemaConnect.Model.UpdateRequests;
 using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
+using eCinemaConnect.Services.RabbitMQ;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,11 +19,13 @@ namespace eCinemaConnect.Services.Service
         CinemaContext _context;
         public IMapper _mapper { get; set; }
         public ITipGledatelja _tipGledatelja { get; set; }
-        public KorisniciService(CinemaContext context, IMapper mapper, ITipGledatelja tipGledatelja) : base(context, mapper)
+        private readonly IRabbitMQProducer _rabbitMQProducer;
+        public KorisniciService(CinemaContext context, IMapper mapper, ITipGledatelja tipGledatelja, IRabbitMQProducer rabbitMQProducer) : base(context, mapper)
         {
             _context = context;
             _mapper = mapper;
             _tipGledatelja = tipGledatelja;
+            _rabbitMQProducer= rabbitMQProducer;
         }
 
         public KorisniciView Login(KorisniciLogin login)
@@ -174,5 +177,27 @@ namespace eCinemaConnect.Services.Service
             return updatedKorisnikView;
         }
 
+        public void SendMail(int korisnikID)
+        {
+
+            var objektMail = new EmailModel();
+            objektMail.Recipient = _context.Korisnicis.Where(x => x.Idkorisnika == korisnikID).FirstOrDefault().Email??"husein.maric@edu.fit.ba";
+            objektMail.Subject = "SENDING";
+            objektMail.Content="SUPER";
+            try
+            {
+                _rabbitMQProducer.SendMessage(objektMail);
+                Thread.Sleep(TimeSpan.FromSeconds(15));
+                
+            }
+            catch (Exception ex)
+            {
+                
+            }
+
+        }
+
     }
+
+   
 }

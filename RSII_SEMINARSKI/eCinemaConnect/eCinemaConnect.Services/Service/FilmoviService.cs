@@ -153,43 +153,85 @@ namespace eCinemaConnect.Services.Service
             return _mapper.Map<FilmoviView>(film);
         }
 
+
         public List<FilmoviView> GetPreprukuByKorisnikID(int korisnikId)
         {
-
-            var ocjeneTrenutnogKorisnika = _context.OcjeneIkomentaris
+            var ocjeneKorisnika = _context.OcjeneIkomentaris
                 .Where(x => x.KorisnikId == korisnikId)
                 .ToList();
 
+            if (ocjeneKorisnika.Count == 0)
+            {
+                // Ako korisnik nije ocijenio nijedan film, vrati praznu listu
+                return new List<FilmoviView>();
+            }
 
-            var filmoviKorisnika = ocjeneTrenutnogKorisnika.Select(x => x.FilmId).ToList();
+            var filmoviKorisnika = ocjeneKorisnika.Select(x => x.FilmId).ToList();
 
+            // Izračunaj matricu sličnosti korisnika
+            var matricaSlicnosti = new Dictionary<int, double>(); // KorisnikId, Slicnost
+            foreach (var filmId in filmoviKorisnika)
+            {
+                var korisniciKojiSuOceniliFilm = _context.OcjeneIkomentaris
+                    .Where(x => x.FilmId == filmId && x.KorisnikId != korisnikId)
+                    .Select(x => x.KorisnikId)
+                    .Distinct()
+                    .ToList();
 
-            var slicniKorisnici = _context.OcjeneIkomentaris
-                .Where(x => filmoviKorisnika.Contains(x.FilmId) && x.KorisnikId != korisnikId)
-                .GroupBy(x => x.KorisnikId)
-                .OrderByDescending(g => g.Count())
-                .Select(g => g.Key)
+                foreach (var korisnik in korisniciKojiSuOceniliFilm)
+                {
+                    if (!matricaSlicnosti.ContainsKey((int)korisnik))
+                        matricaSlicnosti[(int)korisnik] = 0;
+
+                    matricaSlicnosti[(int)korisnik] += 1; // Možete koristiti neki drugi metod za izračunavanje sličnosti
+                }
+            }
+
+            // Sortiraj korisnike po sličnosti i odaberi najslinih 5
+            var slicniKorisnici = matricaSlicnosti
+                .OrderByDescending(kv => kv.Value)
                 .Take(5)
+                .Select(kv => kv.Key)
                 .ToList();
 
+            // Generiraj preporuke na temelju sličnih korisnika
+            var preporuceniFilmovi = new List<int?>();
+            if (slicniKorisnici.Count > 0)
+            {
+                preporuceniFilmovi = _context.OcjeneIkomentaris
+                    .Where(x => slicniKorisnici.Contains((int)x.KorisnikId) && x.Ocjena > 3)
+                    .GroupBy(x => x.FilmId)
+                    .OrderByDescending(g => g.Count())
+                    .Select(g => g.Key)
+                    .Take(10)
+                    .ToList();
+            }
+            else
+            {
+                // Ako nema dovoljno sličnih korisnika, pronađi po dva najbolje ocijenjena filma
+                var ocjenePoFilmu = _context.OcjeneIkomentaris
+                    .Where(x => x.KorisnikId != korisnikId && filmoviKorisnika.Contains(x.FilmId))
+                    .GroupBy(x => x.FilmId)
+                    .Select(g => new { FilmId = g.Key, ProsjecnaOcjena = g.Average(x => x.Ocjena) })
+                    .OrderByDescending(x => x.ProsjecnaOcjena)
+                    .Take(2)
+                    .Select(x => x.FilmId)
+                    .ToList();
 
-            var preporuceniFilmovi = _context.OcjeneIkomentaris
-                .Where(x => slicniKorisnici.Contains(x.KorisnikId) && x.Ocjena > 3)
-                .GroupBy(x => x.FilmId)
-                .OrderByDescending(g => g.Count())
-                .Select(g => g.Key)
-                .Take(10)
-                .ToList();
-
+                preporuceniFilmovi.AddRange((IEnumerable<int?>)ocjenePoFilmu);
+            }
 
             var preporuceniFilmoviDetalji = _context.Filmovis
-                .Where(x => preporuceniFilmovi.Contains(x.Idfilma)).Include(z => z.Zanr).Include(r => r.Reziser)
-                .Select(f => _mapper.Map<FilmoviView>(f))
+                .Where(x => preporuceniFilmovi.Contains(x.Idfilma))
+                .Include(z => z.Zanr)
+                .Include(r => r.Reziser)
                 .ToList();
 
+            var preporuceniFilmoviView = _mapper.Map<List<FilmoviView>>(preporuceniFilmoviDetalji);
 
-            return preporuceniFilmoviDetalji;
+            return preporuceniFilmoviView;
         }
+
 
 
     }

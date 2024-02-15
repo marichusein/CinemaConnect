@@ -4,6 +4,7 @@ using eCinemaConnect.Model.UpdateRequests;
 using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace eCinemaConnect.Services.Service
 
             _context.SaveChanges();
 
-            if (novaRezervacija.MeniGrickalica != null && novaRezervacija.MeniGrickalica!=0)
+            if (novaRezervacija.MeniGrickalica != null && novaRezervacija.MeniGrickalica != 0)
             {
                 var rezervacijgricklaice = new RezervacijeMeniGrickalica()
                 {
@@ -53,6 +54,59 @@ namespace eCinemaConnect.Services.Service
 
             return _mapper.Map<RezervacijaView>(newR);
         }
+
+
+        // Vaš postojeći kod
+
+        public Dictionary<string, int> BrojKupljenihKarataPoFilmu(DateTime? datumOd, DateTime? datumDo)
+        {
+            IQueryable<Rezervacije> rezervacijeQuery = _context.Rezervacijes;
+
+            if (datumOd.HasValue && datumDo.HasValue)
+            {
+                rezervacijeQuery = rezervacijeQuery.Where(r => r.Projekcija != null && r.Projekcija.DatumVrijemeProjekcije >= datumOd && r.Projekcija.DatumVrijemeProjekcije <= datumDo);
+            }
+
+            var rezervacijePoFilmu = rezervacijeQuery
+                .Where(r => r.Kupljeno == true && r.Projekcija != null && r.Projekcija.Film != null)
+                .GroupBy(r => r.Projekcija.Film.NazivFilma)
+                .Select(g => new { Film = g.Key, BrojKarata = g.Sum(r => r.BrojRezervisanihKarata ?? 0) })
+                .ToDictionary(x => x.Film, x => x.BrojKarata);
+
+            return rezervacijePoFilmu;
+        }
+
+        public Dictionary<string, int> ZaradaOdFilmova(DateTime? datumOd, DateTime? datumDo)
+        {
+            IQueryable<Rezervacije> rezervacijeQuery = _context.Rezervacijes;
+
+            if (datumOd.HasValue && datumDo.HasValue)
+            {
+                rezervacijeQuery = rezervacijeQuery.Where(r => r.Projekcija != null && r.Projekcija.DatumVrijemeProjekcije >= datumOd && r.Projekcija.DatumVrijemeProjekcije <= datumDo);
+            }
+
+            var zaradaPoFilmu = rezervacijeQuery
+                .Where(r => r.Kupljeno == true && r.Projekcija != null && r.Projekcija.Film != null)
+                .GroupBy(r => r.Projekcija.Film.NazivFilma)
+                .Select(g => new { Film = g.Key, Zarada = g.Sum(r => (r.BrojRezervisanihKarata ?? 0) * (r.Projekcija.CijenaKarte ?? 0)) })
+                .ToDictionary(x => x.Film, x => (int)x.Zarada);
+
+            return zaradaPoFilmu;
+        }
+
+        public Dictionary<string, int> BrojProdatihKarataPoZanru()
+        {
+            var brojKarataPoZanru = _context.Rezervacijes
+                .Where(r => r.Kupljeno == true && r.Projekcija != null && r.Projekcija.Film != null && r.Projekcija.Film.Zanr != null)
+                .GroupBy(r => r.Projekcija.Film.Zanr.NazivZanra)
+                .Select(g => new { Zanr = g.Key, BrojKarata = g.Sum(r => r.BrojRezervisanihKarata ?? 0) })
+                .ToDictionary(x => x.Zanr, x => x.BrojKarata);
+
+            return brojKarataPoZanru;
+        }
+
+
+
 
     }
 }

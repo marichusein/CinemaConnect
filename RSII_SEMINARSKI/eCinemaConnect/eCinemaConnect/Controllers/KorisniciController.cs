@@ -72,5 +72,13 @@ namespace eCinemaConnect.Controllers
             return _korisnici.DeleteById(id);
         }
 
+        [HttpPost("sendMail")]
+        public void SendMail(int korisnikID)
+        {
+             _korisnici.SendMail(korisnikID);
+
+           
+        }
+
     }
 }
