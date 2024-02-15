@@ -36,7 +36,7 @@ class _ZanrReportState extends State<ZanrReport> {
       _isLoading = true;
     });
 
-    final url = Uri.parse('https://localhost:7036/Rezervacije/kartePoZanru');
+    final url = Uri.parse('https://localhost:7125/Rezervacije/kartePoZanru');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

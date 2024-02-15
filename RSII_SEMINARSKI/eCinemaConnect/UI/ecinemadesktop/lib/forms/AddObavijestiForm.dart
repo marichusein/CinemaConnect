@@ -47,7 +47,7 @@ class _ObavijestFormState extends State<ObavijestForm> {
 
       // Slanje obavijesti na server
       final response = await http.post(
-        Uri.parse('https://localhost:7036/Obavijesti'),
+        Uri.parse('https://localhost:7125/Obavijesti'),
         headers: {
           'Content-Type': 'application/json',
         },

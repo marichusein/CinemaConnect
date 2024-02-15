@@ -51,7 +51,7 @@ class _NewsDetailsScreenState extends State<NewsDetailsScreen> {
 
   Future<String> getUserName(int userId) async {
   try {
-    final response = await http.get(Uri.parse('https://localhost:7036/Korisnici/$userId'));
+    final response = await http.get(Uri.parse('https://localhost:7125/Korisnici/$userId'));
     if (response.statusCode == 200) {
       final Map<String, dynamic> userData = json.decode(response.body);
       final String userName = '${userData['ime']} ${userData['prezime']}';
@@ -66,7 +66,7 @@ class _NewsDetailsScreenState extends State<NewsDetailsScreen> {
 
 Future<void> loadComments() async {
   try {
-    final response = await http.get(Uri.parse('https://localhost:7036/KomentariObavijesti/obavijesti/${widget.news.id}'));
+    final response = await http.get(Uri.parse('https://localhost:7125/KomentariObavijesti/obavijesti/${widget.news.id}'));
     if (response.statusCode == 200) {
       final List<dynamic> jsonComments = json.decode(response.body);
 
@@ -113,7 +113,7 @@ Future<void> loadComments() async {
     };
 
     final response = await http.post(
-        Uri.parse('https://localhost:7036/KomentariObavijesti'),
+        Uri.parse('https://localhost:7125/KomentariObavijesti'),
         body: json.encode(commentData),
         headers: {
           'Content-Type': 'application/json',

@@ -35,7 +35,7 @@ class _PreporukaState extends State<Preporuka> {
 
 
   Future<double> fetchMovieRating(int movieId) async {
-  final Uri url = Uri.parse('https://localhost:7036/film?id=$movieId');
+  final Uri url = Uri.parse('https://localhost:7125/film?id=$movieId');
   final response = await http.get(url);
 
   if (response.statusCode == 200) {
@@ -50,7 +50,7 @@ class _PreporukaState extends State<Preporuka> {
 
   Future<void> fetchMovies() async {
     int id=widget.IDKorisnika;
-    final Uri url = Uri.parse('https://localhost:7036/Filmovi/preporuka?korisnikid=$id');
+    final Uri url = Uri.parse('https://localhost:7125/Filmovi/preporuka?korisnikid=$id');
     final response = await http.get(url);
 
     if (mounted) {
@@ -274,7 +274,7 @@ class MovieCard extends StatelessWidget {
 
   Future<List<String>> fetchProjections(int movieId) async {
     final Uri url =
-        Uri.parse('https://localhost:7036/Projekcije/film/$movieId');
+        Uri.parse('https://localhost:7125/Projekcije/film/$movieId');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

@@ -45,7 +45,7 @@ class _ActorFormState extends State<ActorForm> {
       'slika': slikaBase64,
     };
 
-    Uri url = Uri.parse('https://localhost:7036/Glumci');
+    Uri url = Uri.parse('https://localhost:7125/Glumci');
     var response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},

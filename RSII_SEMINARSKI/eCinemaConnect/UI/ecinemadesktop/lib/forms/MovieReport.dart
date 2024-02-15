@@ -34,7 +34,7 @@ class _MovieReportState extends State<MovieReport> {
       _isLoading = true;
     });
 
-    final url = Uri.parse('https://localhost:7036/Rezervacije/brojkarata');
+    final url = Uri.parse('https://localhost:7125/Rezervacije/brojkarata');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

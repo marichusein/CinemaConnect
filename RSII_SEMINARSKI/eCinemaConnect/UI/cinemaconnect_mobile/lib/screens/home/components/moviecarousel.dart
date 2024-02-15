@@ -40,7 +40,7 @@ class _MovieCarouselState extends State<MovieCarousel> {
   }
 
   Future<double> fetchMovieRating(int movieId) async {
-  final Uri url = Uri.parse('https://localhost:7036/film?id=$movieId');
+  final Uri url = Uri.parse('https://localhost:7125/film?id=$movieId');
   final response = await http.get(url);
 
   if (response.statusCode == 200) {
@@ -54,7 +54,7 @@ class _MovieCarouselState extends State<MovieCarousel> {
 
 
   Future<void> fetchMovies() async {
-    final Uri url = Uri.parse('https://localhost:7036/Filmovi');
+    final Uri url = Uri.parse('https://localhost:7125/Filmovi');
     final response = await http.get(url);
 
     if (mounted) {
@@ -281,7 +281,7 @@ class MovieCard extends StatelessWidget {
 
   Future<List<String>> fetchProjections(int movieId) async {
     final Uri url =
-        Uri.parse('https://localhost:7036/Projekcije/film/$movieId');
+        Uri.parse('https://localhost:7125/Projekcije/film/$movieId');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

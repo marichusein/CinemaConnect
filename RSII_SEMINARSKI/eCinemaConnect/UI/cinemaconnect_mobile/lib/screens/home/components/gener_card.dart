@@ -24,7 +24,7 @@ class _GenresState extends State<Genres> {
   }
 
   Future<void> fetchGenres() async {
-    final response = await http.get(Uri.parse('https://localhost:7036/Zanrovi'));
+    final response = await http.get(Uri.parse('https://localhost:7125/Zanrovi'));
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);

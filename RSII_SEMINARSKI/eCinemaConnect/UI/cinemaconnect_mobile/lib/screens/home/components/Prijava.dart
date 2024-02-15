@@ -49,7 +49,7 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
     final response = await http.post(
-      Uri.parse('https://localhost:7036/Korisnici/siginup'),
+      Uri.parse('https://localhost:7125/Korisnici/siginup'),
       headers: <String, String>{
         'accept': 'text/plain',
         'Content-Type': 'application/json',

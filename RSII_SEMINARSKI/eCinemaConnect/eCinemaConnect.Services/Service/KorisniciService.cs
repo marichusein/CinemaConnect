@@ -181,9 +181,10 @@ namespace eCinemaConnect.Services.Service
         {
 
             var objektMail = new EmailModel();
-            objektMail.Recipient = _context.Korisnicis.Where(x => x.Idkorisnika == korisnikID).FirstOrDefault().Email??"husein.maric@edu.fit.ba";
-            objektMail.Subject = "SENDING";
-            objektMail.Content="SUPER";
+            objektMail.Recipient = _context.Korisnicis.Where(x => x.Idkorisnika == korisnikID).FirstOrDefault().Email ?? "husein.maric@edu.fit.ba";
+            objektMail.Subject = "CinemaConnect - Vaš prozor u svijet filma";
+            objektMail.Content = $"Poštovani,\n\nPozivamo vas da uđete u svijet filma posjetom vašem korisničkom nalogu na CinemaConnect platformi. Tamo ćete pronaći najnovije filmove, recenzije, preporuke i još mnogo toga.\n\nSrdačan pozdrav,\nVaš CinemaConnect tim";
+
             try
             {
                 _rabbitMQProducer.SendMessage(objektMail);

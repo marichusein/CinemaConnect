@@ -80,7 +80,7 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
 
   Future<void> preuzmiFilmove() async {
     final response =
-        await http.get(Uri.parse('https://localhost:7036/Filmovi'));
+        await http.get(Uri.parse('https://localhost:7125/Filmovi'));
 
     if (response.statusCode == 200) {
       final List<dynamic> filmoviData = json.decode(response.body);
@@ -94,7 +94,7 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
   }
 
   Future<void> preuzmiSale() async {
-    final response = await http.get(Uri.parse('https://localhost:7036/Sale'));
+    final response = await http.get(Uri.parse('https://localhost:7125/Sale'));
 
     if (response.statusCode == 200) {
       final List<dynamic> saleData = json.decode(response.body);

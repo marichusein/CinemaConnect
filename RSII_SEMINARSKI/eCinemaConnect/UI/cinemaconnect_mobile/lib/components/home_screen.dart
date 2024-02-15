@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 Future<void> fetchUserData() async {
     final response = await http.get(
-      Uri.parse('https://localhost:7036/Korisnici/${widget.userId}'),
+      Uri.parse('https://localhost:7125/Korisnici/${widget.userId}'),
     );
 
     if (response.statusCode == 200) {
@@ -49,7 +49,7 @@ Future<void> fetchUserData() async {
 
   Future<void> updateUserData() async {
     final response = await http.put(
-      Uri.parse('https://localhost:7036/Korisnici/${widget.userId}'),
+      Uri.parse('https://localhost:7125/Korisnici/${widget.userId}'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'ime': firstName,

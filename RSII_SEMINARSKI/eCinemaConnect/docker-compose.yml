@@ -1,47 +1,85 @@
 version: '3'
-
 services:
-  web:
+  ecinemaconnect-sql:
     build:
       context: .
-      dockerfile: Dockerfile  # Update with your Dockerfile name
+      dockerfile: Dockerfile.sqlserver
     restart: unless-stopped
-    ports:
-      - "5204:5204"
     environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=QWElkj132!
+      - MSSQL_PID=Developer
+    ports:
+      - "1401:1433"
+    expose:
+      - 1433
+    networks:
+      - ecinemaconnectnet
+      
+  ecinemaconnect-api:
+    restart: unless-stopped
+    build:
+      context: .
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=ecinemaconnect-sql,1433;Database=Cinema;User=sa;Password=QWElkj132!;ConnectRetryCount=0;TrustServerCertificate=True;MultipleActiveResultSets=true
       - ASPNETCORE_ENVIRONMENT=Development
-    depends_on:
-      - sql-server
-      - rabbitmq
-
-  sql-server:
-    image: mcr.microsoft.com/mssql/server
-    environment:
-      SA_PASSWORD: "Agencija1!"
-      ACCEPT_EULA: "Y"
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - SMTP_SERVER=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USERNAME=cinemaconnectbusiness@gmail.com
+      - SMTP_PASSWORD=bgtrwkasbwknntas
+      - API_HOST=localhost
+      - API_PORT=7125
     ports:
-      - "1433:1433"
-
+      - "7125:7125" 
+    networks:
+      - ecinemaconnectnet
+    depends_on:
+      - ecinemaconnect-sql
+      
   rabbitmq:
-    image: rabbitmq:latest
+    image: rabbitmq:management
+    container_name: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
     ports:
       - "5672:5672"
-
-  rabbitmq-consumer:
+      - "15672:15672"
+    networks:
+      - ecinemaconnectnet  
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+      
+  rabbitmq-service:
+    restart: unless-stopped
     build:
       context: .
-      dockerfile: ./RabbitMQConsumer/Dockerfile  # Update with the correct path
-    restart: unless-stopped
+      dockerfile: ./RabbitMQConsumer/Dockerfile
     environment:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
       - RABBITMQ_USERNAME=guest
       - RABBITMQ_PASSWORD=guest
+      - SMTP_SERVER=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USERNAME=cinemaconnectbusiness@gmail.com
+      - SMTP_PASSWORD=bgtrwkasbwknntas
+      - API_HOST=localhost
+      - API_PORT=7125
     depends_on:
       - rabbitmq
+      - ecinemaconnect-api
+      - ecinemaconnect-sql
     networks:
-      - discoverhscountrynet
-
+      - ecinemaconnectnet
+      
+volumes:
+  rabbitmq_data:
+  
 networks:
-  discoverhscountrynet:
+  ecinemaconnectnet:
     driver: bridge

@@ -27,7 +27,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Future<void> fetchNotifications() async {
     final response =
-        await http.get(Uri.parse("https://localhost:7036/Obavijesti"));
+        await http.get(Uri.parse("https://localhost:7125/Obavijesti"));
     if (response.statusCode == 200) {
       final List<dynamic> responseData = json.decode(response.body);
 
@@ -41,7 +41,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
   Future<Map<String, dynamic>> fetchUser(int userId) async {
     final response =
-        await http.get(Uri.parse("https://localhost:7036/Korisnici/$userId"));
+        await http.get(Uri.parse("https://localhost:7125/Korisnici/$userId"));
     if (response.statusCode == 200) {
       return json.decode(response.body);
     } else {

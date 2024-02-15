@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "eCinemaConnect.Services": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:53553;http://localhost:53554"
+    }
+  }
+}

@@ -48,7 +48,7 @@ class _GlumciScreenState extends State<GlumciScreen> {
   }
 
   Future<void> fetchGlumci() async {
-    final response = await http.get(Uri.parse('https://localhost:7036/Glumci'));
+    final response = await http.get(Uri.parse('https://localhost:7125/Glumci'));
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body) as List<dynamic>;
       setState(() {
@@ -120,7 +120,7 @@ class _GlumciScreenState extends State<GlumciScreen> {
 
   Future<void> updateGlumac(int id) async {
     final selectedGlumac = glumci.firstWhere((glumac) => glumac.id == id);
-    final url = 'https://localhost:7036/Glumci/$id';
+    final url = 'https://localhost:7125/Glumci/$id';
 
     final Map<String, String> headers = {
       'accept': 'text/plain',

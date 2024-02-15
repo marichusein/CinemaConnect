@@ -45,7 +45,7 @@ class _ProjekcijeSjedistaKomponentaState
   // Funkcija za dohvat dostupnih projekcija na temelju ID filma
   Future<void> fetchProjekcije(int filmId) async {
     final response = await http
-        .get(Uri.parse('https://localhost:7036/Projekcije/film/$filmId'));
+        .get(Uri.parse('https://localhost:7125/Projekcije/film/$filmId'));
 
     if (response.statusCode == 200) {
       setState(() {
@@ -57,7 +57,7 @@ class _ProjekcijeSjedistaKomponentaState
   // Funkcija za dohvat dostupnih sjedišta na temelju odabrane projekcije
   Future<void> fetchSjedista(int projekcijaId) async {
     final response = await http.get(
-        Uri.parse('https://localhost:7036/Projekcije/sjedista/$projekcijaId'));
+        Uri.parse('https://localhost:7125/Projekcije/sjedista/$projekcijaId'));
 
     if (response.statusCode == 200) {
       setState(() {

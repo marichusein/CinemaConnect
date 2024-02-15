@@ -37,7 +37,7 @@ class _GrickaliceMenuState extends State<GrickaliceMenu> {
 
   Future<void> fetchGrickaliceMenu() async {
     final response =
-        await http.get(Uri.parse('https://localhost:7036/MeniGrickalica'));
+        await http.get(Uri.parse('https://localhost:7125/MeniGrickalica'));
 
     if (response.statusCode == 200) {
       setState(() {

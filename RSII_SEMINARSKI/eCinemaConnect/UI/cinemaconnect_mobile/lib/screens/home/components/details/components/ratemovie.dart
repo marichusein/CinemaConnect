@@ -78,7 +78,7 @@ void submitRating() async {
     "datumOcjene": currentDate,
   };
 
-  final url = Uri.parse('https://localhost:7036/OcijeniFilm');
+  final url = Uri.parse('https://localhost:7125/OcijeniFilm');
 
   final client = http.Client();
 

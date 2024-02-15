@@ -33,7 +33,7 @@ class _NewsCarouselState extends State<NewsCarousel> {
   }
 
  Future<void> fetchNews() async {
-  final Uri url = Uri.parse('https://localhost:7036/Obavijesti');
+  final Uri url = Uri.parse('https://localhost:7125/Obavijesti');
   final response = await http.get(url);
 
   if (response.statusCode == 200) {
@@ -87,7 +87,7 @@ class _NewsCarouselState extends State<NewsCarousel> {
 
   Future<void> fetchAuthorDetails(News newsItem) async {
     final Uri url =
-        Uri.parse('https://localhost:7036/Korisnici/${newsItem.korisnikId}');
+        Uri.parse('https://localhost:7125/Korisnici/${newsItem.korisnikId}');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {

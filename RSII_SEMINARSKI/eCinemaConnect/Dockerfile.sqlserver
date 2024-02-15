@@ -1,0 +1,7 @@
+FROM mcr.microsoft.com/mssql/server:2017-latest-ubuntu
+
+RUN mkdir -p /BazaPodaci
+
+COPY ./BazaPodaci/1_script.sql /BazaPodaci
+
+ENTRYPOINT /opt/mssql/bin/sqlservr & sleep 40s && /opt/mssql-tools/bin/sqlcmd -S localhost,1433 -U sa -P QWElkj132! -d master -i /BazaPodaci/1_script.sql && tail -f /dev/null

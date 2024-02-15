@@ -391,7 +391,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> fetchMovies() async {
-    final Uri url = Uri.parse('https://localhost:7036/Filmovi');
+    final Uri url = Uri.parse('https://localhost:7125/Filmovi');
   final response = await http.get(url);
 
     if (response.statusCode == 200) {

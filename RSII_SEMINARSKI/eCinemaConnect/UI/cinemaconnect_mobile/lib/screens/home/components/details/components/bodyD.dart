@@ -34,7 +34,7 @@ class _BodyDState extends State<BodyD> {
 
   Future<void> loadComments() async {
     final url =
-        'https://localhost:7036/OcijeniFilm/film/${widget.movie.id}'; // Zamijenite s pravim URL-om
+        'https://localhost:7125/OcijeniFilm/film/${widget.movie.id}'; // Zamijenite s pravim URL-om
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {
@@ -43,7 +43,7 @@ class _BodyDState extends State<BodyD> {
       for (var data in commentData) {
         final comment = Comment.fromJson(data);
         final userUrl =
-            'https://localhost:7036/Korisnici/${comment.korisnikId}'; // Zamijenite s pravim URL-om
+            'https://localhost:7125/Korisnici/${comment.korisnikId}'; // Zamijenite s pravim URL-om
         final userResponse = await http.get(Uri.parse(userUrl));
 
         if (userResponse.statusCode == 200) {
@@ -60,7 +60,7 @@ class _BodyDState extends State<BodyD> {
   }
 
   Future<List<Movie>> fetchRecommendations(int userId) async {
-    final url = 'https://localhost:7036/Filmovi/preporuka?korisnikid=$userId';
+    final url = 'https://localhost:7125/Filmovi/preporuka?korisnikid=$userId';
     final response = await http.get(Uri.parse(url));
 
     if (response.statusCode == 200) {

@@ -19,7 +19,7 @@ class LoginScreen extends StatelessWidget {
     final lozinka = lozinkaController.text;
 
     final response = await http.post(
-      Uri.parse('https://localhost:7036/Korisnici/login'),
+      Uri.parse('https://localhost:7125/Korisnici/login'),
       headers: <String, String>{
         'accept': 'text/plain',
         'Content-Type': 'application/json',

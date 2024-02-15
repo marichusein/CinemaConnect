@@ -37,7 +37,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
       // Pošaljite zahtjev za registraciju koristeći RegisterService
       try {
         final response = await http.post(
-          Uri.parse('https://localhost:7036/Korisnici/siginup'),
+          Uri.parse('https://localhost:7125/Korisnici/siginup'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(registrationData),
         );
