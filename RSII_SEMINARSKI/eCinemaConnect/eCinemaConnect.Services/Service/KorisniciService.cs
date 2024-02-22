@@ -28,7 +28,7 @@ namespace eCinemaConnect.Services.Service
             _rabbitMQProducer= rabbitMQProducer;
         }
 
-        public KorisniciView Login(KorisniciLogin login)
+        public async Task<KorisniciView> Login(KorisniciLogin login)
         {
             // Pretražite korisnike u bazi podataka na osnovu korisničkog imena (ili email-a)
             var user = _context.Korisnicis.SingleOrDefault(u => u.KorisnickoIme == login.KorisnickoIme);

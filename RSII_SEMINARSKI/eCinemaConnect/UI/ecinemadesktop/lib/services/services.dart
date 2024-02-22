@@ -1,9 +1,10 @@
 import 'dart:convert';
+import 'package:ecinemadesktop/api-konstante.dart';
 import 'package:ecinemadesktop/models/models-all.dart';
 import 'package:http/http.dart' as http;
 
 class MovieService {
-  final String baseUrl = 'https://localhost:7125';
+  final String baseUrl = ApiKonstante.baseUrl;
 
   Future<void> addMovie(Movie movie) async {
     final url = Uri.parse('$baseUrl/Filmovi');
@@ -59,7 +60,7 @@ class MovieService {
 }
 
 class LoginService {
-  final String baseUrl = 'https://localhost:7125';
+  final String baseUrl = ApiKonstante.baseUrl;
 
   Future<Map<String, dynamic>> login(Map<String, String> loginData) async {
     final url = Uri.parse('$baseUrl/Korisnici/login');
@@ -98,7 +99,7 @@ class LoginService {
 }
 
 class ProfileService {
-  final String baseUrl = 'https://localhost:7125';
+   final String baseUrl = ApiKonstante.baseUrl;
 
   Future<void> updateProfile(Map<String, dynamic> profileData) async {
     final url = Uri.parse('$baseUrl/Korisnici/${profileData["idkorisnika"]}');

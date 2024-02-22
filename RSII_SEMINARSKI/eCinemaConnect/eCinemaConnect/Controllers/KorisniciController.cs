@@ -38,9 +38,9 @@ namespace eCinemaConnect.Controllers
         }
 
         [HttpPost("login")]
-        public Model.ViewRequests.KorisniciView Login(KorisniciLogin obj)
+        public Task<Model.ViewRequests.KorisniciView> Login(KorisniciLogin obj)
         {
-            return _korisnici.Login(obj);
+            return  _korisnici.Login(obj);
         }
         [HttpPost("siginup")]
         public IActionResult SiginUp(KorisniciRegistration obj)

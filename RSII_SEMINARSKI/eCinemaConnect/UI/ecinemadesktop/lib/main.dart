@@ -72,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content:
-              Text("Neuspjela prijava. Provjerite korisničko ime i lozinku."),
+              Text('Neuspjela prijava. Provjerite korisničko ime i lozinku. ${LoginService().baseUrl}'),
         ),
       );
     }

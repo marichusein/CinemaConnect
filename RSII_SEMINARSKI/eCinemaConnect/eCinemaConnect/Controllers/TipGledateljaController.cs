@@ -2,6 +2,7 @@ using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
 using eCinemaConnect.Services;
+using Microsoft.AspNetCore.Authorization;
 //using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,8 @@ namespace eCinemaConnect.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
+
     public class TipGledateljaController : ControllerBase
     {
         private readonly ITipGledatelja _tipGledateljaService;

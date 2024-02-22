@@ -50,6 +50,7 @@ builder.Services.AddTransient<IRabbitMQProducer, RabbitMQProducer>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.AddSecurityDefinition("basicAuth", new Microsoft.OpenApi.Models.OpenApiSecurityScheme()
@@ -63,12 +64,13 @@ builder.Services.AddSwaggerGen(c =>
         {
             new OpenApiSecurityScheme
             {
-                Reference = new OpenApiReference{Type = ReferenceType.SecurityScheme, Id = "basicAuth"}
+                Reference = new OpenApiReference{Type = ReferenceType.SecurityScheme, Id = "basicAuth" }
             },
             new string[]{}
-    } });
-
+        }
+    });
 });
+
 
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");

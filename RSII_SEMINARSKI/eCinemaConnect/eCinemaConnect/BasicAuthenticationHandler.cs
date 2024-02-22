@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Authentication;
+﻿using eCinemaConnect.Model.InsertRequests;
+using eCinemaConnect.Services.Database;
+using eCinemaConnect.Services.Interface;
+using eCinemaConnect.Services.Service;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -10,8 +14,10 @@ namespace eCinemaConnect
 {
     public class BasicAuthenticationHandler : AuthenticationHandler<AuthenticationSchemeOptions>
     {
-        public BasicAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock) : base(options, logger, encoder, clock)
+        protected readonly IKorisnici _korisniciService;
+        public BasicAuthenticationHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock, IKorisnici korisnici) : base(options, logger, encoder, clock)
         {
+            _korisniciService= korisnici;
         }
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
@@ -21,25 +27,49 @@ namespace eCinemaConnect
                 return AuthenticateResult.Fail("Missing header");
             }
 
-            var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
-            var credentialsBytes = Convert.FromBase64String(authHeader.Parameter);
-            var credentialas=Encoding.UTF8.GetString(credentialsBytes);
+            Model.ViewRequests.KorisniciView korisnik = null;
+            KorisniciLogin podaciZaPrijavu = new KorisniciLogin();
 
-            var username = credentialas[0];
-            var password = credentialas[1];
+            try
+            {
+                var authHeader = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+                var credentialsBytes = Convert.FromBase64String(authHeader.Parameter);
+                var credentials = Encoding.UTF8.GetString(credentialsBytes).Split(':');
 
-            if(username==null || password == null)
-            {
-                return AuthenticateResult.Fail("Inocorect username or password");
-            }
-            else
-            {
-                var entity = new ClaimsIdentity();
-                var principal = new ClaimsPrincipal(entity);
+                var username = credentials[0];
+                var password = credentials[1];
+
+                podaciZaPrijavu.KorisnickoIme = username;
+                podaciZaPrijavu.Lozinka = password;
+
+                korisnik = await _korisniciService.Login(podaciZaPrijavu);
+
+                if (korisnik == null)
+                {
+                    return AuthenticateResult.Fail("Incorrect username or password");
+                }
+
+                var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, korisnik.KorisnickoIme),
+            new Claim(ClaimTypes.Name, korisnik.Ime),
+            new Claim(ClaimTypes.Role, "sve") // Assuming "sve" is a default role
+        };
+
+                var identity = new ClaimsIdentity(claims, Scheme.Name);
+                var principal = new ClaimsPrincipal(identity);
                 var ticket = new AuthenticationTicket(principal, Scheme.Name);
                 return AuthenticateResult.Success(ticket);
             }
-
+            catch (FormatException)
+            {
+                return AuthenticateResult.Fail("Invalid authorization header format");
+            }
+            catch (Exception)
+            {
+                return AuthenticateResult.Fail("An error occurred while authenticating");
+            }
         }
+
     }
 }

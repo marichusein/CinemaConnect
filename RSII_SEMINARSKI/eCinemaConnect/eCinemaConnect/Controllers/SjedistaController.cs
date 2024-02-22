@@ -4,6 +4,7 @@ using eCinemaConnect.Model.UpdateRequests;
 using eCinemaConnect.Services;
 using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
+using Microsoft.AspNetCore.Authorization;
 //using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,6 +12,8 @@ namespace eCinemaConnect.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
+
     public class SjedistaController : ControllerBase
     {
         private readonly ISjediste _basic;

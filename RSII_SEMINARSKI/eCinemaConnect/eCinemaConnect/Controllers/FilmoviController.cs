@@ -10,8 +10,10 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace eCinemaConnect.Controllers
 {
+
     [ApiController]
     [Route("[controller]")]
+    [Authorize]
     public class FilmoviController : ControllerBase
     {
         private readonly IFilmovi _filmovi;

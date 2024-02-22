@@ -1,9 +1,14 @@
+// ignore_for_file: use_build_context_synchronously, depend_on_referenced_packages
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _SignupScreenState createState() => _SignupScreenState();
 }
 
@@ -97,7 +102,7 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Registracija'),
+        title: const Text('Registracija'),
       ),
       body: Container(
         padding: const EdgeInsets.all(20.0),
@@ -107,19 +112,19 @@ class _SignupScreenState extends State<SignupScreen> {
             children: <Widget>[
               TextField(
                 controller: imeController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Ime',
                 ),
               ),
               TextField(
                 controller: prezimeController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Prezime',
                 ),
               ),
               TextField(
                 controller: korisnickoImeController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Korisničko ime',
                 ),
               ),
@@ -142,30 +147,30 @@ class _SignupScreenState extends State<SignupScreen> {
               ),
               TextField(
                 controller: emailController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Email',
                 ),
               ),
               TextField(
                 controller: telefonController,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Telefon',
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
                   if (_validateInputs()) {
                     _signup(context);
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
+                      const SnackBar(
                         content: Text('Morate popuniti sva polja.'),
                       ),
                     );
                   }
                 },
-                child: Text('Registriraj se'),
+                child: const Text('Registriraj se'),
               ),
             ],
           ),
@@ -176,7 +181,7 @@ class _SignupScreenState extends State<SignupScreen> {
 }
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: SignupScreen(),
   ));
 }

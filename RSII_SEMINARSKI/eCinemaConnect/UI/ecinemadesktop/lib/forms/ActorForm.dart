@@ -1,7 +1,10 @@
+// ignore: file_names
 import 'dart:convert';
+import 'package:ecinemadesktop/api-konstante.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+
 
 class ActorForm extends StatefulWidget {
   @override
@@ -45,7 +48,8 @@ class _ActorFormState extends State<ActorForm> {
       'slika': slikaBase64,
     };
 
-    Uri url = Uri.parse('https://localhost:7125/Glumci');
+    
+    Uri url = Uri.parse('${ApiKonstante.baseUrl}/Glumci');
     var response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},

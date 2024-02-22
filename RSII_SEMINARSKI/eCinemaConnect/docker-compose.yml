@@ -39,6 +39,7 @@ services:
       - ecinemaconnectnet
     depends_on:
       - ecinemaconnect-sql
+      - rabbitmq  
       
   rabbitmq:
     image: rabbitmq:management
@@ -53,6 +54,8 @@ services:
       - ecinemaconnectnet  
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    depends_on:
+      - ecinemaconnect-sql  
       
   rabbitmq-service:
     restart: unless-stopped
