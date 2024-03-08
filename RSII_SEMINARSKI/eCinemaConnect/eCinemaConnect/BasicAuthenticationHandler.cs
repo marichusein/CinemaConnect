@@ -53,7 +53,7 @@ namespace eCinemaConnect
         {
             new Claim(ClaimTypes.NameIdentifier, korisnik.KorisnickoIme),
             new Claim(ClaimTypes.Name, korisnik.Ime),
-            new Claim(ClaimTypes.Role, "sve") // Assuming "sve" is a default role
+            new Claim(ClaimTypes.Role, korisnik.Tip.NazivTipa) // Assuming "sve" is a default role
         };
 
                 var identity = new ClaimsIdentity(claims, Scheme.Name);

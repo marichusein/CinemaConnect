@@ -1,14 +1,18 @@
 import 'dart:ui';
+import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:cinemaconnect_mobile/components/home_screen.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/Prijava.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+ Map<String, String> authorizationHeader= <String, String>{};
+
 // ignore: must_be_immutable
 class LoginScreen extends StatelessWidget {
   TextEditingController korisnickoImeController = TextEditingController();
   TextEditingController lozinkaController = TextEditingController();
+   final String baseUrl = ApiKonstante.baseUrl;
 
   String errorMessage = '';
 
@@ -17,9 +21,9 @@ class LoginScreen extends StatelessWidget {
   Future<void> _login(BuildContext context) async {
     final korisnickoIme = korisnickoImeController.text;
     final lozinka = lozinkaController.text;
-
+     
     final response = await http.post(
-      Uri.parse('https://localhost:7125/Korisnici/login'),
+      Uri.parse('$baseUrl/Korisnici/login'),
       headers: <String, String>{
         'accept': 'text/plain',
         'Content-Type': 'application/json',
@@ -39,7 +43,7 @@ class LoginScreen extends StatelessWidget {
       final prezime = jsonResponse['prezime'];
       // ignore: unused_local_variable
       final korisnickoIme = jsonResponse['korisnickoIme'];
-
+      authorizationHeader = createHeaders();
       errorMessage =
           'Uspješna prijava. Pijavljeni ste kao ' + ime + ' ' + prezime;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -51,7 +55,7 @@ class LoginScreen extends StatelessWidget {
       // Navigirajte na sljedeći ekran (ako je potrebno)
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (BuildContext context) => HomeScreen(userId: idKorisnika),
+          builder: (BuildContext context) => HomeScreen(userId: idKorisnika, header: authorizationHeader),
         ),
       );
       
@@ -79,7 +83,7 @@ class LoginScreen extends StatelessWidget {
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: AssetImage(
-                    'images/login.jpg'), // Postavite putanju do slike pozadine
+                    'assets/images/login.jpg'), // Postavite putanju do slike pozadine
                 fit: BoxFit.cover,
               ),
             ),
@@ -158,6 +162,23 @@ class LoginScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+  
+  Map<String, String> createHeaders() {
+    String username =  korisnickoImeController.text;
+    String password = lozinkaController.text;
+
+    String basicAuth =
+        "Basic ${base64Encode(utf8.encode('$username:$password'))}";
+
+    var headers = {
+      "Content-Type": "application/json",
+      "Authorization": basicAuth
+    };
+
+    print('ZAGLAVLJEE $headers');
+
+    return headers;
   }
 }
 

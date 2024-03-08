@@ -325,6 +325,7 @@
 // // }
 
 
+import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -389,9 +390,9 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     fetchMovies();
   }
-
+ final String baseUrl = ApiKonstante.baseUrl;
   Future<void> fetchMovies() async {
-    final Uri url = Uri.parse('https://localhost:7125/Filmovi');
+    final Uri url = Uri.parse('$baseUrl/Filmovi');
   final response = await http.get(url);
 
     if (response.statusCode == 200) {

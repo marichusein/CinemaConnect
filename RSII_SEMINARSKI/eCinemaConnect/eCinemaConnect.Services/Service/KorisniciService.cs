@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
+using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
 using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
 using eCinemaConnect.Services.RabbitMQ;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,7 +33,8 @@ namespace eCinemaConnect.Services.Service
         public async Task<KorisniciView> Login(KorisniciLogin login)
         {
             // Pretražite korisnike u bazi podataka na osnovu korisničkog imena (ili email-a)
-            var user = _context.Korisnicis.SingleOrDefault(u => u.KorisnickoIme == login.KorisnickoIme);
+            var user = _context.Korisnicis.Where(x => x.KorisnickoIme == login.KorisnickoIme).Include(t => t.TipGledatelja).FirstOrDefault();
+            //var user = _context.Korisnicis.SingleOrDefault(u => u.KorisnickoIme == login.KorisnickoIme);
 
             if (user != null)
             {
@@ -42,6 +45,7 @@ namespace eCinemaConnect.Services.Service
 
                     // Ovde možete vratiti KorisniciView sa podacima o prijavljenom korisniku
                     var korisnikView = _mapper.Map<KorisniciView>(user);
+                    korisnikView.Tip = _mapper.Map<TipGledatelja>(user.TipGledatelja);
                     return korisnikView;
                 }
             }
@@ -117,6 +121,7 @@ namespace eCinemaConnect.Services.Service
             var newKorisnik = _mapper.Map<Korisnici>(registration);
             newKorisnik.Salt = salt;
             newKorisnik.Lozinka = hashedPasswordString;
+            newKorisnik.TipGledateljaId = 1;
 
             // Dodajte novog korisnika u bazu podataka
             _context.Korisnicis.Add(newKorisnik);
@@ -198,6 +203,33 @@ namespace eCinemaConnect.Services.Service
 
         }
 
+        public KorisniciView LoginAdmin(KorisniciLogin login)
+        {
+            // Pretražite korisnike u bazi podataka na osnovu korisničkog imena (ili email-a)
+            var user = _context.Korisnicis.Where(x => x.KorisnickoIme == login.KorisnickoIme).Include(t => t.TipGledatelja).FirstOrDefault();
+            //var user = _context.Korisnicis.SingleOrDefault(u => u.KorisnickoIme == login.KorisnickoIme);
+
+            if (user != null)
+            {
+                // Proverite da li je unesena lozinka ispravna
+                if (VerifyPassword(login.Lozinka, user.Lozinka, user.Salt))
+                {
+                    if (user.TipGledatelja.NazivTipa == "Admin")
+                    {
+                        // Lozinka je ispravna, korisnik se može prijaviti
+
+                        // Ovde možete vratiti KorisniciView sa podacima o prijavljenom korisniku
+                        var korisnikView = _mapper.Map<KorisniciView>(user);
+                        korisnikView.Tip = _mapper.Map<TipGledatelja>(user.TipGledatelja);
+                        return korisnikView;
+                    }
+                }
+            }
+
+            // Lozinka nije ispravna ili korisnik ne postoji
+            // Ovde možete vratiti odgovarajuću poruku o grešci ili null ako želite
+            return null;
+        }
     }
 
    

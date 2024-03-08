@@ -1,12 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:io';
 
+import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
@@ -34,17 +33,20 @@ class _MovieReportState extends State<MovieReport> {
       _isLoading = true;
     });
 
-    final url = Uri.parse('https://localhost:7125/Rezervacije/brojkarata');
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
+    try {
+      final movieData = await ApiService.fetchMovieData();
       setState(() {
-        _movieData = Map<String, int>.from(json.decode(response.body));
+        _movieData = movieData;
         _isLoading = false;
       });
-    } else {
-      throw Exception('Failed to load movie data');
+    } catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
+      // Handle error here
+      print('Error fetching movie data: $error');
     }
+  
   }
 
   bool _isCreatingPdf = false;
@@ -137,17 +139,17 @@ class _MovieReportState extends State<MovieReport> {
   }
 
   Future<void> _openPdf() async {
-    if (_pdfFile != null) {
-      final filePath = _pdfFile.path;
-      final fileUrl =
-          Platform.isWindows ? filePath.replaceAll('/', '\\') : filePath;
-      if (await canLaunch(fileUrl)) {
-        await launch(fileUrl);
-      } else {
-        throw 'Could not launch $fileUrl';
-      }
+    final filePath = _pdfFile.path;
+    final fileUrl =
+        Platform.isWindows ? filePath.replaceAll('/', '\\') : filePath;
+    // ignore: deprecated_member_use
+    if (await canLaunch(fileUrl)) {
+      // ignore: deprecated_member_use
+      await launch(fileUrl);
+    } else {
+      throw 'Could not launch $fileUrl';
     }
-  }
+    }
 
   @override
   Widget build(BuildContext context) {

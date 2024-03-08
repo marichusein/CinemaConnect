@@ -18,6 +18,8 @@ namespace eCinemaConnect.Model.ViewRequests
         public string? Email { get; set; }
         public string? Token { get; set; }
 
+        public TipGledatelja Tip { get; set; }
+
 
 
     }

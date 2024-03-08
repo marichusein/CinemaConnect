@@ -9,7 +9,9 @@ class BackdropRating extends StatelessWidget {
   final Size size;
   final Movie movie;
   final int korisnikID;
-  const BackdropRating({Key? key, required this.size, required this.movie, required this.korisnikID});
+  final Map<String, String> header;
+  
+  const BackdropRating({Key? key, required this.size, required this.movie, required this.korisnikID, required this.header});
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +91,7 @@ class BackdropRating extends StatelessWidget {
                           double? userRating = await showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              return RatingDialog(movieId: movie.id, korisnikID: korisnikID,);
+                              return RatingDialog(movieId: movie.id, korisnikID: korisnikID, header: header ,);
                             },
                           );
 

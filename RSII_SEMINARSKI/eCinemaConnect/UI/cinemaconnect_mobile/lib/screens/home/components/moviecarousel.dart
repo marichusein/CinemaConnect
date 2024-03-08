@@ -1,3 +1,4 @@
+import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/details/details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,11 +11,13 @@ class MovieCarousel extends StatefulWidget {
   final String selectedGenre;
   final String searchQuery; // Dodajte searchQuery
   final int IDKorisnika;
+  final Map<String, String> header;
 
   const MovieCarousel({
     Key? key,
     required this.selectedGenre,
-    required this.searchQuery, required this.IDKorisnika, // Dodajte searchQuery
+    required this.searchQuery, required this.IDKorisnika,
+    required this.header // Dodajte searchQuery
   }) : super(key: key);
 
   @override
@@ -25,7 +28,8 @@ class _MovieCarouselState extends State<MovieCarousel> {
   late PageController _pageController;
   int initialPage = 1;
   List<Movie> movies = [];
-
+  final String baseUrl = ApiKonstante.baseUrl;
+  
   @override
   void initState() {
     super.initState();
@@ -40,22 +44,29 @@ class _MovieCarouselState extends State<MovieCarousel> {
   }
 
   Future<double> fetchMovieRating(int movieId) async {
-  final Uri url = Uri.parse('https://localhost:7125/film?id=$movieId');
-  final response = await http.get(url);
+  final Uri url = Uri.parse('$baseUrl/film?id=$movieId');
+  final response = await http.get(url, headers: widget.header);
 
   if (response.statusCode == 200) {
-    final dynamic apiMovie = json.decode(response.body);
-    final double rating = apiMovie; 
-    return rating;
+    final double apiRating = double.parse(response.body);
+
+    // Provjerite je li ocjena u razumnom rasponu (0-10)
+    if (apiRating >= 0 && apiRating <= 10) {
+      return apiRating;
+    } else {
+      return 0.00; // Ako je ocjena izvan raspona, postavi je na 0.00
+    }
   } else {
     throw Exception('Pogreška prilikom dohvaćanja ocjene filma');
   }
 }
 
 
+
+
   Future<void> fetchMovies() async {
-    final Uri url = Uri.parse('https://localhost:7125/Filmovi');
-    final response = await http.get(url);
+    final Uri url = Uri.parse('$baseUrl/Filmovi');
+    final response = await http.get(url, headers: widget.header );
 
     if (mounted) {
       // Provjerite je li widget još uvijek montiran prije poziva setState
@@ -160,7 +171,7 @@ class _MovieCarouselState extends State<MovieCarousel> {
           }
           return Transform.rotate(
             angle: math.pi * value,
-            child: MovieCard(movie: movies[index], KorisnikID: widget.IDKorisnika,),
+            child: MovieCard(movie: movies[index], KorisnikID: widget.IDKorisnika, header: widget.header,),
           );
         },
       );
@@ -169,7 +180,8 @@ class _MovieCarouselState extends State<MovieCarousel> {
 class MovieCard extends StatelessWidget {
   final Movie movie;
   final int KorisnikID;
-  const MovieCard({Key? key, required this.movie, required this.KorisnikID});
+  final Map<String, String> header;
+  const MovieCard({Key? key, required this.movie, required this.KorisnikID, required this.header});
 
   @override
   Widget build(BuildContext context) {
@@ -179,29 +191,33 @@ class MovieCard extends StatelessWidget {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DetailsScreen(movie: movie, KorisnikID: KorisnikID,),
+            builder: (context) => DetailsScreen(movie: movie, KorisnikID: KorisnikID, header: header,),
           ),
         ),
         child: Column(
           children: <Widget>[
             Expanded(
               child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(50),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.5),
-                      offset: const Offset(0, 2),
-                      blurRadius: 5,
-                      spreadRadius: 5,
-                    ),
-                  ],
-                  image: DecorationImage(
-                    fit: BoxFit.fill,
-                    image: NetworkImage(movie.poster),
-                  ),
-                ),
-              ),
+  decoration: BoxDecoration(
+    borderRadius: BorderRadius.circular(50),
+    boxShadow: [
+      BoxShadow(
+        color: Colors.black.withOpacity(0.5),
+        offset: const Offset(0, 2),
+        blurRadius: 5,
+        spreadRadius: 5,
+      ),
+    ],
+  ),
+  child: ClipRRect(
+    borderRadius: BorderRadius.circular(50),
+    child: Image.memory(
+      base64Decode(movie.poster.split(',').last),
+      fit: BoxFit.fill,
+    ),
+  ),
+),
+
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 15.0),
@@ -280,9 +296,10 @@ class MovieCard extends StatelessWidget {
   }
 
   Future<List<String>> fetchProjections(int movieId) async {
+     final String baseUrl = ApiKonstante.baseUrl;
     final Uri url =
-        Uri.parse('https://localhost:7125/Projekcije/film/$movieId');
-    final response = await http.get(url);
+        Uri.parse('$baseUrl/Projekcije/film/$movieId');
+    final response = await http.get(url, headers: header);
 
     if (response.statusCode == 200) {
       final List<dynamic> apiProjections = json.decode(response.body);

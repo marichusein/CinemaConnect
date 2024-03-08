@@ -1,3 +1,4 @@
+import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:flutter/material.dart';
 // import 'package:cinemaconnect_mobile/const.dart';
 import 'package:cinemaconnect_mobile/models/news.dart';
@@ -30,9 +31,13 @@ class Comment {
 class NewsDetailsScreen extends StatefulWidget {
   final News news;
   final int KorisnikID;
+  final Map<String, String> header;
 
   const NewsDetailsScreen(
-      {Key? key, required this.news, required this.KorisnikID})
+      {Key? key,
+      required this.news,
+      required this.KorisnikID,
+      required this.header})
       : super(key: key);
 
   @override
@@ -50,55 +55,54 @@ class _NewsDetailsScreenState extends State<NewsDetailsScreen> {
   }
 
   Future<String> getUserName(int userId) async {
-  try {
-    final response = await http.get(Uri.parse('https://localhost:7125/Korisnici/$userId'));
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> userData = json.decode(response.body);
-      final String userName = '${userData['ime']} ${userData['prezime']}';
-      return userName;
-    } else {
-      throw Exception('Failed to get user name: ${response.statusCode}');
-    }
-  } catch (error) {
-    throw Exception('Failed to get user name: $error');
-  }
-}
-
-Future<void> loadComments() async {
-  try {
-    final response = await http.get(Uri.parse('https://localhost:7125/KomentariObavijesti/obavijesti/${widget.news.id}'));
-    if (response.statusCode == 200) {
-      final List<dynamic> jsonComments = json.decode(response.body);
-
-      final List<Comment> loadedComments = [];
-
-      for (final jsonComment in jsonComments) {
-        final String userName = await getUserName(jsonComment['korisnikId']);
-        final Comment comment = Comment(
-          korisnikIme: userName,
-          korisnikPrezime: '',
-          tekstKomentara: jsonComment['tekstKomentara'],
-        );
-        loadedComments.add(comment);
+    final String baseUrl = ApiKonstante.baseUrl;
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/Korisnici/$userId'),
+          headers: widget.header);
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> userData = json.decode(response.body);
+        final String userName = '${userData['ime']} ${userData['prezime']}';
+        return userName;
+      } else {
+        throw Exception('Failed to get user name: ${response.statusCode}');
       }
-
-      setState(() {
-        comments = loadedComments;
-      });
-    } else {
-      throw Exception('Failed to load comments: ${response.statusCode}');
+    } catch (error) {
+      throw Exception('Failed to get user name: $error');
     }
-  } catch (error) {
-    throw Exception('Failed to load comments: $error');
   }
-}
 
+  Future<void> loadComments() async {
+    final String baseUrl = ApiKonstante.baseUrl;
+    try {
+      final response = await http.get(
+          Uri.parse(
+              '$baseUrl/KomentariObavijesti/obavijesti/${widget.news.id}'),
+          headers: widget.header);
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonComments = json.decode(response.body);
 
+        final List<Comment> loadedComments = [];
 
+        for (final jsonComment in jsonComments) {
+          final String userName = await getUserName(jsonComment['korisnikId']);
+          final Comment comment = Comment(
+            korisnikIme: userName,
+            korisnikPrezime: '',
+            tekstKomentara: jsonComment['tekstKomentara'],
+          );
+          loadedComments.add(comment);
+        }
 
-
-
-
+        setState(() {
+          comments = loadedComments;
+        });
+      } else {
+        throw Exception('Failed to load comments: ${response.statusCode}');
+      }
+    } catch (error) {
+      throw Exception('Failed to load comments: $error');
+    }
+  }
 
   Future<void> postComment() async {
     final commentText = commentController.text;
@@ -111,13 +115,9 @@ Future<void> loadComments() async {
       "tekstKomentara": commentText,
       "datumKomentara": formattedDate,
     };
-
-    final response = await http.post(
-        Uri.parse('https://localhost:7125/KomentariObavijesti'),
-        body: json.encode(commentData),
-        headers: {
-          'Content-Type': 'application/json',
-        });
+    final String baseUrl = ApiKonstante.baseUrl;
+    final response = await http.post(Uri.parse('$baseUrl/KomentariObavijesti'),
+        body: json.encode(commentData), headers: widget.header);
 
     if (response.statusCode == 200) {
       // Komentar je uspešno poslat, osvežite listu komentara.
@@ -145,7 +145,8 @@ Future<void> loadComments() async {
               decoration: BoxDecoration(
                 image: DecorationImage(
                   fit: BoxFit.cover,
-                  image: NetworkImage(widget.news.slika),
+                  image: MemoryImage(
+                      base64Decode(widget.news.slika.split(',').last)),
                 ),
               ),
             ),
@@ -184,25 +185,20 @@ Future<void> loadComments() async {
                     style: TextStyle(
                       color: Colors.grey,
                     ),
-                    
                   ),
                 ],
               ),
-              
             ),
-            Padding( padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                   Text(
-                    "KOMENTARI",
-                    style: Theme.of(context).textTheme.headline6,
-                  ),
-                  ]
-                  )
-            ),
- 
-           
+            Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        "KOMENTARI",
+                        style: Theme.of(context).textTheme.headline6,
+                      ),
+                    ])),
             ListView.builder(
               shrinkWrap: true,
               itemCount: comments.length,

@@ -56,7 +56,7 @@ namespace eCinemaConnect.Services.Service
         }
 
 
-        // Vaš postojeći kod
+        
 
         public Dictionary<string, int> BrojKupljenihKarataPoFilmu(DateTime? datumOd, DateTime? datumDo)
         {

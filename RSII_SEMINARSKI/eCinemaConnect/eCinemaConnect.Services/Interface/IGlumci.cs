@@ -11,6 +11,6 @@ namespace eCinemaConnect.Services.Interface
 {
     public interface IGlumci: IService<GlumciView, GlumciInsert, GlumciUpdate>
     {
-
+        public IEnumerable<FilmoviView> VratiFilmoveZaGlumca(int glumacId);
     }
 }

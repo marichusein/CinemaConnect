@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 
 void main() {
@@ -36,49 +36,35 @@ class _ObavijestFormState extends State<ObavijestForm> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      // Forma je validna, možemo slati obavijest na server
+    // Forma je validna, možemo slati obavijest na server
 
-      // Konvertujemo izabranu sliku u Base64 format
-      String base64Image = '';
-      if (selectedImage != null) {
-        List<int> imageBytes = await selectedImage!.readAsBytes();
-        base64Image = base64Encode(imageBytes);
-      }
+    // Konvertujemo izabranu sliku u Base64 format
+    String base64Image = '';
+    if (selectedImage != null) {
+      List<int> imageBytes = await selectedImage!.readAsBytes();
+      base64Image = base64Encode(imageBytes);
+    }
 
-      // Slanje obavijesti na server
-      final response = await http.post(
-        Uri.parse('https://localhost:7125/Obavijesti'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'korisnikId': widget.korisnikId,
-          'naslov': naslov,
-          'sadrzaj': sadrzaj,
-          'datumObjave': DateTime.now().toIso8601String(),
-          'slika': base64Image,
-          'datumUredjivanja': DateTime.now().toIso8601String(),
-        }),
+    try {
+      await ApiService.posaljiObavijest(widget.korisnikId, naslov, sadrzaj, base64Image);
+
+      // Obavijest je uspješno poslata
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Obavijest uspješno poslata')),
       );
 
-      if (response.statusCode == 200) {
-        // Obavijest je uspješno poslata
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Obavijest uspješno poslata')),
-        );
-
-        // Očistite formu
-        _formKey.currentState!.reset();
-        setState(() {
-          selectedImage = null;
-        });
-      } else {
-        // Greška prilikom slanja obavijesti
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Greška prilikom slanja obavijesti')),
-        );
-      }
+      // Očistite formu
+      _formKey.currentState!.reset();
+      setState(() {
+        selectedImage = null;
+      });
+    } catch (error) {
+      // Greška prilikom slanja obavijesti
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Greška prilikom slanja obavijesti: $error')),
+      );
     }
+  }
   }
 
   Future<void> _pickImage() async {

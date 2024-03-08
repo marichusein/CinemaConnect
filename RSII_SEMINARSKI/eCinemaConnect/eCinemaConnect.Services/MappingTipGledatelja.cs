@@ -14,6 +14,8 @@ namespace eCinemaConnect.Services
         public MappingTipGledatelja()
         {
             CreateMap<Database.TipoviGledatelja, Model.TipGledatelja>();
+            CreateMap<Model.TipGledatelja, Database.TipoviGledatelja>();
+
             CreateMap<TipGledateljaInsert, Database.TipoviGledatelja>();
             CreateMap<TipGledateljaUpdate, Database.TipoviGledatelja>();
 

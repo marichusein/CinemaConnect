@@ -13,6 +13,8 @@ namespace eCinemaConnect.Services.Interface
     public interface IKorisnici : IService<KorisniciView, KorisniciInsert, KorisniciUpdate>
     {
         Task<KorisniciView> Login(KorisniciLogin login);
+        KorisniciView LoginAdmin(KorisniciLogin login);
+
         SiginUpResult SiginUp(KorisniciRegistration registration);
         KorisniciView UpdateProfiil(int id, KorisniciUpdate obj);
         void SendMail(int korisnikID);

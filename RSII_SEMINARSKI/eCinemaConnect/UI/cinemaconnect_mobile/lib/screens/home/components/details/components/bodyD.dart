@@ -1,3 +1,4 @@
+import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:flutter/material.dart';
 import 'package:cinemaconnect_mobile/const.dart';
 import 'package:cinemaconnect_mobile/models/movie.dart';
@@ -13,8 +14,9 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 class BodyD extends StatefulWidget {
   final Movie movie;
   final int KorisnikID;
+  final Map<String, String> header;
 
-  const BodyD({Key? key, required this.movie, required this.KorisnikID})
+  const BodyD({Key? key, required this.movie, required this.KorisnikID, required this.header})
       : super(key: key);
 
   @override
@@ -33,9 +35,10 @@ class _BodyDState extends State<BodyD> {
   }
 
   Future<void> loadComments() async {
+    final String baseUrl = ApiKonstante.baseUrl;
     final url =
-        'https://localhost:7125/OcijeniFilm/film/${widget.movie.id}'; // Zamijenite s pravim URL-om
-    final response = await http.get(Uri.parse(url));
+        '$baseUrl/OcijeniFilm/film/${widget.movie.id}'; // Zamijenite s pravim URL-om
+    final response = await http.get(Uri.parse(url), headers: widget.header);
 
     if (response.statusCode == 200) {
       final List<dynamic> commentData = json.decode(response.body);
@@ -43,8 +46,8 @@ class _BodyDState extends State<BodyD> {
       for (var data in commentData) {
         final comment = Comment.fromJson(data);
         final userUrl =
-            'https://localhost:7125/Korisnici/${comment.korisnikId}'; // Zamijenite s pravim URL-om
-        final userResponse = await http.get(Uri.parse(userUrl));
+            '$baseUrl/Korisnici/${comment.korisnikId}'; // Zamijenite s pravim URL-om
+        final userResponse = await http.get(Uri.parse(userUrl), headers: widget.header);
 
         if (userResponse.statusCode == 200) {
           final userData = json.decode(userResponse.body);
@@ -60,8 +63,9 @@ class _BodyDState extends State<BodyD> {
   }
 
   Future<List<Movie>> fetchRecommendations(int userId) async {
-    final url = 'https://localhost:7125/Filmovi/preporuka?korisnikid=$userId';
-    final response = await http.get(Uri.parse(url));
+    final String baseUrl = ApiKonstante.baseUrl;
+    final url = '$baseUrl/Filmovi/preporuka?korisnikid=$userId';
+    final response = await http.get(Uri.parse(url), headers: widget.header);
 
     if (response.statusCode == 200) {
       final List<dynamic> movieData = json.decode(response.body);
@@ -91,13 +95,14 @@ class _BodyDState extends State<BodyD> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           BackdropRating(
-              size: size, movie: widget.movie, korisnikID: widget.KorisnikID),
+              size: size, movie: widget.movie, korisnikID: widget.KorisnikID, header: widget.header,),
           const SizedBox(
             height: kDefaultPadding / 2,
           ),
           TitleAndBasicInfo(
             movie: widget.movie,
             KorisnikID: widget.KorisnikID,
+            header: widget.header,
           ),
           Geners(movie: widget.movie),
           Padding(
@@ -172,6 +177,7 @@ recommendedMovies.isEmpty
                   builder: (context) => BodyD(
                     movie: movie,
                     KorisnikID: widget.KorisnikID,
+                    header: widget.header,
                   ),
                 ),
               );

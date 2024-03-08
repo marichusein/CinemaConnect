@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 class Body extends StatefulWidget {
   final String searchQuery;
   final int KorisnikID;
-
-  const Body({Key? key, required this.searchQuery, required this.KorisnikID}) : super(key: key);
+  final Map<String, String> header;
+  const Body({Key? key, required this.searchQuery, required this.KorisnikID, required this.header}) : super(key: key);
 
   @override
   _BodyState createState() => _BodyState();
@@ -46,6 +46,7 @@ class _BodyState extends State<Body> {
                   });
                 });
               },
+              header: widget.header,
             ),
           if (selectedCategory == "Trenutno u kinu")
             const SizedBox(
@@ -58,18 +59,21 @@ class _BodyState extends State<Body> {
                     key: Key(selectedGenre + widget.searchQuery),
                     selectedGenre: selectedGenre,
                     searchQuery: widget.searchQuery,
-                    IDKorisnika: widget.KorisnikID, // Dodajte searchQuery
+                    IDKorisnika: widget.KorisnikID,
+                    header: widget.header, // Dodajte searchQuery
                   ),
           if (selectedCategory == "Novosti")
             NewsCarousel(
               key: Key('news_${widget.searchQuery}'),
                 searchQuery: widget.searchQuery,
-                KorisnikID: widget.KorisnikID),
+                KorisnikID: widget.KorisnikID,
+                header: widget.header,),
                  // Dodajte searchQuery
                   if (selectedCategory == "Preporuka")
             Preporuka(
               key: Key('news_${widget.searchQuery}'),
-                 IDKorisnika: widget.KorisnikID,),
+                 IDKorisnika: widget.KorisnikID,
+                 header: widget.header,),
         ],
       ),
     );

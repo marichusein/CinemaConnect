@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:cinemaconnect_mobile/components/home_screen.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/details/components/Rezervacija.dart';
 import 'package:flutter/material.dart';
@@ -17,10 +18,12 @@ class GrickaliceMenu extends StatefulWidget {
   final int KorisnikID;
   final List<SelektovanoSjediste> selektovanaSjedista;
   final int odabranaProjekcija;
-  final int Cijena;
+  final double Cijena;
+  final Map<String, String> header; 
+  
 
   const GrickaliceMenu(
-      {super.key, required this.KorisnikID, required this.selektovanaSjedista, required this.odabranaProjekcija, required this.Cijena});
+      {super.key, required this.KorisnikID, required this.selektovanaSjedista, required this.odabranaProjekcija, required this.Cijena, required this.header});
   @override
   _GrickaliceMenuState createState() => _GrickaliceMenuState();
 }
@@ -36,8 +39,9 @@ class _GrickaliceMenuState extends State<GrickaliceMenu> {
   }
 
   Future<void> fetchGrickaliceMenu() async {
+    final String baseUrl = ApiKonstante.baseUrl;
     final response =
-        await http.get(Uri.parse('https://localhost:7125/MeniGrickalica'));
+        await http.get(Uri.parse('$baseUrl/MeniGrickalica'), headers: widget.header);
 
     if (response.statusCode == 200) {
       setState(() {
@@ -96,9 +100,11 @@ class _GrickaliceMenuState extends State<GrickaliceMenu> {
     );
   }
 
+String paymentId="";
   
 Future<void> startPayPalPayment() async {
   var completer = Completer<bool>();
+  
 
   await Navigator.of(context).push(MaterialPageRoute(
     builder: (BuildContext context) => UsePaypal(
@@ -110,7 +116,7 @@ Future<void> startPayPalPayment() async {
       transactions: [
         {
           "amount": {
-            "total": widget.Cijena*0.55, // Promijenite ovo s vašim ukupnim iznosom
+            "total": 5, // Promijenite ovo s vašim ukupnim iznosom
             "currency": "USD",
           },
           "description": "Payment for reservation #your_reservation_id.",
@@ -119,7 +125,7 @@ Future<void> startPayPalPayment() async {
               {
                 "name": "Cijena",
                 "quantity": 1,
-                "price": widget.Cijena*0.55, // Promijenite ovo s cijenom vašeg artikla
+                "price": 5, // Promijenite ovo s cijenom vašeg artikla
                 "currency": "USD"
               }
             ],
@@ -127,9 +133,9 @@ Future<void> startPayPalPayment() async {
         }
       ],
       note: "Contact us for any questions on your order.",
-      onSuccess: (Map<String, dynamic> params) async {
+      onSuccess: (Map params) async {
         print("onSuccess: $params");
-        // Ovdje stavite kod koji treba izvršiti nakon uspješnog plaćanja
+        paymentId = params['paymentId'];
         completer.complete(true);
       },
       onError: (error) {
@@ -137,7 +143,7 @@ Future<void> startPayPalPayment() async {
         completer.complete(false);
       },
       onCancel: (params) {
-        print('cancelled: $params');
+        print('c a n c e l l e d: $params');
       },
     ),
   ));
@@ -156,12 +162,13 @@ Future<void> startPayPalPayment() async {
 // Ova funkcija treba biti dio vašeg Stateful widget-a ili neke druge klase
 Future<void> saveReservation(BuildContext context) async {
 
+  
   final rezervacijaObj = {
     "korisnikId": widget.KorisnikID,
     "projekcijaId": widget.odabranaProjekcija,
     "brojRezervisanihKarata": widget.selektovanaSjedista.length,
     "kupljeno": true,
-    "qrCode": "string", // Ovaj dio treba zamijeniti generiranim QR kodom
+    "qrCode": paymentId, // PaymentID je ovo
     "odabranaSjedista": widget.selektovanaSjedista.map((sjediste) => {
       "idsjedista": sjediste.idsjedista,
       "brojSjedista": sjediste.brojSjedista,
@@ -169,20 +176,26 @@ Future<void> saveReservation(BuildContext context) async {
     }).toList(),
     "meniGrickalica": selectedItemId,
   };
+  final String baseUrl = ApiKonstante.baseUrl;
 
   // Zatim pošaljite objekt na odgovarajući URL endpoint
   final response = await http.post(
-    Uri.parse('https://localhost:7036/Rezervacije'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
+    
+    Uri.parse('$baseUrl/Rezervacije'),
+    headers: widget.header,
     body: jsonEncode(rezervacijaObj),
   );
 
   if (response.statusCode == 200) {
-    // Ako je zahtjev uspješno izvršen, prikažite QR kod u dijalogu
-    String reservationCode = 'https://localhost:7036/PotvrdiUlazakIRezervaciju=187'; // Generirajte jedinstveni kod ovdje
 
+    Map<String, dynamic> responseJson = jsonDecode(response.body);
+    int idrezervacije = responseJson['idrezervacije'];
+
+  // Ispis idrezervacije
+  print('idrezervacije: $idrezervacije');
+    // Ako je zahtjev uspješno izvršen, prikažite QR kod u dijalogu
+    String reservationCode = '$baseUrl/PotvrdiUlazakIRezervaciju=$idrezervacije'; // Generirajte jedinstveni kod ovdje
+    
     // Generirajte QR kod
     QrImageView qrCodeWidget = QrImageView(
       data: reservationCode,
@@ -200,7 +213,7 @@ Future<void> saveReservation(BuildContext context) async {
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Text('Vaš QR kod za rezervaciju - u slučaju greške na aparatu Vaš jedinstevni broj rezervacije je 187'),
+            child: Text('Vaš QR kod za rezervaciju - u slučaju greške na aparatu Vaš jedinstevni broj rezervacije je $idrezervacije'),
             
           ),
           qrCodeWidget, // Ovdje se prikazuje QR kod
@@ -209,7 +222,7 @@ Future<void> saveReservation(BuildContext context) async {
               Navigator.of(context).pop(); // Zatvori dijalog
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
-                  builder: (context) => HomeScreen(userId: widget.KorisnikID,),
+                  builder: (context) => HomeScreen(userId: widget.KorisnikID, header: widget.header,),
                 ),
               ); // Redirekcija na HomeScreen
             },

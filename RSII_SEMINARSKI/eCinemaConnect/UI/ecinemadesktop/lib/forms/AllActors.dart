@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
 
@@ -13,19 +13,6 @@ class MyApp extends StatelessWidget {
       home: GlumciScreen(),
     );
   }
-}
-
-class Glumac {
-  final int id;
-  String ime;
-  String prezime;
-  final String slika; // Promenljiva za sliku koja može biti null
-
-  Glumac(
-      {required this.id,
-      required this.ime,
-      required this.prezime,
-      required this.slika});
 }
 
 class GlumciScreen extends StatefulWidget {
@@ -48,20 +35,14 @@ class _GlumciScreenState extends State<GlumciScreen> {
   }
 
   Future<void> fetchGlumci() async {
-    final response = await http.get(Uri.parse('https://localhost:7125/Glumci'));
-    if (response.statusCode == 200) {
-      final jsonData = json.decode(response.body) as List<dynamic>;
+    try {
+      final fetchedGlumci = await ApiService.fetchGlumci();
       setState(() {
-        glumci = jsonData
-            .map((data) => Glumac(
-                  id: data['idglumca'],
-                  ime: data['ime'],
-                  prezime: data['prezime'],
-                  slika: data['slika'],
-                ))
-            .toList();
+        glumci = fetchedGlumci;
         filteredGlumci = glumci;
       });
+    } catch (error) {
+      print('Error fetching glumci: $error');
     }
   }
 
@@ -120,36 +101,23 @@ class _GlumciScreenState extends State<GlumciScreen> {
 
   Future<void> updateGlumac(int id) async {
     final selectedGlumac = glumci.firstWhere((glumac) => glumac.id == id);
-    final url = 'https://localhost:7125/Glumci/$id';
+    final ime = editImeController.text;
+    final prezime = editPrezimeController.text;
 
-    final Map<String, String> headers = {
-      'accept': 'text/plain',
-      'Content-Type': 'application/json',
-    };
+    try {
+      await ApiService.updateGlumac(id, ime, prezime);
 
-    final Map<String, dynamic> body = {
-      'ime': editImeController.text,
-      'prezime': editPrezimeController.text,
-    };
-
-    final response = await http.put(
-      Uri.parse(url),
-      headers: headers,
-      body: json.encode(body),
-    );
-
-    if (response.statusCode == 200) {
       setState(() {
-        selectedGlumac.ime = editImeController.text;
-        selectedGlumac.prezime = editPrezimeController.text;
+        selectedGlumac.ime = ime;
+        selectedGlumac.prezime = prezime;
       });
+
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Podaci o glumcu su ažurirani!'),
       ));
-    } else {
+    } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content:
-            Text('Došlo je do greške prilikom ažuriranja podataka o glumcu.'),
+        content: Text('Greška prilikom ažuriranja podataka o glumcu: $error'),
       ));
     }
   }

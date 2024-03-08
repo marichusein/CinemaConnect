@@ -1,8 +1,7 @@
 // ignore_for_file: unnecessary_null_comparison
 
+import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:intl/intl.dart';
 
 void main() {
@@ -64,7 +63,7 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
   List<Sala> sale = [];
   String plakatFilma = "assets/noPhoto.jpg";
   late DateTime pickedDateTimef;
-
+  final TextEditingController pretragaController = TextEditingController();
 
   final TextEditingController datumController = TextEditingController();
   final TextEditingController cijenaController = TextEditingController();
@@ -79,31 +78,24 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
   }
 
   Future<void> preuzmiFilmove() async {
-    final response =
-        await http.get(Uri.parse('https://localhost:7125/Filmovi'));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> filmoviData = json.decode(response.body);
-      final List<Film> parsedFilmovi =
-          filmoviData.map((item) => Film.fromJson(item)).toList();
-
+    try {
+      List<dynamic> filmoviData = await ApiService.preuzmiFilmove();
       setState(() {
-        filmovi = parsedFilmovi;
+        filmovi = filmoviData.map((item) => Film.fromJson(item)).toList();
       });
+    } catch (error) {
+      print('Greška prilikom preuzimanja filmova: $error');
     }
   }
 
   Future<void> preuzmiSale() async {
-    final response = await http.get(Uri.parse('https://localhost:7125/Sale'));
-
-    if (response.statusCode == 200) {
-      final List<dynamic> saleData = json.decode(response.body);
-      final List<Sala> parsedSale =
-          saleData.map((item) => Sala.fromJson(item)).toList();
-
+    try {
+      List<dynamic> saleData = await ApiService.preuzmiSale();
       setState(() {
-        sale = parsedSale;
+        sale = saleData.map((item) => Sala.fromJson(item)).toList();
       });
+    } catch (error) {
+      print('Greška prilikom preuzimanja sala: $error');
     }
   }
 
@@ -120,86 +112,58 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
     };
 
     // Konvertirajte podatke u JSON format
-    final jsonBody = jsonEncode(novaProjekcija);
-
-    // Postavite zaglavlje zahtjeva prema Swagger primjeru
-    final headers = <String, String>{
-      'accept': 'text/plain',
-      'Content-Type': 'application/json',
-    };
-
     try {
-      print('Sending request...');
+      await ApiService.dodajProjekciju(novaProjekcija);
 
-      final response = await http.post(
-        Uri.parse('https://localhost:7036/Projekcije'),
-        headers: headers,
-        body: jsonBody,
-      );
-      print('Response received: ${response.statusCode}');
-      print('Response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        // Uspješno dodana projekcija
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Projekcija uspješno dodana!'),
-          ),
-        );
-
-        // Ispričavanje polja forme
-        setState(() {
-          selectedFilmId = null;
-          selectedSalaId = null;
-          datumController.clear();
-          cijenaController.clear();
-          plakatFilma = "assets/noPhoto.jpg";
-        });
-      } else {
-        // Greška prilikom slanja zahtjeva
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Greška prilikom dodavanja projekcije.'),
-          ),
-        );
-      }
-    } catch (error) {
-      // Greška prilikom slanja zahtjeva
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Greška prilikom slanja zahtjeva: $error'),
+          content: Text('Projekcija uspješno dodana!'),
+        ),
+      );
+
+      setState(() {
+        selectedFilmId = null;
+        selectedSalaId = null;
+        datumController.clear();
+        cijenaController.clear();
+        plakatFilma = "assets/noPhoto.jpg";
+      });
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Greška prilikom dodavanja projekcije: $error'),
         ),
       );
     }
   }
 
   Future<void> _selectDate(BuildContext context) async {
-     final DateTime pickedDate = (await showDatePicker(
-    context: context,
-    initialDate: DateTime.now(),
-    firstDate: DateTime.now().subtract(Duration(days: 1)),
-    lastDate: DateTime(DateTime.now().year + 1),
-  ))!;
-
-  if (pickedDate != null) {
-    final TimeOfDay pickedTime = (await showTimePicker(
+    final DateTime pickedDate = (await showDatePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now().subtract(Duration(days: 1)),
+      lastDate: DateTime(DateTime.now().year + 1),
     ))!;
 
-    if (pickedTime != null) {
-      final DateTime pickedDateTime = DateTime(
-        pickedDate.year,
-        pickedDate.month,
-        pickedDate.day,
-        pickedTime.hour,
-        pickedTime.minute,
-      );
+    if (pickedDate != null) {
+      final TimeOfDay pickedTime = (await showTimePicker(
+        context: context,
+        initialTime: TimeOfDay.now(),
+      ))!;
 
-      datumController.text = pickedDateTime.toLocal().toString();
-      pickedDateTimef=pickedDateTime.toLocal();
+      if (pickedTime != null) {
+        final DateTime pickedDateTime = DateTime(
+          pickedDate.year,
+          pickedDate.month,
+          pickedDate.day,
+          pickedTime.hour,
+          pickedTime.minute,
+        );
+
+        datumController.text = pickedDateTime.toLocal().toString();
+        pickedDateTimef = pickedDateTime.toLocal();
+      }
     }
-  }
   }
 
   @override
@@ -215,6 +179,19 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
           child: Column(
             children: [
               // Dropdown za odabir filma
+              TextField(
+                controller: pretragaController,
+                onChanged: (value) {
+                  setState(
+                      () {}); // Ovdje ćemo osvježiti widget kako bismo primijenili filtriranje
+                },
+                decoration: InputDecoration(
+                  labelText: 'Pretraži film',
+                  prefixIcon: Icon(Icons.search),
+                ),
+              ),
+
+// Dropdown za odabir filma
               DropdownButtonFormField<int>(
                 value: selectedFilmId,
                 onChanged: (newValue) {
@@ -223,11 +200,14 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
                     // Pronađi plakat filma na temelju odabranog ID-a filma
                     final selectedFilm =
                         filmovi.firstWhere((film) => film.idfilma == newValue);
-                    plakatFilma =
-                        selectedFilm.filmPlakat ?? "assets/noPhoto.jpg";
+                    plakatFilma = selectedFilm.filmPlakat;
                   });
                 },
-                items: filmovi.map<DropdownMenuItem<int>>((film) {
+                items: filmovi
+                    .where((film) => film.nazivFilma
+                        .toLowerCase()
+                        .contains(pretragaController.text.toLowerCase()))
+                    .map<DropdownMenuItem<int>>((film) {
                   return DropdownMenuItem<int>(
                     value: film.idfilma,
                     child: Text(film.nazivFilma),

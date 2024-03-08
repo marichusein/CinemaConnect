@@ -28,6 +28,12 @@ namespace eCinemaConnect.Controllers
         {
            return _projekcije.GetAll();
         }
+
+        [HttpGet("aktivne")]
+        public IEnumerable<Model.ViewRequests.ProjekcijeView> GetAktivne()
+        {
+            return _projekcije.GetAktivneProjekcije();
+        }
         [HttpGet("film/{filmId}")]
         public IEnumerable<Model.ViewRequests.ProjekcijeView> GetByFilm(int filmId)
         {
@@ -46,10 +52,19 @@ namespace eCinemaConnect.Controllers
         }
 
         [HttpPost()]
-        public Model.ViewRequests.ProjekcijeView AddProjekciju(ProjekcijeInsert obj)
+        public IActionResult AddProjekciju(ProjekcijeInsert obj)
         {
-            return _projekcije.AddProjekciju(obj);
+            try
+            {
+                var projekcija = _projekcije.AddProjekciju(obj);
+                return Ok(projekcija);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
+
 
         [HttpPut("{id}")]
         public Model.ViewRequests.ProjekcijeView UpdateProjekciju(int id, ProjekcijeUpdate obj)

@@ -1,3 +1,4 @@
+import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/details/details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -9,10 +10,12 @@ import 'package:cinemaconnect_mobile/models/movie.dart';
 class Preporuka extends StatefulWidget {
 
   final int IDKorisnika;
+  final Map<String, String> header;
 
   const Preporuka({
     Key? key,
-    required this.IDKorisnika, // Dodajte searchQuery
+    required this.IDKorisnika,
+    required this.header // Dodajte searchQuery
   }) : super(key: key);
 
   @override
@@ -35,8 +38,9 @@ class _PreporukaState extends State<Preporuka> {
 
 
   Future<double> fetchMovieRating(int movieId) async {
-  final Uri url = Uri.parse('https://localhost:7125/film?id=$movieId');
-  final response = await http.get(url);
+    final String baseUrl = ApiKonstante.baseUrl;
+  final Uri url = Uri.parse('$baseUrl/film?id=$movieId');
+  final response = await http.get(url, headers: widget.header);
 
   if (response.statusCode == 200) {
     final dynamic apiMovie = json.decode(response.body);
@@ -50,8 +54,9 @@ class _PreporukaState extends State<Preporuka> {
 
   Future<void> fetchMovies() async {
     int id=widget.IDKorisnika;
-    final Uri url = Uri.parse('https://localhost:7125/Filmovi/preporuka?korisnikid=$id');
-    final response = await http.get(url);
+    final String baseUrl = ApiKonstante.baseUrl;
+    final Uri url = Uri.parse('$baseUrl/Filmovi/preporuka?korisnikid=$id');
+    final response = await http.get(url, headers: widget.header);
 
     if (mounted) {
       // Provjerite je li widget još uvijek montiran prije poziva setState
@@ -172,7 +177,7 @@ class MovieCard extends StatelessWidget {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DetailsScreen(movie: movie, KorisnikID: KorisnikID,),
+            builder: (context) => DetailsScreen(movie: movie, KorisnikID: KorisnikID, header: {},),
           ),
         ),
         child: Column(

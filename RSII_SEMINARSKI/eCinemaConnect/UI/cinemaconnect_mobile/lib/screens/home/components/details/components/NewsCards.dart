@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:cinemaconnect_mobile/models/news.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/details/components/NewsDetailsScreen.dart';
 import 'package:flutter/material.dart';
@@ -9,10 +10,14 @@ import 'dart:math' as math;
 class NewsCarousel extends StatefulWidget {
   final String searchQuery;
   final int KorisnikID;
-  const NewsCarousel({
-    required this.searchQuery,
-    required Key key, required this.KorisnikID, // Dodajte key kao obavezni parametar
-  }) : super(key: key);
+  final Map<String, String> header;
+  const NewsCarousel(
+      {required this.searchQuery,
+      required Key key,
+      required this.KorisnikID,
+      required this.header // Dodajte key kao obavezni parametar
+      })
+      : super(key: key);
   State<NewsCarousel> createState() => _NewsCarouselState();
 }
 
@@ -32,63 +37,64 @@ class _NewsCarouselState extends State<NewsCarousel> {
     return widget.searchQuery.isEmpty ? '' : widget.searchQuery.toLowerCase();
   }
 
- Future<void> fetchNews() async {
-  final Uri url = Uri.parse('https://localhost:7125/Obavijesti');
-  final response = await http.get(url);
+  Future<void> fetchNews() async {
+    final String baseUrl = ApiKonstante.baseUrl;
+    final Uri url = Uri.parse('$baseUrl/Obavijesti');
+    final response = await http.get(url, headers: widget.header);
 
-  if (response.statusCode == 200) {
-    final List<dynamic> apiNews = json.decode(response.body);
+    if (response.statusCode == 200) {
+      final List<dynamic> apiNews = json.decode(response.body);
 
-    // Očisti postojeću listu novosti
-    news.clear();
+      // Očisti postojeću listu novosti
+      news.clear();
 
-    for (var apiNewsItem in apiNews) {
-      final String slikaBase64 = apiNewsItem['slika'];
-      String slika;
+      for (var apiNewsItem in apiNews) {
+        final String slikaBase64 = apiNewsItem['slika'];
+        String slika;
 
-      // Dekodirajte Base64 string u bajt niz
-      List<int> decodedBytes = base64Decode(slikaBase64);
+        // Dekodirajte Base64 string u bajt niz
+        List<int> decodedBytes = base64Decode(slikaBase64);
 
-      // Kreirajte Image.memory widget sa dekodiranim bajt nizom
-      slika = 'data:image/jpeg;base64,${base64Encode(decodedBytes)}';
+        // Kreirajte Image.memory widget sa dekodiranim bajt nizom
+        slika = 'data:image/jpeg;base64,${base64Encode(decodedBytes)}';
 
-      final News newsItem = News(
-        id: apiNewsItem['idobavijesti'],
-        korisnikId: apiNewsItem['korisnikId'],
-        naslov: apiNewsItem['naslov'],
-        sadrzaj: apiNewsItem['sadrzaj'],
-        datumObjave: DateTime.parse(apiNewsItem['datumObjave']),
-        slika: slika,
-        datumUredjivanja: DateTime.parse(apiNewsItem['datumUredjivanja']),
-        autorIme: '', // Postavit ćemo autorovo ime kasnije
-        autorPrezime: '', // Postavit ćemo autorovo prezime kasnije
-      );
+        final News newsItem = News(
+          id: apiNewsItem['idobavijesti'],
+          korisnikId: apiNewsItem['korisnikId'],
+          naslov: apiNewsItem['naslov'],
+          sadrzaj: apiNewsItem['sadrzaj'],
+          datumObjave: DateTime.parse(apiNewsItem['datumObjave']),
+          slika: slika,
+          datumUredjivanja: DateTime.parse(apiNewsItem['datumUredjivanja']),
+          autorIme: '', // Postavit ćemo autorovo ime kasnije
+          autorPrezime: '', // Postavit ćemo autorovo prezime kasnije
+        );
 
-      // Dohvatite detalje o korisniku (autoru)
-      await fetchAuthorDetails(newsItem);
+        // Dohvatite detalje o korisniku (autoru)
+        await fetchAuthorDetails(newsItem);
 
-      if (getSearchQuery().isEmpty ||
-          newsItem.naslov.toLowerCase().contains(getSearchQuery())) {
-        // Provjerite je li widget još uvijek montiran prije setState
-        if (mounted) {
-          news.add(newsItem);
+        if (getSearchQuery().isEmpty ||
+            newsItem.naslov.toLowerCase().contains(getSearchQuery())) {
+          // Provjerite je li widget još uvijek montiran prije setState
+          if (mounted) {
+            news.add(newsItem);
+          }
         }
       }
+      // Provjerite je li widget još uvijek montiran prije setState
+      if (mounted) {
+        setState(
+            () {}); // Pokreni ponovnu izgradnju nakon što se podaci dobave.
+      }
+    } else {
+      throw Exception('Pogreška prilikom učitavanja novosti');
     }
-    // Provjerite je li widget još uvijek montiran prije setState
-    if (mounted) {
-      setState(() {}); // Pokreni ponovnu izgradnju nakon što se podaci dobave.
-    }
-  } else {
-    throw Exception('Pogreška prilikom učitavanja novosti');
   }
-}
-
 
   Future<void> fetchAuthorDetails(News newsItem) async {
-    final Uri url =
-        Uri.parse('https://localhost:7125/Korisnici/${newsItem.korisnikId}');
-    final response = await http.get(url);
+    final String baseUrl = ApiKonstante.baseUrl;
+    final Uri url = Uri.parse('$baseUrl/Korisnici/${newsItem.korisnikId}');
+    final response = await http.get(url, headers: widget.header);
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> authorData = json.decode(response.body);
@@ -135,7 +141,11 @@ class _NewsCarouselState extends State<NewsCarousel> {
         }
         return Transform.rotate(
           angle: math.pi * value,
-          child: NewsCard(news: newsItem, KorisnikID:widget.KorisnikID,),
+          child: NewsCard(
+            news: newsItem,
+            KorisnikID: widget.KorisnikID,
+            header: widget.header,
+          ),
         );
       },
     );
@@ -145,7 +155,12 @@ class _NewsCarouselState extends State<NewsCarousel> {
 class NewsCard extends StatelessWidget {
   final News news;
   final int KorisnikID;
-  const NewsCard({Key? key, required this.news, required this.KorisnikID});
+  final Map<String, String> header;
+  const NewsCard(
+      {Key? key,
+      required this.news,
+      required this.KorisnikID,
+      required this.header});
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +170,11 @@ class NewsCard extends StatelessWidget {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => NewsDetailsScreen(news: news, KorisnikID: KorisnikID,),
+            builder: (context) => NewsDetailsScreen(
+              news: news,
+              KorisnikID: KorisnikID,
+              header: header,
+            ),
           ),
         ),
         child: Column(
@@ -172,9 +191,12 @@ class NewsCard extends StatelessWidget {
                       spreadRadius: 5,
                     ),
                   ],
-                  image: DecorationImage(
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: Image.memory(
+                    base64Decode(news.slika.split(',').last),
                     fit: BoxFit.fill,
-                    image: NetworkImage(news.slika),
                   ),
                 ),
               ),

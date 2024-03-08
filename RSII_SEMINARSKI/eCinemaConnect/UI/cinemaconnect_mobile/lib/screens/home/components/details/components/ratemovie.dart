@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
@@ -8,8 +9,8 @@ import 'package:intl/intl.dart';
 class RatingDialog extends StatefulWidget {
   final int movieId;
   final int korisnikID;
-
-  RatingDialog({required this.movieId, required this.korisnikID});
+final Map<String, String> header;
+  RatingDialog({required this.movieId, required this.korisnikID, required this.header});
 
   @override
   _RatingDialogState createState() => _RatingDialogState();
@@ -67,28 +68,27 @@ void submitRating() async {
   final String comment = commentController.text;
   final int userId = widget.korisnikID;
   final int movieId = widget.movieId;
-  final int ratingValue = rating.round(); // Zaokruživanje ocjene na najbližu cijelu vrijednost
+ final double ratingValue = rating.roundToDouble(); // Zaokruživanje ocjene na najbližu cijelu vrijednost
   final String currentDate = DateFormat("yyyy-MM-ddTHH:mm:ss.SSSZ").format(DateTime.now().toUtc()); // Postavite stvarni datum ovdje
 
   final Map<String, dynamic> data = {
     "korisnikId": userId,
     "filmId": movieId,
-    "ocjena": ratingValue,
+    "ocjena": ratingValue.toInt(),
     "komentar": comment,
     "datumOcjene": currentDate,
   };
 
-  final url = Uri.parse('https://localhost:7125/OcijeniFilm');
+
+final String baseUrl = ApiKonstante.baseUrl;
+  final url = Uri.parse('$baseUrl/OcijeniFilm');
 
   final client = http.Client();
 
   try {
     final response = await client.post(
       url,
-      headers: {
-        'accept': 'text/plain',
-        'Content-Type': 'application/json',
-      },
+      headers: widget.header,
       body: jsonEncode(data),
     );
 

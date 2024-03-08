@@ -1,6 +1,7 @@
 using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
+using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services;
 using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
@@ -33,6 +34,11 @@ namespace eCinemaConnect.Controllers
             return _glumci.GetObj(id);
         }
 
+        [HttpGet("filmovibyglumacid/{Glumacid}")]
+        public IEnumerable<FilmoviView> GetByGlumacId(int Glumacid)
+        {
+            return _glumci.VratiFilmoveZaGlumca(Glumacid);
+        }
         [HttpPost()]
         public Model.ViewRequests.GlumciView AddGlumca(GlumciInsert obj)
         {

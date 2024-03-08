@@ -1,7 +1,6 @@
-import 'dart:convert';
-
+import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+
 
 
 class DodajReziseraForma extends StatefulWidget {
@@ -68,35 +67,24 @@ class _DodajReziseraFormaState extends State<DodajReziseraForma> {
   }
 
   void _dodajRezisera() async {
-    final ime = _imeController.text;
-    final prezime = _prezimeController.text;
+  final ime = _imeController.text;
+  final prezime = _prezimeController.text;
 
-    // Pošalji podatke na poslužitelj
-    final response = await http.post(
-      Uri.parse('https://localhost:7036/Reziseri'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(<String, String>{
-        'ime': ime,
-        'prezime': prezime,
-      }),
-    );
+  try {
+    String message = await ApiService.dodajRezisera(ime, prezime);
 
-    if (response.statusCode == 200) {
-      // Uspješno dodan režiser
-      setState(() {
-        _warningMessage = 'Režiser uspješno dodan';
-        _imeController.clear();
-        _prezimeController.clear();
-      });
-    } else {
-      // Greška prilikom dodavanja režisera
-      setState(() {
-        _warningMessage = 'Greška prilikom dodavanja režisera';
-      });
-    }
+    setState(() {
+      _warningMessage = message;
+      _imeController.clear();
+      _prezimeController.clear();
+    });
+  } catch (error) {
+    setState(() {
+      _warningMessage = 'Greška prilikom dodavanja režisera: $error';
+    });
   }
+}
+
 }
 
 void main() => runApp(MaterialApp(

@@ -6,9 +6,10 @@ import 'package:flutter/material.dart';
 class TitleAndBasicInfo extends StatelessWidget {
   final Movie movie;
   final int KorisnikID;
+   final Map<String, String> header;
 
   const TitleAndBasicInfo(
-      {super.key, required this.movie, required this.KorisnikID});
+      {super.key, required this.movie, required this.KorisnikID, required this.header});
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +61,7 @@ class TitleAndBasicInfo extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => ProjekcijeSjedistaKomponenta(filmId: movie.id, korisnikID: KorisnikID,),
+          builder: (context) => ProjekcijeSjedistaKomponenta(filmId: movie.id, korisnikID: KorisnikID, header: header,),
         ),
       );
               },

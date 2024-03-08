@@ -42,6 +42,12 @@ namespace eCinemaConnect.Controllers
         {
             return  _korisnici.Login(obj);
         }
+
+        [HttpPost("loginAdmin")]
+        public Model.ViewRequests.KorisniciView LoginAdmin(KorisniciLogin obj)
+        {
+            return _korisnici.LoginAdmin(obj);
+        }
         [HttpPost("siginup")]
         public IActionResult SiginUp(KorisniciRegistration obj)
         {

@@ -1,13 +1,15 @@
 
+import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:cinemaconnect_mobile/const.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class Genres extends StatefulWidget {
+  final Map<String, String> header; 
   final Function(String) onGenreSelected; // Dodajte ovu funkciju za odabir žanra
 
-  Genres({required this.onGenreSelected});
+  Genres({required this.onGenreSelected, required this.header});
 
   @override
   _GenresState createState() => _GenresState();
@@ -15,7 +17,8 @@ class Genres extends StatefulWidget {
 
 class _GenresState extends State<Genres> {
   List<String> genres = [];
-  String selectedGenre = ""; // Dodajte ovo polje za praćenje odabranog žanra
+  String selectedGenre = "";
+  // Dodajte ovo polje za praćenje odabranog žanra
 
   @override
   void initState() {
@@ -24,7 +27,8 @@ class _GenresState extends State<Genres> {
   }
 
   Future<void> fetchGenres() async {
-    final response = await http.get(Uri.parse('https://localhost:7125/Zanrovi'));
+    final String baseUrl = ApiKonstante.baseUrl;
+    final response = await http.get(Uri.parse('$baseUrl/Zanrovi'), headers: widget.header);
 
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);

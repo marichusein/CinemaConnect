@@ -27,12 +27,32 @@ namespace eCinemaConnect.Services.Service
 
         public ProjekcijeView AddProjekciju(ProjekcijeInsert projekcijaInsert)
         {
+
+            var existingProjekcije = _context.Projekcijes
+    .Where(p => p.SalaId == projekcijaInsert.SalaId &&
+                p.DatumVrijemeProjekcije.Value.Date == projekcijaInsert.DatumVrijemeProjekcije.Value.Date)
+    .ToList();
+
+
+            foreach (var existingProjekcija in existingProjekcije)
+            {
+                //Minimalno 3h izmedju pocetka projekicja u istoj sali 
+                var krajPostojeceProjekcije = existingProjekcija.DatumVrijemeProjekcije.Value.AddMinutes(180);
+
+                // Provjeri preklapanje s novom projekcijom
+                if (projekcijaInsert.DatumVrijemeProjekcije >= existingProjekcija.DatumVrijemeProjekcije &&
+                    projekcijaInsert.DatumVrijemeProjekcije <= krajPostojeceProjekcije)
+                {
+                    throw new Exception("Sala je već zauzeta za odabrani datum i vrijeme.");
+                }
+            }
+
             var newProjekcija = new Database.Projekcije();
             _mapper.Map(projekcijaInsert, newProjekcija);
             _context.Add(newProjekcija);
             _context.SaveChanges();
 
-            var sjedista=_sjedista.GetAllBySala((int)projekcijaInsert.SalaId);
+            var sjedista = _sjedista.GetAllBySala((int)projekcijaInsert.SalaId);
             for (int i = 0; i < sjedista.Count; i++)
             {
                 var projekcijasjediste = new Database.ProjekcijeSjedistum();
@@ -43,8 +63,8 @@ namespace eCinemaConnect.Services.Service
                 _context.SaveChanges();
             }
 
-           
-            
+
+
 
             return _mapper.Map<ProjekcijeView>(newProjekcija);
         }
@@ -65,14 +85,14 @@ namespace eCinemaConnect.Services.Service
 
         public List<ProjekcijeView> GetAll()
         {
-            var projekcije = _context.Projekcijes.Include(f => f.Film).Include(f=>f.Film.Zanr).Include(f=>f.Film.Reziser).Include(s=>s.Sala).ToList();
+            var projekcije = _context.Projekcijes.Include(f => f.Film).Include(f => f.Film.Zanr).Include(f => f.Film.Reziser).Include(s => s.Sala).ToList();
             return _mapper.Map<List<ProjekcijeView>>(projekcije);
         }
 
         public List<ProjekcijeView> GetByFilm(int id)
         {
             var projekcije = _context.Projekcijes.Include(f => f.Film).Include(f => f.Film.Zanr).Include(f => f.Film.Reziser).Include(s => s.Sala).ToList();
-            projekcije = projekcije.Where(x=>x.FilmId== id).ToList();
+            projekcije = projekcije.Where(x => x.FilmId == id).ToList();
             return _mapper.Map<List<ProjekcijeView>>(projekcije);
         }
 
@@ -105,12 +125,23 @@ namespace eCinemaConnect.Services.Service
                     Idsjedista = (int)projekcija[i].SjedisteId,
                     Slobodno = (bool)projekcija[i].Slobodno,
                     BrojSjedista = _context.Sjedista.Where(x => x.Idsjedista == projekcija[i].SjedisteId).FirstOrDefault().BrojSjedista,
-                    
+
 
                 };
                 sjedista.Add(s);
             }
             return sjedista;
         }
+
+        public List<ProjekcijeView> GetAktivneProjekcije()
+        {
+            var trenutakPretrage = DateTime.Now;
+
+            var aktivneProjekcije = _context.Projekcijes.Where(p => p.DatumVrijemeProjekcije > trenutakPretrage).Include(f => f.Film).Include(s => s.Sala).Include(z => z.Film.Zanr).Include(r=>r.Film.Reziser)
+                .ToList();
+
+            return _mapper.Map<List<ProjekcijeView>>(aktivneProjekcije);
+        }
+
     }
 }

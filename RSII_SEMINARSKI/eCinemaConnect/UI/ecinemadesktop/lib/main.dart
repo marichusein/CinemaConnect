@@ -48,8 +48,9 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       // Pošaljite zahtjev za prijavu koristeći LoginService
-      final userData = await LoginService().login(loginData);
-
+      final userDatas = await LoginService().login(loginData);
+      final headers = userDatas['headers'];
+      final userData=userDatas['userData'];
       // Ako je prijava uspješna, prikažite korisničko ime i prezime na ekranu
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -58,12 +59,22 @@ class _LoginPageState extends State<LoginPage> {
         ),
       );
 
+      print('ID korisnika: ${userData['idkorisnika'] ?? 1}');
+      print('Korisničko ime: ${userData['ime']} ${userData['prezime']}');
+      print('Zaglavlje: $headers');
+
       // Navigirajte na ekran UserDashboard
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => UserDashboard(
-            idkorisnika: userData['idkorisnika'],
+          
+          builder: 
+          
+          
+          (context) => UserDashboard(
+            
+            idkorisnika: userData['idkorisnika']??1,
             Username: userData['ime'] + ' ' + userData['prezime'],
+            header: headers,
           ),
         ),
       );
@@ -72,7 +83,7 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content:
-              Text('Neuspjela prijava. Provjerite korisničko ime i lozinku. ${LoginService().baseUrl}'),
+              Text('Neuspjela prijava. Provjerite korisničko ime i lozinku'),
         ),
       );
     }
@@ -126,7 +137,7 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () =>
                         _performLogin(context), // Pass context to _performLogin
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.blue,
+                      backgroundColor: Colors.blue,
                       padding: EdgeInsets.symmetric(horizontal: 40),
                     ),
                     child: Text(
@@ -182,9 +193,10 @@ class _LoginPageState extends State<LoginPage> {
 class UserDashboard extends StatelessWidget {
   final int idkorisnika;
   final String Username;
+  final Map<String, String> header;
 
   const UserDashboard(
-      {super.key, required this.idkorisnika, required this.Username});
+      {super.key, required this.idkorisnika, required this.Username, required this.header});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -252,7 +264,7 @@ class UserDashboard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       _buildNavItem(Icons.movie, 'Dodaj film', context,
-                          MovieForm()), // Pass MovieForm as the destination
+                          MovieForm(header: header,)), // Pass MovieForm as the destination
                       _buildNavItem(Icons.person, 'Dodaj glumca', context,
                           ActorForm() /* Add Actor screen here */), // Add Actor destination
                       // Add more navigation items as needed

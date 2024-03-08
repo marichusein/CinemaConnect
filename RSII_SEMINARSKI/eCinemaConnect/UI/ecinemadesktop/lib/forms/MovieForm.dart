@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:ecinemadesktop/models/models-all.dart';
 import 'package:ecinemadesktop/services/services.dart';
-import 'dart:typed_data';
 import 'dart:io';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // Import font awesome
 
+// ignore: must_be_immutable
 class MovieFormWithFutureBuilder extends StatelessWidget {
-  final MovieService _movieService = MovieService();
+  //final MovieService _movieService = MovieService();
+  Map<String, String> header={};
+
+  MovieFormWithFutureBuilder({required this.header});
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +22,7 @@ class MovieFormWithFutureBuilder extends StatelessWidget {
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
-          return MovieForm();
+          return MovieForm(header: header);
         }
       },
     );
@@ -30,9 +32,10 @@ class MovieFormWithFutureBuilder extends StatelessWidget {
     // Fetch your data here
     try {
       // Fetch genres, directors, and actors asynchronously
-      final List<Genre> genres = await _movieService.fetchGenres();
-      final List<Director> directors = await _movieService.fetchDirectors();
-      final List<Actor> actors = await _movieService.fetchActors();
+      // print('Header $header');
+      // final List<Genre> genres = await _movieService.fetchGenres(header);
+      // final List<Director> directors = await _movieService.fetchDirectors(header);
+      // final List<Actor> actors = await _movieService.fetchActors(header);
 
       // Do something with the fetched data if needed
     } catch (e) {
@@ -42,10 +45,13 @@ class MovieFormWithFutureBuilder extends StatelessWidget {
 }
 
 class MovieForm extends StatefulWidget {
+  final Map<String, String> header; // Dodajte polje za zaglavlje
+
+  MovieForm({required this.header}); // Konstruktor za zaglavlje
+
   @override
   _MovieFormState createState() => _MovieFormState();
 }
-
 class _MovieFormState extends State<MovieForm> {
   final _formKey = GlobalKey<FormState>();
   final MovieService _movieService = MovieService();
@@ -82,9 +88,10 @@ class _MovieFormState extends State<MovieForm> {
 
   Future<void> _fetchData() async {
     try {
-      final List<Genre> genres = await _movieService.fetchGenres();
-      final List<Director> directors = await _movieService.fetchDirectors();
-      final List<Actor> actors = await _movieService.fetchActors();
+      print('Header ${widget.header}');
+      final List<Genre> genres = await _movieService.fetchGenres(widget.header);
+      final List<Director> directors = await _movieService.fetchDirectors(widget.header);
+      final List<Actor> actors = await _movieService.fetchActors(widget.header);
 
       setState(() {
         _genres = genres;

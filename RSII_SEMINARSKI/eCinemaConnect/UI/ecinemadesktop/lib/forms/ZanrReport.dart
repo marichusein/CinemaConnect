@@ -1,12 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:io';
 
+import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
@@ -36,17 +35,19 @@ class _ZanrReportState extends State<ZanrReport> {
       _isLoading = true;
     });
 
-    final url = Uri.parse('https://localhost:7125/Rezervacije/kartePoZanru');
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
+    try {
+      final movieData = await ApiService.fetchZanrData();
       setState(() {
-        _movieData = Map<String, int>.from(json.decode(response.body));
+        _movieData = movieData;
         _totalSales = _calculateTotalSales();
         _isLoading = false;
       });
-    } else {
-      throw Exception('Failed to load movie data');
+    } catch (error) {
+      setState(() {
+        _isLoading = false;
+      });
+      // Handle error here
+      print('Error fetching zanr data: $error');
     }
   }
 
@@ -148,18 +149,16 @@ class _ZanrReportState extends State<ZanrReport> {
   }
 
   Future<void> _openPdf() async {
-    if (_pdfFile != null) {
-      final filePath = _pdfFile.path;
-      final fileUrl =
-          Platform.isWindows ? filePath.replaceAll('/', '\\') : filePath;
-      // ignore: deprecated_member_use
-      if (await canLaunch(fileUrl)) {
-        await launchUrlString(fileUrl);
-      } else {
-        throw 'Could not launch $fileUrl';
-      }
+    final filePath = _pdfFile.path;
+    final fileUrl =
+        Platform.isWindows ? filePath.replaceAll('/', '\\') : filePath;
+    // ignore: deprecated_member_use
+    if (await canLaunch(fileUrl)) {
+      await launchUrlString(fileUrl);
+    } else {
+      throw 'Could not launch $fileUrl';
     }
-  }
+    }
 
   @override
   Widget build(BuildContext context) {

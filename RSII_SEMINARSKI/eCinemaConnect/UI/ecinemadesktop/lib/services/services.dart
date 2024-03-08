@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'package:ecinemadesktop/api-konstante.dart';
 import 'package:ecinemadesktop/models/models-all.dart';
 import 'package:http/http.dart' as http;
+//import 'package:syncfusion_flutter_charts/charts.dart';
+
+Map<String, String> zaglavlje = <String, String>{};
 
 class MovieService {
   final String baseUrl = ApiKonstante.baseUrl;
@@ -11,7 +14,7 @@ class MovieService {
 
     final response = await http.post(
       url,
-      headers: {'Content-Type': 'application/json'},
+      headers: zaglavlje,
       body: jsonEncode(movie.toJson()),
     );
 
@@ -22,9 +25,11 @@ class MovieService {
     }
   }
 
-  Future<List<Genre>> fetchGenres() async {
+  Future<List<Genre>> fetchGenres(Map<String, String> header) async {
     final url = Uri.parse('$baseUrl/Zanrovi');
-    final response = await http.get(url);
+    print('u pozivu $zaglavlje');
+
+    final response = await http.get(url, headers: zaglavlje);
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
@@ -34,9 +39,9 @@ class MovieService {
     }
   }
 
-  Future<List<Director>> fetchDirectors() async {
+  Future<List<Director>> fetchDirectors(Map<String, String> header) async {
     final url = Uri.parse('$baseUrl/Reziseri');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: zaglavlje);
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
@@ -46,9 +51,9 @@ class MovieService {
     }
   }
 
-  Future<List<Actor>> fetchActors() async {
+  Future<List<Actor>> fetchActors(Map<String, String> header) async {
     final url = Uri.parse('$baseUrl/Glumci');
-    final response = await http.get(url);
+    final response = await http.get(url, headers: zaglavlje);
 
     if (response.statusCode == 200) {
       final List<dynamic> jsonList = json.decode(response.body);
@@ -63,7 +68,7 @@ class LoginService {
   final String baseUrl = ApiKonstante.baseUrl;
 
   Future<Map<String, dynamic>> login(Map<String, String> loginData) async {
-    final url = Uri.parse('$baseUrl/Korisnici/login');
+    final url = Uri.parse('$baseUrl/Korisnici/loginAdmin');
 
     final response = await http.post(
       url,
@@ -73,7 +78,10 @@ class LoginService {
 
     if (response.statusCode == 200) {
       final userData = json.decode(response.body);
-      return userData;
+      zaglavlje = createHeaders(loginData);
+      return {'userData': userData, 'headers': createHeaders(loginData)};
+    } else if (response.statusCode == 204) {
+      throw Exception('Nemate prava korisiti desktop aplikaciju');
     } else {
       throw Exception('Neuspjela prijava');
     }
@@ -99,7 +107,7 @@ class LoginService {
 }
 
 class ProfileService {
-   final String baseUrl = ApiKonstante.baseUrl;
+  final String baseUrl = ApiKonstante.baseUrl;
 
   Future<void> updateProfile(Map<String, dynamic> profileData) async {
     final url = Uri.parse('$baseUrl/Korisnici/${profileData["idkorisnika"]}');
@@ -119,14 +127,235 @@ class ProfileService {
   }
 
   Future<Map<String, dynamic>> getUserProfile(int idkorisnika) async {
-  final url = Uri.parse('$baseUrl/Korisnici/$idkorisnika');
+    final url = Uri.parse('$baseUrl/Korisnici/$idkorisnika');
 
-  final response = await http.get(url);
+    final response = await http.get(url);
 
-  if (response.statusCode == 200) {
-    return json.decode(response.body);
-  } else {
-    throw Exception('Neuspješno dohvaćanje profila korisnika');
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Neuspješno dohvaćanje profila korisnika');
+    }
   }
 }
+
+final String baseUrl = ApiKonstante.baseUrl;
+class ApiService {
+  
+
+  static Future<List<dynamic>> preuzmiFilmove() async {
+    
+    final response = await http.get(Uri.parse('$baseUrl/Filmovi'), headers: zaglavlje);
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load movies');
+    }
+  }
+
+  static Future<List<dynamic>> preuzmiSale() async {
+    final response = await http.get(Uri.parse('$baseUrl/Sale'), headers: zaglavlje);
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load halls');
+    }
+  }
+
+  static Future<void> dodajProjekciju(Map<String, dynamic> novaProjekcija) async {
+    final jsonBody = jsonEncode(novaProjekcija);
+
+    
+
+    final response = await http.post(
+      Uri.parse('$baseUrl/Projekcije'),
+      headers: zaglavlje,
+      body: jsonBody,
+    );
+
+    if (response.statusCode == 200) {
+      // Uspješno dodana projekcija
+      return;
+    } 
+    else if(response.statusCode == 400){
+      throw Exception('Nemoguće dodati projekciju sala je zazeta za taj period');
+    }
+      else {
+      throw Exception('Failed to add projection');
+    }
+  }
+
+  static Future<List<Glumac>> fetchGlumci() async {
+    final response = await http.get(Uri.parse('$baseUrl/Glumci'), headers: zaglavlje);
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body) as List<dynamic>;
+      return jsonData.map((data) => Glumac(
+        id: data['idglumca'],
+        ime: data['ime'],
+        prezime: data['prezime'],
+        slika: data['slika'],
+      )).toList();
+    } else {
+      throw Exception('Failed to load glumci');
+    }
+  }
+
+  static Future<void> updateGlumac(int id, String ime, String prezime) async {
+    final url = '$baseUrl/Glumci/$id';
+
+    final body = {
+      'ime': ime,
+      'prezime': prezime,
+    };
+
+    try {
+      final response = await http.put(
+        Uri.parse(url),
+        headers: zaglavlje,
+        body: json.encode(body),
+      );
+
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception('Failed to update glumac');
+      }
+    } catch (error) {
+      throw Exception('Error updating glumac: $error');
+    }
+  }
+
+  static Future<void> dodajGlumca(String ime, String prezime, String slikaBase64) async {
+    try {
+      final glumacData = {
+        'ime': ime,
+        'prezime': prezime,
+        'slika': slikaBase64,
+      };
+
+      final response = await http.post(
+        Uri.parse('$baseUrl/Glumci'),
+        headers: zaglavlje,
+        body: jsonEncode(glumacData),
+      );
+
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception('Failed to add actor');
+      }
+    } catch (error) {
+      throw Exception('Error adding actor: $error');
+    }
+  }
+
+  static Future<void> posaljiObavijest(int korisnikId, String naslov, String sadrzaj, String base64Image) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$base64Url/Obavijesti'),
+        headers: zaglavlje,
+        body: jsonEncode({
+          'korisnikId': korisnikId,
+          'naslov': naslov,
+          'sadrzaj': sadrzaj,
+          'datumObjave': DateTime.now().toIso8601String(),
+          'slika': base64Image,
+          'datumUredjivanja': DateTime.now().toIso8601String(),
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception('Failed to send notification');
+      }
+    } catch (error) {
+      throw Exception('Error sending notification: $error');
+    }
+  }
+
+  static Future<String> dodajRezisera(String ime, String prezime) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/Reziseri'),
+        headers: zaglavlje,
+        body: jsonEncode(<String, String>{
+          'ime': ime,
+          'prezime': prezime,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return 'Režiser uspješno dodan';
+      } else {
+        throw Exception('Greška prilikom dodavanja režisera');
+      }
+    } catch (error) {
+      throw Exception('Greška prilikom slanja zahtjeva: $error');
+    }
+  }
+
+  static Future<Map<String, int>> fetchMovieData() async {
+    final url = Uri.parse('$baseUrl/Rezervacije/brojkarata');
+    final response = await http.get(url, headers: zaglavlje);
+
+    if (response.statusCode == 200) {
+      return Map<String, int>.from(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load movie data');
+    }
+  }
+
+  static Future<Map<String, int>> fetchZanrData() async {
+    final url = Uri.parse('$baseUrl/Rezervacije/kartePoZanru');
+    final response = await http.get(url, headers: zaglavlje);
+
+    if (response.statusCode == 200) {
+      return Map<String, int>.from(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load zanr data');
+    }
+  }
+
+  static Future<Map<String, int>> fetchZaradaData() async {
+    final url = Uri.parse('$baseUrl/Rezervacije/zardaFilma');
+    final response = await http.get(url, headers: zaglavlje);
+
+    if (response.statusCode == 200) {
+      return Map<String, int>.from(json.decode(response.body));
+    } else {
+      throw Exception('Failed to load zarada data');
+    }
+  }
+
+}
+
+
+Map<String, String> createHeaders(Map<String, String> loginData) {
+  String username = loginData['korisnickoIme'] ?? "";
+  String password = loginData['lozinka'] ?? "";
+  String basicAuth =
+      "Basic ${base64Encode(utf8.encode('$username:$password'))}";
+
+  var headers = {
+    "Content-Type": "application/json",
+    "Authorization": basicAuth
+  };
+  return headers;
+}
+
+
+
+//KLASE
+
+class Glumac {
+  final int id;
+  String ime;
+  String prezime;
+  final String slika;
+
+  Glumac({required this.id, required this.ime, required this.prezime, required this.slika});
 }

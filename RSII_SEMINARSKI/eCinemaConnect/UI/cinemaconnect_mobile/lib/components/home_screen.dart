@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -6,8 +7,10 @@ import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   final int userId;
+  final Map<String, String> header;
+ 
 
-  const HomeScreen({Key? key, required this.userId}) : super(key: key);
+  const HomeScreen({Key? key, required this.userId, required this.header}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -22,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late String lastName = "";
   late String email="";
   late String newPassword = "";
+  final String baseUrl = ApiKonstante.baseUrl;
 
   @override
   void initState() {
@@ -30,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 Future<void> fetchUserData() async {
     final response = await http.get(
-      Uri.parse('https://localhost:7125/Korisnici/${widget.userId}'),
+      Uri.parse('$baseUrl/Korisnici/${widget.userId}'),
     );
 
     if (response.statusCode == 200) {
@@ -49,7 +53,7 @@ Future<void> fetchUserData() async {
 
   Future<void> updateUserData() async {
     final response = await http.put(
-      Uri.parse('https://localhost:7125/Korisnici/${widget.userId}'),
+      Uri.parse('$baseUrl/Korisnici/${widget.userId}'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'ime': firstName,
@@ -279,7 +283,7 @@ Future<void> fetchUserData() async {
       appBar: buildAppBar(),
       drawer: buildDrawer(),
       body: SingleChildScrollView(
-        child: Body(searchQuery: searchQuery, KorisnikID: widget.userId,),
+        child: Body(searchQuery: searchQuery, KorisnikID: widget.userId, header: widget.header,),
       ),
     );
   }
