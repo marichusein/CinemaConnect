@@ -26,6 +26,7 @@ namespace eCinemaConnect.Services.Service
         public RezervacijaView KreirajRezervaciju(RezervacijaInsert novaRezervacija)
         {
             var newR = _mapper.Map<Database.Rezervacije>(novaRezervacija);
+            newR.Usao = false;
             _context.Add(newR);
             _context.SaveChanges();
 
@@ -103,6 +104,28 @@ namespace eCinemaConnect.Services.Service
                 .ToDictionary(x => x.Zanr, x => x.BrojKarata);
 
             return brojKarataPoZanru;
+        }
+
+        public void OznaciRezervacijuKaoUsla(int rezervacijaId)
+        {
+            var rezervacija = _context.Rezervacijes.FirstOrDefault(r => r.Idrezervacije == rezervacijaId);
+
+            if (rezervacija != null)
+            {
+                if (rezervacija.Usao==true)
+                {
+                    throw new Exception($"Ulazak za rezervaciju s ID-om {rezervacijaId} već je registriran.");
+                }
+                else
+                {
+                    rezervacija.Usao = true;
+                    _context.SaveChanges();
+                }
+            }
+            else
+            {
+                throw new Exception($"Rezervacija s ID-om {rezervacijaId} nije pronađena.");
+            }
         }
 
 

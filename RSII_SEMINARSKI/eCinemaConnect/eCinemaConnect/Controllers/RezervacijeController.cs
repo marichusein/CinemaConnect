@@ -89,6 +89,20 @@ namespace eCinemaConnect.Controllers
             return _glumci.UpdateObj(id, obj);
         }
 
+        [HttpPost("PotvrdiUlazakRezervaciju={id}")]
+        public IActionResult PotvrdiUlazakRezervaciju(int id)
+        {
+            try
+            {
+                _glumci.OznaciRezervacijuKaoUsla(id);
+                return Ok($"Ulazak za rezervaciju s ID-om {id} je potvrdjen.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "Došlo je do greske prilikom potvrde ulaska rezervacije: " + ex.Message);
+            }
+        }
+
         [HttpDelete("{id}")]
         public bool Delete(int id)
         {

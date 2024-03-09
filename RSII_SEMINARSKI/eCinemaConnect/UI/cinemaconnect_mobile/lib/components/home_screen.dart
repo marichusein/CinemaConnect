@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:cinemaconnect_mobile/api-konstante.dart';
+import 'package:cinemaconnect_mobile/screens/home/components/LoginScreen.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -8,22 +9,22 @@ import 'package:http/http.dart' as http;
 class HomeScreen extends StatefulWidget {
   final int userId;
   final Map<String, String> header;
- 
 
-  const HomeScreen({Key? key, required this.userId, required this.header}) : super(key: key);
+  const HomeScreen({Key? key, required this.userId, required this.header})
+      : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-   bool _isSearching = false;
+  bool _isSearching = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   TextEditingController searchController = TextEditingController();
   String searchQuery = "";
   late String firstName = "";
   late String lastName = "";
-  late String email="";
+  late String email = "";
   late String newPassword = "";
   final String baseUrl = ApiKonstante.baseUrl;
 
@@ -32,7 +33,8 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     fetchUserData();
   }
-Future<void> fetchUserData() async {
+
+  Future<void> fetchUserData() async {
     final response = await http.get(
       Uri.parse('$baseUrl/Korisnici/${widget.userId}'),
     );
@@ -42,14 +44,13 @@ Future<void> fetchUserData() async {
       setState(() {
         firstName = userData['ime'];
         lastName = userData['prezime'];
-        email=userData['email'];
+        email = userData['email'];
         // Učitajte trenutnu lozinku ako je dostupna
       });
     } else {
       throw Exception('Failed to load user data');
     }
   }
-
 
   Future<void> updateUserData() async {
     final response = await http.put(
@@ -65,7 +66,9 @@ Future<void> fetchUserData() async {
     if (response.statusCode == 200) {
       Navigator.of(context).pop(); // Zatvaranje forme
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Podaci su uspješno ažurirani'+widget.userId.toString())),
+        SnackBar(
+            content: Text(
+                'Podaci su uspješno ažurirani' + widget.userId.toString())),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -207,6 +210,28 @@ Future<void> fetchUserData() async {
               Navigator.pop(context);
             },
           ),
+          ListTile(
+            // Dodani dio za odjavu
+            leading: Icon(Icons.logout),
+            title: Text(
+              'Odjavi se',
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                fontFamily: "SFUIText",
+                color: Colors.black87,
+              ),
+            ),
+            onTap: () {
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (BuildContext context) => LoginScreen(),
+                ),
+                (Route<dynamic> route) =>
+                    false, // Da biste uklonili sve prethodne ekrane iz stoga
+              );
+            },
+          ),
         ],
       ),
     );
@@ -283,7 +308,11 @@ Future<void> fetchUserData() async {
       appBar: buildAppBar(),
       drawer: buildDrawer(),
       body: SingleChildScrollView(
-        child: Body(searchQuery: searchQuery, KorisnikID: widget.userId, header: widget.header,),
+        child: Body(
+          searchQuery: searchQuery,
+          KorisnikID: widget.userId,
+          header: widget.header,
+        ),
       ),
     );
   }

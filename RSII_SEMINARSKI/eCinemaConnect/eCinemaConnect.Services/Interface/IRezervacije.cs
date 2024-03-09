@@ -15,6 +15,7 @@ namespace eCinemaConnect.Services.Interface
         public Dictionary<string, int> BrojKupljenihKarataPoFilmu(DateTime? datumOd, DateTime? datumDo);
         public Dictionary<string, int> ZaradaOdFilmova(DateTime? datumOd, DateTime? datumDo);
         public Dictionary<string, int> BrojProdatihKarataPoZanru();
+        public void OznaciRezervacijuKaoUsla(int rezervacijaId);
 
     }
 }

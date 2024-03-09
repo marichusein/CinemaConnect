@@ -2,17 +2,18 @@ import 'dart:ui';
 import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:cinemaconnect_mobile/components/home_screen.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/Prijava.dart';
+import 'package:cinemaconnect_mobile/screens/home/components/details/components/AdminLoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
- Map<String, String> authorizationHeader= <String, String>{};
+Map<String, String> authorizationHeader = <String, String>{};
 
 // ignore: must_be_immutable
 class LoginScreen extends StatelessWidget {
   TextEditingController korisnickoImeController = TextEditingController();
   TextEditingController lozinkaController = TextEditingController();
-   final String baseUrl = ApiKonstante.baseUrl;
+  final String baseUrl = ApiKonstante.baseUrl;
 
   String errorMessage = '';
 
@@ -21,7 +22,7 @@ class LoginScreen extends StatelessWidget {
   Future<void> _login(BuildContext context) async {
     final korisnickoIme = korisnickoImeController.text;
     final lozinka = lozinkaController.text;
-     
+
     final response = await http.post(
       Uri.parse('$baseUrl/Korisnici/login'),
       headers: <String, String>{
@@ -55,10 +56,10 @@ class LoginScreen extends StatelessWidget {
       // Navigirajte na sljedeći ekran (ako je potrebno)
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (BuildContext context) => HomeScreen(userId: idKorisnika, header: authorizationHeader),
+          builder: (BuildContext context) =>
+              HomeScreen(userId: idKorisnika, header: authorizationHeader),
         ),
       );
-      
     } else {
       // Neuspješna prijava
       errorMessage = 'Neuspješna prijava. Provjerite korisničko ime i lozinku.';
@@ -71,6 +72,99 @@ class LoginScreen extends StatelessWidget {
   }
 
   @override
+  // Widget build(BuildContext context) {
+  //   return Scaffold(
+  //     appBar: AppBar(
+  //       title: Text('Prijava'),
+  //     ),
+  //     body: Stack(
+  //       children: [
+  //         // Pozadina s efektom zamagljene pozadine
+  //         Container(
+  //           decoration: BoxDecoration(
+  //             image: DecorationImage(
+  //               image: AssetImage(
+  //                   'assets/images/login.jpg'), // Postavite putanju do slike pozadine
+  //               fit: BoxFit.cover,
+  //             ),
+  //           ),
+  //         ),
+  //         BackdropFilter(
+  //           filter: ImageFilter.blur(
+  //               sigmaX: 5.0,
+  //               sigmaY:
+  //                   5.0), // Postavite intenzitet zamagljivanja prema potrebi
+  //           child: Container(
+  //             color: Colors.black.withOpacity(
+  //                 0.5), // Postavite boju pozadine i nivo providnosti prema potrebi
+  //           ),
+  //         ),
+  //         Padding(
+  //           padding: const EdgeInsets.all(15.0),
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.center,
+  //             children: <Widget>[
+  //               Text(
+  //                 'CINEMACONNECT',
+  //                 style: TextStyle(
+  //                   fontSize: 24.0,
+  //                   fontWeight: FontWeight.bold,
+  //                   color: Colors.white, // Postavite boju teksta prema potrebi
+  //                 ),
+  //               ),
+  //               SizedBox(height: 20),
+  //               TextField(
+  //                 controller: korisnickoImeController,
+  //                 style: TextStyle(
+  //                     color: Colors.white), // Postavite bijelu boju teksta
+  //                 decoration: InputDecoration(
+  //                   labelText: 'Korisničko ime',
+  //                   labelStyle: TextStyle(
+  //                       color: Colors.white), // Postavite bijelu boju labele
+  //                   border: OutlineInputBorder(),
+  //                 ),
+  //               ),
+  //               SizedBox(height: 10),
+  //               TextField(
+  //                 controller: lozinkaController,
+  //                 style: TextStyle(
+  //                     color: Colors.white), // Postavite bijelu boju teksta
+  //                 obscureText: true,
+  //                 decoration: InputDecoration(
+  //                   labelText: 'Lozinka',
+  //                   labelStyle: TextStyle(
+  //                       color: Colors.white), // Postavite bijelu boju labele
+  //                   border: OutlineInputBorder(),
+  //                 ),
+  //               ),
+  //               SizedBox(height: 20),
+  //               ElevatedButton(
+  //                 onPressed: () {
+  //                   _login(context);
+  //                 },
+  //                 child: Text('Prijavi se'),
+  //               ),
+  //               SizedBox(height: 10),
+  //               TextButton(
+  //                 onPressed: () {
+  //                   Navigator.of(context).push(
+  //                     MaterialPageRoute(
+  //                       builder: (BuildContext context) => SignupScreen(),
+  //                     ),
+  //                   );
+  //                 },
+  //                 child: Text('Kreiraj novi račun'),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+
+
+   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -82,20 +176,18 @@ class LoginScreen extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                    'assets/images/login.jpg'), // Postavite putanju do slike pozadine
+                image: AssetImage('assets/images/login.jpg'), // Postavite putanju do slike pozadine
                 fit: BoxFit.cover,
               ),
             ),
           ),
           BackdropFilter(
             filter: ImageFilter.blur(
-                sigmaX: 5.0,
-                sigmaY:
-                    5.0), // Postavite intenzitet zamagljivanja prema potrebi
+              sigmaX: 5.0,
+              sigmaY: 5.0,
+            ),
             child: Container(
-              color: Colors.black.withOpacity(
-                  0.5), // Postavite boju pozadine i nivo providnosti prema potrebi
+              color: Colors.black.withOpacity(0.5),
             ),
           ),
           Padding(
@@ -114,25 +206,21 @@ class LoginScreen extends StatelessWidget {
                 SizedBox(height: 20),
                 TextField(
                   controller: korisnickoImeController,
-                  style: TextStyle(
-                      color: Colors.white), // Postavite bijelu boju teksta
+                  style: TextStyle(color: Colors.white), // Postavite bijelu boju teksta
                   decoration: InputDecoration(
                     labelText: 'Korisničko ime',
-                    labelStyle: TextStyle(
-                        color: Colors.white), // Postavite bijelu boju labele
+                    labelStyle: TextStyle(color: Colors.white), // Postavite bijelu boju labele
                     border: OutlineInputBorder(),
                   ),
                 ),
                 SizedBox(height: 10),
                 TextField(
                   controller: lozinkaController,
-                  style: TextStyle(
-                      color: Colors.white), // Postavite bijelu boju teksta
+                  style: TextStyle(color: Colors.white), // Postavite bijelu boju teksta
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Lozinka',
-                    labelStyle: TextStyle(
-                        color: Colors.white), // Postavite bijelu boju labele
+                    labelStyle: TextStyle(color: Colors.white), // Postavite bijelu boju labele
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -144,17 +232,35 @@ class LoginScreen extends StatelessWidget {
                   child: Text('Prijavi se'),
                 ),
                 SizedBox(height: 10),
-                TextButton(
-                  onPressed: () {
-                     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (BuildContext context) => SignupScreen(),
-      ),
-    );
-
-
-                  },
-                  child: Text('Kreiraj novi račun'),
+                Text(
+                  errorMessage,
+                  style: TextStyle(color: Colors.red),
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => AdminLoginScreen()),
+                        );
+                      },
+                      child: Text('Admin'),
+                    ),
+                    SizedBox(width: 10),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => SignupScreen(),
+                          ),
+                        );
+                      },
+                      child: Text('Kreiraj novi račun'),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -163,9 +269,8 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
-  
   Map<String, String> createHeaders() {
-    String username =  korisnickoImeController.text;
+    String username = korisnickoImeController.text;
     String password = lozinkaController.text;
 
     String basicAuth =

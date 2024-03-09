@@ -15,6 +15,7 @@ public partial class Rezervacije
 
     public bool? Kupljeno { get; set; }
     public string? QRCode { get; set; }
+    public bool? Usao { get; set; }
 
     public virtual Korisnici? Korisnik { get; set; }
 

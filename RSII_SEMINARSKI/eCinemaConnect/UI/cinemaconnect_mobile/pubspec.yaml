@@ -43,6 +43,11 @@ dependencies:
   flutter_paypal: ^0.2.0
   webview_flutter: ^4.5.0
   qr_flutter: ^4.1.0
+  shared_preferences: ^2.2.2
+  qr_code_scanner: ^1.0.1
+  
+  
+  
 
 
 

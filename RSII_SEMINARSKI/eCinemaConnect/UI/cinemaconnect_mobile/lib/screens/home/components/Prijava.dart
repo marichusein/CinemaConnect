@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously, depend_on_referenced_packages
 
+import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -30,6 +31,7 @@ class _SignupScreenState extends State<SignupScreen> {
     final lozinka = lozinkaController.text;
     final email = emailController.text;
     final telefon = telefonController.text;
+    final String baseUrl = ApiKonstante.baseUrl;
 
     // Provjera ispravnog formata e-pošte
     if (!RegExp(r'^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)+$').hasMatch(email)) {
@@ -54,7 +56,7 @@ class _SignupScreenState extends State<SignupScreen> {
     }
 
     final response = await http.post(
-      Uri.parse('https://localhost:7125/Korisnici/siginup'),
+      Uri.parse('$baseUrl/Korisnici/siginup'),
       headers: <String, String>{
         'accept': 'text/plain',
         'Content-Type': 'application/json',

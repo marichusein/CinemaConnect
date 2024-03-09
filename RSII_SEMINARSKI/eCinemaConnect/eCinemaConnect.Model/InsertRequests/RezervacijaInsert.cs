@@ -19,5 +19,6 @@ namespace eCinemaConnect.Model.InsertRequests
         public string? QRCode { get; set; }
         public List<SjedistaViewProjekcija>? odabranaSjedista { get; set; }
         public int? MeniGrickalica { get; set; }
+
     }
 }
