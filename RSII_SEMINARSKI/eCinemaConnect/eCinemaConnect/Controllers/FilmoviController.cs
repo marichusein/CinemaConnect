@@ -28,6 +28,11 @@ namespace eCinemaConnect.Controllers
         {
             return _filmovi.GetAll();
         }
+        [HttpGet("sve")]
+        public IEnumerable<Model.ViewRequests.FilmoviView> GetAll()
+        {
+            return _filmovi.GetSve();
+        }
 
         [HttpGet("zanr/{zanrid}")]
         public IEnumerable<Model.ViewRequests.FilmoviView> GetByZanr(int zanrid)
@@ -78,7 +83,13 @@ namespace eCinemaConnect.Controllers
         [HttpDelete("{id}")]
         public bool Delete(int id)
         {
-            return _filmovi.DeleteById(id);
+            return _filmovi.IzbirsiFilm(id);
+        }
+
+        [HttpPut("aktiviraj/{id}")]
+        public bool Aktiviraj(int id)
+        {
+            return _filmovi.AktivirajFilm(id);
         }
 
     }

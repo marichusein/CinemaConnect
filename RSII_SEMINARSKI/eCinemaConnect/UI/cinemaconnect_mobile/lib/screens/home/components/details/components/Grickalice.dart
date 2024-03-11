@@ -117,8 +117,7 @@ class _GrickaliceMenuState extends State<GrickaliceMenu> {
         transactions: [
           {
             "amount": {
-              "total": (widget.Cijena *
-                  0.55), // Promijenite ovo s vašim ukupnim iznosom
+              "total": double.parse((widget.Cijena*0.55).toStringAsFixed(2)), // Promijenite ovo s vašim ukupnim iznosom
               "currency": "USD",
             },
             "description": "Payment for reservation #your_reservation_id.",
@@ -127,8 +126,7 @@ class _GrickaliceMenuState extends State<GrickaliceMenu> {
                 {
                   "name": "Cijena",
                   "quantity": 1,
-                  "price": (widget.Cijena *
-                      0.55), // Promijenite ovo s cijenom vašeg artikla
+                  "price": double.parse((widget.Cijena*0.55).toStringAsFixed(2)), // Promijenite ovo s cijenom vašeg artikla
                   "currency": "USD"
                 }
               ],

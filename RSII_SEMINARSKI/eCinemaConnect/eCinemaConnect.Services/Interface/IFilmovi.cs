@@ -12,10 +12,15 @@ namespace eCinemaConnect.Services.Interface
     public interface IFilmovi
     {
         List<Model.ViewRequests.FilmoviView> GetAll();
+        List<Model.ViewRequests.FilmoviView> GetSve();
+
         Model.ViewRequests.FilmoviView AddFilm(FilmoviInsert filmoviInsert);
         Model.ViewRequests.FilmoviView UpdateFilma(int id, FilmoviUpdate filmoviUpdate);
         Model.ViewRequests.FilmoviView GetById(int id);
         bool DeleteById(int id);
+        bool IzbirsiFilm(int id);
+        bool AktivirajFilm(int id);
+
         List<Model.ViewRequests.FilmoviView> GetFilmoviByReziser(int id);
         List<Model.ViewRequests.FilmoviView> GetFilmoviByGlumac(int id);
         List<Model.ViewRequests.FilmoviView> GetFilmoviByZanr(int id);

@@ -34,7 +34,7 @@ namespace eCinemaConnect.Services.Service
             _mapper.Map(filmoviInsert, newFilm);
             newFilm.Reziser = _context.Reziseris.Find(filmoviInsert.ReziserId);
             newFilm.Zanr = _context.Zanrovis.Find(filmoviInsert.ZanrId);
-
+            newFilm.Aktivan = true;
 
 
             _context.Add(newFilm);
@@ -82,7 +82,7 @@ namespace eCinemaConnect.Services.Service
 
         public List<FilmoviView> GetAll()
         {
-            var filmovi = _context.Filmovis.Include(z => z.Zanr).Include(r => r.Reziser).ToList();
+            var filmovi = _context.Filmovis.Include(z => z.Zanr).Include(r => r.Reziser).Where(x=>x.Aktivan==true).ToList();
             return _mapper.Map<List<FilmoviView>>(filmovi);
         }
 
@@ -93,6 +93,26 @@ namespace eCinemaConnect.Services.Service
             return _mapper.Map<FilmoviView>(film);
 
         }
+
+        public bool IzbirsiFilm(int id)
+        {
+            var film = _context.Filmovis
+                                .Include(z => z.Zanr)
+                                .Include(r => r.Reziser)
+                                .FirstOrDefault(x => x.Idfilma == id);
+
+            if (film != null)
+            {
+                film.Aktivan = false;
+                _context.SaveChanges();
+                return true;
+            }
+            else
+            {
+                return false; // Film with the given id was not found
+            }
+        }
+
 
         public List<FilmoviView> GetFilmoviByGlumac(int id)
         {
@@ -232,7 +252,29 @@ namespace eCinemaConnect.Services.Service
             return preporuceniFilmoviView;
         }
 
+        public List<FilmoviView> GetSve()
+        {
+            var filmovi = _context.Filmovis.Include(z => z.Zanr).Include(r => r.Reziser).ToList();
+            return _mapper.Map<List<FilmoviView>>(filmovi);
+        }
 
+        public bool AktivirajFilm(int id)
+        {
+            var film = _context.Filmovis
+                                .Include(z => z.Zanr)
+                                .Include(r => r.Reziser)
+                                .FirstOrDefault(x => x.Idfilma == id);
 
+            if (film != null)
+            {
+                film.Aktivan = true;
+                _context.SaveChanges();
+                return true;
+            }
+            else
+            {
+                return false; 
+            }
+        }
     }
 }

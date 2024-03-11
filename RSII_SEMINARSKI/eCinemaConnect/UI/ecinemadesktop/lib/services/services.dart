@@ -398,6 +398,38 @@ class ApiService {
     }
   }
 
+  static Future<List<dynamic>> fetchMovies() async {
+    try {
+      final response = await http.get(Uri.parse("$baseUrl/Filmovi/sve"), headers: zaglavlje);
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        throw Exception('Failed to load movies');
+      }
+    } catch (e) {
+      print('Error: $e');
+      return [];
+    }
+  }
+
+  static Future<void> toggleMovieStatus(int movieId, bool isActive) async {
+    try {
+      final url = isActive
+          ? "$baseUrl/Filmovi/$movieId"
+          : "$baseUrl/Filmovi/aktiviraj/$movieId";
+      final response = isActive
+          ? await http.delete(Uri.parse(url), headers: zaglavlje)
+          : await http.put(Uri.parse(url), headers: zaglavlje);
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception('Failed to toggle movie status');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
 }
 
 

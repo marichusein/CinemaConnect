@@ -5,6 +5,7 @@ import 'package:ecinemadesktop/forms/CreateAccountForm.dart';
 import 'package:ecinemadesktop/forms/DirectorForm.dart';
 import 'package:ecinemadesktop/forms/EditProfile.dart';
 import 'package:ecinemadesktop/forms/KomentariForms.dart';
+import 'package:ecinemadesktop/forms/ListaFilmova.dart';
 import 'package:ecinemadesktop/forms/MovieForm.dart';
 import 'package:ecinemadesktop/forms/AddObavijestiForm.dart';
 import 'package:ecinemadesktop/forms/PregeldObavijesti.dart';
@@ -51,7 +52,7 @@ class _LoginPageState extends State<LoginPage> {
       // Pošaljite zahtjev za prijavu koristeći LoginService
       final userDatas = await LoginService().login(loginData);
       final headers = userDatas['headers'];
-      final userData=userDatas['userData'];
+      final userData = userDatas['userData'];
       // Ako je prijava uspješna, prikažite korisničko ime i prezime na ekranu
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -67,13 +68,8 @@ class _LoginPageState extends State<LoginPage> {
       // Navigirajte na ekran UserDashboard
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          
-          builder: 
-          
-          
-          (context) => UserDashboard(
-            
-            idkorisnika: userData['idkorisnika']??1,
+          builder: (context) => UserDashboard(
+            idkorisnika: userData['idkorisnika'] ?? 1,
             Username: userData['ime'] + ' ' + userData['prezime'],
             header: headers,
           ),
@@ -197,7 +193,10 @@ class UserDashboard extends StatelessWidget {
   final Map<String, String> header;
 
   const UserDashboard(
-      {super.key, required this.idkorisnika, required this.Username, required this.header});
+      {super.key,
+      required this.idkorisnika,
+      required this.Username,
+      required this.header});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -264,8 +263,18 @@ class UserDashboard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      _buildNavItem(Icons.movie, 'Dodaj film', context,
-                          MovieForm(header: header,)), // Pass MovieForm as the destination
+                      _buildNavItem(
+                          Icons.movie,
+                          'Dodaj film',
+                          context,
+                          MovieForm(
+                            header: header,
+                          )), // Pass MovieForm as the destination
+                      _buildNavItem(
+                          Icons.movie_filter,
+                          'Pregeld filmova',
+                          context,
+                          MovieListPage()), // Pass MovieForm as the destination
                       _buildNavItem(Icons.person, 'Dodaj glumca', context,
                           ActorForm() /* Add Actor screen here */), // Add Actor destination
                       // Add more navigation items as needed
@@ -290,7 +299,7 @@ class UserDashboard extends StatelessWidget {
                         context,
                         BusinessReportForm(), // Destinacija je BusinessReportForm
                       ),
-                       _buildNavItem(
+                      _buildNavItem(
                         Icons.comment_bank, // Ikona za izvještaje
                         'Pregled i brisanje komentara', // Tekst za dugme
                         context,

@@ -21,7 +21,7 @@ public partial class Filmovi
 
     public string? PlakatFilma { get; set; }
     public byte[]? FilmPlakat { get; set; }
-
+    public bool? Aktivan { get; set; }
     public virtual ICollection<GlumciFilmovi> GlumciFilmovis { get; set; } = new List<GlumciFilmovi>();
 
     public virtual ICollection<OcjeneIkomentari> OcjeneIkomentaris { get; set; } = new List<OcjeneIkomentari>();
