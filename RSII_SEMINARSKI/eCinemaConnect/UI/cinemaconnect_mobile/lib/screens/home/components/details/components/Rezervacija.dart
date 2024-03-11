@@ -52,7 +52,7 @@ class _ProjekcijeSjedistaKomponentaState
   Future<void> fetchProjekcije(int filmId) async {
     final String baseUrl = ApiKonstante.baseUrl;
     final response = await http.get(
-        Uri.parse('$baseUrl/Projekcije/film/$filmId'),
+        Uri.parse('$baseUrl/Projekcije/film/aktivne/$filmId'),
         headers: widget.header);
 
     if (response.statusCode == 200) {

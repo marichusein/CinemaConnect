@@ -53,7 +53,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // Dohvati ID iz polja i proslijedi ga dalje
-          String? id = idController.text.isNotEmpty ? idController.text : null;
+          //String? id = idController.text.isNotEmpty ? idController.text : null;
           //Navigator.pop(context, id);
         },
         child: Icon(Icons.check),
@@ -80,7 +80,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
       String id = scanData.code!;
       String apiUrl = '$id'; // Zamijeni s pravim URL-om API-ja
 
-      print('A P I U R L : $apiUrl');
+      
 
       try {
         var response = await http.post(Uri.parse(apiUrl),

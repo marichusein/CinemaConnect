@@ -18,6 +18,7 @@ namespace eCinemaConnect.Services.Interface
         Model.ViewRequests.ProjekcijeView GetById(int id);
         bool DeleteById(int id);
         List<Model.ViewRequests.ProjekcijeView> GetByFilm(int id);
+        List<ProjekcijeView> GetByFilmAktivne(int id);
         List<Model.ViewRequests.SjedistaViewProjekcija> GetSjedistaByProjekcija(int projekcijaID);
 
 

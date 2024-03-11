@@ -1,6 +1,10 @@
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
 import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/details/details_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -61,6 +65,34 @@ class _MovieCarouselState extends State<MovieCarousel> {
   }
 }
 
+  Future<String> iconToBase64String(IconData iconData, {double size = 100}) async {
+  // Create an icon widget
+  Widget iconWidget = Icon(iconData, size: size);
+
+  // Create a global key for the repaint boundary
+  GlobalKey globalKey = GlobalKey();
+
+  // Wrap the icon widget with a repaint boundary
+  RepaintBoundary(
+    key: globalKey,
+    child: iconWidget,
+  );
+
+  // Create the widget tree and render it
+  WidgetsBinding.instance.renderView.configuration =
+      ViewConfiguration(size: Size(size, size));
+  BuildContext context = globalKey.currentContext!;
+  RenderRepaintBoundary boundary =
+      context.findRenderObject() as RenderRepaintBoundary;
+  ui.Image image = await boundary.toImage(pixelRatio: 1.0);
+  ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+  Uint8List byteList = byteData!.buffer.asUint8List();
+
+  // Convert byte array to base64 string
+  String base64String = base64Encode(byteList);
+
+  return base64String;
+}
 
 
 
@@ -89,7 +121,7 @@ class _MovieCarouselState extends State<MovieCarousel> {
             poster = 'data:image/jpeg;base64,${base64Encode(decodedBytes)}';
           } else {
             // Ako filmPlakatBase64 nije dostupan, koristite rezervnu sliku
-            poster = "assets/images/poster_5.jpg";
+            poster = await this.iconToBase64String(Icons.favorite, size: 100);
           }
           final double ratingF = await fetchMovieRating(apiMovie['idfilma']);
           final Movie movie = Movie(
@@ -103,10 +135,10 @@ class _MovieCarouselState extends State<MovieCarousel> {
                 apiMovie['trajanje'], // Možete postaviti ovo prema potrebi
             rating: ratingF, // Možete postaviti ovo prema potrebi
             criticsReview: 0, // Možete postaviti ovo prema potrebi
-            metascoreRating: 0, // Možete postaviti ovo prema potrebi
+            metascoreRating: 0, 
             genra: [apiMovie['zanr']['nazivZanra']],
             plot: apiMovie['opis'],
-            cast: [], // Možete postaviti ovo prema potrebi
+            cast: [], 
           );
 
           // Provjeri je li odabrani žanr prazan ili odgovara žanru filma
@@ -176,6 +208,7 @@ class _MovieCarouselState extends State<MovieCarousel> {
         },
       );
 }
+
 
 class MovieCard extends StatelessWidget {
   final Movie movie;
@@ -295,10 +328,12 @@ class MovieCard extends StatelessWidget {
     );
   }
 
+  
+
   Future<List<String>> fetchProjections(int movieId) async {
      final String baseUrl = ApiKonstante.baseUrl;
     final Uri url =
-        Uri.parse('$baseUrl/Projekcije/film/$movieId');
+        Uri.parse('$baseUrl/Projekcije/film/aktivne/$movieId');
     final response = await http.get(url, headers: header);
 
     if (response.statusCode == 200) {
@@ -324,4 +359,7 @@ class MovieCard extends StatelessWidget {
       throw Exception('Pogreška prilikom dohvaćanja projekcija');
     }
   }
+
+
+
 }

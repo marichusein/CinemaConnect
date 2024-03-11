@@ -95,6 +95,18 @@ namespace eCinemaConnect.Services.Service
             return zaradaPoFilmu;
         }
 
+        public List<RezervacijaView> AktivneRezervacijeByKorisnik(int id)
+        {
+            var rezervacije = _context.Rezervacijes.Include(p => p.Projekcija).Where(x => x.KorisnikId == id).Where(p=>p.Projekcija.DatumVrijemeProjekcije>=DateTime.Now).ToList();
+            return _mapper.Map<List<RezervacijaView>>(rezervacije);
+        }
+
+        public List<RezervacijaView> NeaktivneRezervacijeByKorisnik(int id)
+        {
+            var rezervacije = _context.Rezervacijes.Include(p => p.Projekcija).Where(x => x.KorisnikId == id).Where(p => p.Projekcija.DatumVrijemeProjekcije <= DateTime.Now).ToList();
+            return _mapper.Map<List<RezervacijaView>>(rezervacije);
+        }
+
         public Dictionary<string, int> BrojProdatihKarataPoZanru()
         {
             var brojKarataPoZanru = _context.Rezervacijes
@@ -128,7 +140,7 @@ namespace eCinemaConnect.Services.Service
             }
         }
 
-
+        
 
 
     }

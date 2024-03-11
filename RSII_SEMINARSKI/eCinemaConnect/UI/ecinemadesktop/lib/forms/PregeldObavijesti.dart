@@ -1,5 +1,5 @@
+import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 void main() {
@@ -26,29 +26,17 @@ class _NotificationScreenState extends State<NotificationScreen> {
   String filterTitle = "";
 
   Future<void> fetchNotifications() async {
-    final response =
-        await http.get(Uri.parse("https://localhost:7125/Obavijesti"));
-    if (response.statusCode == 200) {
-      final List<dynamic> responseData = json.decode(response.body);
-
-      setState(() {
-        notifications = responseData.cast<Map<String, dynamic>>();
-      });
-    } else {
-      throw Exception('Failed to load notifications');
-    }
+    notifications = await ApiService.fetchNotifications();
+    setState(() {
+      // Ažuriranje stanja s novim obavijestima
+    });
   }
 
   Future<Map<String, dynamic>> fetchUser(int userId) async {
-    final response =
-        await http.get(Uri.parse("https://localhost:7125/Korisnici/$userId"));
-    if (response.statusCode == 200) {
-      return json.decode(response.body);
-    } else {
-      throw Exception('Failed to load user data');
-    }
+    return await ApiService.fetchUserNotification(userId);
   }
 
+  
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,

@@ -96,9 +96,16 @@ namespace eCinemaConnect.Services.Service
             return _mapper.Map<List<ProjekcijeView>>(projekcije);
         }
 
+        public List<ProjekcijeView> GetByFilmAktivne(int id)
+        {
+            var projekcije = _context.Projekcijes.Include(f => f.Film).Include(f => f.Film.Zanr).Include(f => f.Film.Reziser).Include(s => s.Sala).ToList();
+            projekcije = projekcije.Where(x => x.FilmId == id).Where(x=>x.DatumVrijemeProjekcije>=DateTime.Now).ToList();
+            return _mapper.Map<List<ProjekcijeView>>(projekcije);
+        }
+
         public ProjekcijeView GetById(int id)
         {
-            var projekcija = _context.Projekcijes.Find(id);
+            var projekcija = _context.Projekcijes.Include(f=>f.Film).Include(s=>s.Sala).Where(x=>x.Idprojekcije==id).FirstOrDefault();
             return _mapper.Map<ProjekcijeView>(projekcija);
         }
 

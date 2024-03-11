@@ -28,6 +28,16 @@ namespace eCinemaConnect.Controllers
         {
            return _glumci.GetAll();
         }
+        [HttpGet("/aktivnebykorisnik/{id}")]
+        public IEnumerable<Model.ViewRequests.RezervacijaView> GetAktivne(int id)
+        {
+            return _glumci.AktivneRezervacijeByKorisnik(id);
+        }
+        [HttpGet("/neaktivnebykorisnik/{id}")]
+        public IEnumerable<Model.ViewRequests.RezervacijaView> GetNeaktivne(int id)
+        {
+            return _glumci.NeaktivneRezervacijeByKorisnik(id);
+        }
 
         [HttpGet("brojkarata")]
         public IActionResult GetBrojKarata(DateTime? od = null, DateTime? doo = null)

@@ -331,6 +331,73 @@ class ApiService {
     }
   }
 
+  static Future<List<Comment>> fetchComments() async {
+    final commentResponse = await http.get(
+      Uri.parse('$baseUrl/OcijeniFilm'),
+      headers: zaglavlje
+    );
+    final List<dynamic> commentData = json.decode(commentResponse.body);
+
+    return commentData.map((comment) => Comment(
+      idOcjene: comment['idocjene'],
+      filmId: comment['filmId'],
+      korisnikId: comment['korisnikId'],
+      komentar: comment['komentar'],
+      datumOcjene: DateTime.parse(comment['datumOcjene']),
+    )).toList();
+  }
+  
+  static Future<bool> deleteComment(int idOcjene) async {
+    final response = await http.delete(
+      Uri.parse('$baseUrl/OcijeniFilm/$idOcjene'),
+      headers: zaglavlje
+    );
+    final bool success = json.decode(response.body);
+    return success;
+    // Možete dodati logiku za prikazivanje dijaloga ili obavijesti o uspješnom ili neuspješnom brisanju komentara.
+  }
+
+  static Future<Moviee> fetchMovie(int movieId) async {
+    final response = await http.get(Uri.parse('$baseUrl/Filmovi/$movieId'), headers: zaglavlje);
+    final movieData = json.decode(response.body);
+    return Moviee(
+      idFilma: movieData['idfilma'],
+      nazivFilma: movieData['nazivFilma'],
+      filmPlakat: movieData['filmPlakat'],
+    );
+  }
+
+  static Future<User> fetchUser(int userId) async {
+    final response = await http.get(Uri.parse('$baseUrl/Korisnici/$userId'), headers: zaglavlje);
+    final userData = json.decode(response.body);
+    return User(
+      idKorisnika: userData['idkorisnika'],
+      ime: userData['ime'],
+      prezime: userData['prezime'],
+    );
+  }
+
+  static Future<List<Map<String, dynamic>>> fetchNotifications() async {
+    final response =
+        await http.get(Uri.parse("$baseUrl/Obavijesti"), headers: zaglavlje);
+    if (response.statusCode == 200) {
+      final List<dynamic> responseData = json.decode(response.body);
+      return responseData.cast<Map<String, dynamic>>();
+    } else {
+      throw Exception('Failed to load notifications');
+    }
+  }
+
+  static Future<Map<String, dynamic>> fetchUserNotification(int userId) async {
+    final response =
+        await http.get(Uri.parse("$baseUrl/Korisnici/$userId"), headers: zaglavlje);
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      throw Exception('Failed to load user data');
+    }
+  }
+
 }
 
 
@@ -358,4 +425,45 @@ class Glumac {
   final String slika;
 
   Glumac({required this.id, required this.ime, required this.prezime, required this.slika});
+}
+
+class Moviee {
+  final int idFilma;
+  final String nazivFilma;
+  final String filmPlakat;
+
+  Moviee({
+    required this.idFilma,
+    required this.nazivFilma,
+    required this.filmPlakat,
+  });
+}
+
+class User {
+  final int idKorisnika;
+  final String ime;
+  final String prezime;
+
+  User({
+    required this.idKorisnika,
+    required this.ime,
+    required this.prezime,
+  });
+}
+
+
+class Comment {
+  final int idOcjene;
+  final int filmId;
+  final int korisnikId;
+  final String komentar;
+  final DateTime datumOcjene;
+
+  Comment({
+    required this.idOcjene,
+    required this.filmId,
+    required this.korisnikId,
+    required this.komentar,
+    required this.datumOcjene,
+  });
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/LoginScreen.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/body.dart';
+import 'package:cinemaconnect_mobile/screens/home/components/details/components/MojeProjekcije.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
@@ -176,8 +177,13 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             onTap: () {
-              Navigator.pop(context);
-            },
+               Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => RezervacijeComponent(userId: widget.userId, header: widget.header), // Primjer userId i headera
+              ),
+            ); 
+            }
           ),
           ListTile(
             leading: Icon(Icons.star),

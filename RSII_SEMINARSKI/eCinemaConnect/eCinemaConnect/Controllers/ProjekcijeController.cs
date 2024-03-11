@@ -39,6 +39,11 @@ namespace eCinemaConnect.Controllers
         {
             return _projekcije.GetByFilm(filmId);
         }
+        [HttpGet("film/aktivne/{filmId}")]
+        public IEnumerable<Model.ViewRequests.ProjekcijeView> GetByFilmAktivne(int filmId)
+        {
+            return _projekcije.GetByFilmAktivne(filmId);
+        }
         [HttpGet("{id}")]
         public Model.ViewRequests.ProjekcijeView GetById(int id)
         {
