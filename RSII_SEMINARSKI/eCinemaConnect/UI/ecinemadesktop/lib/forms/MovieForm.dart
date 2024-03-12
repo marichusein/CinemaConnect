@@ -172,6 +172,7 @@ class _MovieFormState extends State<MovieForm> {
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: 'Opis'),
+                 maxLines: 6,
                 onSaved: (value) => _newMovie.opis = value ?? '',
                 validator: (value) {
                   if (value == null || value.isEmpty) {

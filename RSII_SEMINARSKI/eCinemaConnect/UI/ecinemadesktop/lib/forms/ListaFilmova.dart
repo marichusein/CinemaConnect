@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:image_picker/image_picker.dart';
 
 class MovieListPage extends StatefulWidget {
   @override
@@ -11,7 +13,7 @@ class MovieListPage extends StatefulWidget {
 class _MovieListPageState extends State<MovieListPage> {
   List<dynamic> movies = [];
   bool isLoading = true;
-
+  
   @override
   void initState() {
     super.initState();
@@ -73,7 +75,7 @@ class _MovieListPageState extends State<MovieListPage> {
                         elevation: 4.0,
                         child: InkWell(
                           onTap: () {
-                            // Handle tap on movie card
+                            _editMovie(movie['idfilma']);
                           },
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,6 +131,128 @@ class _MovieListPageState extends State<MovieListPage> {
                 ),
               ],
             ),
+    );
+  }
+
+  Future<void> _editMovie(int movieId) async {
+    // Pronađite film koji se uređuje
+    var movie = movies.firstWhere((element) => element['idfilma'] == movieId);
+    await _showEditDialog(
+      movieId,
+      movie['nazivFilma'],
+      movie['opis'],
+      movie['trajanje'],
+      movie['filmPlakat'],
+    );
+  }
+
+  Future<void> _showEditDialog(
+      int movieId,
+      String currentName,
+      String currentDescription,
+      int currentDuration,
+      String currentPoster) async {
+    TextEditingController nameController =
+        TextEditingController(text: currentName);
+    TextEditingController descriptionController =
+        TextEditingController(text: currentDescription);
+    TextEditingController durationController =
+        TextEditingController(text: currentDuration.toString());
+
+
+    XFile? newImage;
+
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text('Edit Movie'),
+              content: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (currentPoster.startsWith(
+                        'data:image')) // Prikaz postojećeg postera iz base64 formata
+                      Image.memory(
+                        base64Decode(currentPoster.split(',').last),
+                        width: 100,
+                        height: 100,
+                      ),
+                    SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final imagePicker = ImagePicker();
+                        final XFile? pickedImage = await imagePicker.pickImage(
+                            source: ImageSource.gallery);
+
+                        if (pickedImage != null) {
+                          setState(() {
+                            newImage = pickedImage;
+                          });
+                        }
+                      },
+                      child: Text('Pick Poster Image'),
+                    ),
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(labelText: 'Name'),
+                    ),
+                    TextField(
+                      controller: descriptionController,
+                      decoration: InputDecoration(labelText: 'Description'),
+                      maxLines: 11,
+                    ),
+                    TextField(
+                      controller: durationController,
+                      decoration: InputDecoration(labelText: 'Duration'),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  child: Text('Cancel'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: Text('Save'),
+                  onPressed: () async {
+                    try {
+
+                      if (newImage != null) {
+                      
+                            
+                        final imageBytes = await File(newImage!.path).readAsBytes();
+                        final base64Image = base64Encode(imageBytes);
+                         await ApiService.editMovie(
+                        movieId,
+                        nameController.text,
+                        descriptionController.text,
+                        int.parse(durationController.text),
+                        base64Image,
+                      );
+
+                      }
+
+                     
+                      Navigator.of(context).pop();
+                      _fetchMovies(); // Ponovno učitajte filmove nakon uređivanja
+                    } catch (e) {
+                      // Handle error
+                      print('Error editing movie: $e');
+                    }
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

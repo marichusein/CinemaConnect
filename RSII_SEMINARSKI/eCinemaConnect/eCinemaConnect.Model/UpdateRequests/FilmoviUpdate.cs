@@ -14,6 +14,6 @@ namespace eCinemaConnect.Model.UpdateRequests
 
         public int? Trajanje { get; set; }
 
-        public string? PlakatFilma { get; set; }
+        public byte[]? FilmPlakat { get; set; }
     }
 }

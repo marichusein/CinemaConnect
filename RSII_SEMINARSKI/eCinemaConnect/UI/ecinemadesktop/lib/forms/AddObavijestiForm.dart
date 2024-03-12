@@ -88,7 +88,7 @@ class _ObavijestFormState extends State<ObavijestForm> {
           key: _formKey,
           child: ListView(
             children: <Widget>[
-              Text('Korisnik ID: ${widget.korisnikId}'), // Prikaz korisnik ID
+              //Text('Korisnik ID: ${widget.korisnikId}'), // Prikaz korisnik ID
               TextFormField(
                 decoration: InputDecoration(
                   labelText: 'Naslov',

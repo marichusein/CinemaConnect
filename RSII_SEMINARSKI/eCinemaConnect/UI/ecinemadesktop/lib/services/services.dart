@@ -430,6 +430,44 @@ class ApiService {
     }
   }
 
+  static Future<void> editMovie(int movieId, String newName, String newDescription, int newDuration, String newPoster) async {
+  final response = await http.put(
+    Uri.parse('$baseUrl/Filmovi/$movieId'),
+    headers: zaglavlje,
+    body: jsonEncode({
+      "nazivFilma": newName,
+      "opis": newDescription,
+      "trajanje": newDuration,
+      "filmPlakat": newPoster,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    print('Film updated successfully');
+  } else {
+    throw Exception('Failed to update film ${response.body}');
+  }
+}
+
+  static Future<void> editObavijest(int obavijestId, Map<String, dynamic> obavijest) async{
+      final response = await http.put(
+    Uri.parse('$baseUrl/Obavijesti/$obavijest'),
+    headers: zaglavlje,
+    body: jsonEncode({
+      obavijest
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    print('Obavijest updated successfully');
+  } else {
+    throw Exception('Failed to update obavijest ${response.body}');
+  }
+
+
+  }
+
+
 }
 
 

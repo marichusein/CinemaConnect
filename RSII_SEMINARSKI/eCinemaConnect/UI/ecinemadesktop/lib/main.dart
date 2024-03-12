@@ -260,53 +260,98 @@ class UserDashboard extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 20),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      _buildNavItem(
-                          Icons.movie,
-                          'Dodaj film',
-                          context,
-                          MovieForm(
-                            header: header,
-                          )), // Pass MovieForm as the destination
-                      _buildNavItem(
-                          Icons.movie_filter,
-                          'Pregeld filmova',
-                          context,
-                          MovieListPage()), // Pass MovieForm as the destination
-                      _buildNavItem(Icons.person, 'Dodaj glumca', context,
-                          ActorForm() /* Add Actor screen here */), // Add Actor destination
-                      // Add more navigation items as needed
-                      _buildNavItem(Icons.person_2_outlined, 'Pregled glumaca',
-                          context, GlumciScreen()),
-                      _buildNavItem(Icons.person_add, 'Dodaj režisera', context,
-                          DodajReziseraForma()),
-                      _buildNavItem(
-                          Icons.newspaper,
-                          'Dodaj obavijest',
-                          context,
-                          ObavijestForm(
-                            korisnikId: idkorisnika,
-                          )),
-                      _buildNavItem(Icons.newspaper_rounded,
-                          'Pregled obavijesti', context, NotificationScreen()),
-                      _buildNavItem(Icons.movie_edit, 'Nova projekcija',
-                          context, DodavanjeProjekcijeScreen()),
-                      _buildNavItem(
-                        Icons.insert_chart_outlined, // Ikona za izvještaje
-                        'Kreiraj izvještaj poslovanja', // Tekst za dugme
-                        context,
-                        BusinessReportForm(), // Destinacija je BusinessReportForm
-                      ),
-                      _buildNavItem(
-                        Icons.comment_bank, // Ikona za izvještaje
-                        'Pregled i brisanje komentara', // Tekst za dugme
-                        context,
-                        CommentsScreen(), // Destinacija je BusinessReportForm
-                      ),
-                    ],
-                  ),
+                Column(
+  crossAxisAlignment: CrossAxisAlignment.start,
+  children: <Widget>[
+    // Filmovi grupa
+    ExpansionTile(
+      title: Text('Filmovi'), // Naslov grupe
+      leading: Icon(Icons.movie), // Ikona za grupu
+      children: [
+        _buildNavItem(
+          Icons.movie,
+          'Dodaj film',
+          context,
+          MovieForm(
+            header: header,
+          ),
+        ),
+        _buildNavItem(
+          Icons.movie_filter,
+          'Pregled filmova',
+          context,
+          MovieListPage(),
+        ),
+        _buildNavItem(
+          Icons.movie_edit,
+          'Nova projekcija',
+          context,
+          DodavanjeProjekcijeScreen(),
+        ),
+      ],
+    ),
+    // Glumci grupa
+    ExpansionTile(
+      title: Text('Glumci'), // Naslov grupe
+      leading: Icon(Icons.person), // Ikona za grupu
+      children: [
+        _buildNavItem(
+          Icons.person,
+          'Dodaj glumca',
+          context,
+          ActorForm(),
+        ),
+        _buildNavItem(
+          Icons.person_2_outlined,
+          'Pregled glumaca',
+          context,
+          GlumciScreen(),
+        ),
+      ],
+    ),
+    // Obavijesti grupa
+    ExpansionTile(
+      title: Text('Obavijesti', selectionColor: Colors.white,), // Naslov grupe
+      leading: Icon(Icons.newspaper), // Ikona za grupu
+      children: [
+        _buildNavItem(
+          Icons.newspaper,
+          'Dodaj obavijest',
+          context,
+          ObavijestForm(
+            korisnikId: idkorisnika,
+          ),
+        ),
+        _buildNavItem(
+          Icons.newspaper_rounded,
+          'Pregled obavijesti',
+          context,
+          NotificationScreen(),
+        ),
+      ],
+    ),
+    // Ostale navigacijske stavke
+    _buildNavItem(
+      Icons.person_add,
+      'Dodaj režisera',
+      context,
+      DodajReziseraForma(),
+    ),
+    _buildNavItem(
+      Icons.insert_chart_outlined,
+      'Kreiraj izvještaj poslovanja',
+      context,
+      BusinessReportForm(),
+    ),
+    _buildNavItem(
+      Icons.comment_bank,
+      'Pregled i brisanje komentara',
+      context,
+      CommentsScreen(),
+    ),
+  ],
+),
+
                 ],
               ),
             ),

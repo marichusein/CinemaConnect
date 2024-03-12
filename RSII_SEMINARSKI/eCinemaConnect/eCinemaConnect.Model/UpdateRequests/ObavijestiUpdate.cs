@@ -11,7 +11,7 @@ namespace eCinemaConnect.Model.UpdateRequests
         public string? Naslov { get; set; }
 
         public string? Sadrzaj { get; set; }
-
+        public byte[]? Slika { get; set; }
         public DateTime? DatumUredjivanja { get; set; }
     }
 }
