@@ -12,6 +12,6 @@ namespace eCinemaConnect.Model.ViewRequests
 
         public int? BrojSjedista { get; set; }
 
-        public bool Slobodno { get; set; }
+        public bool? Slobodno { get; set; }
     }
 }

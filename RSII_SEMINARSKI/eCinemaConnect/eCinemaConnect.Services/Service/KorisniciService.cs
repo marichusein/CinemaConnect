@@ -10,8 +10,10 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace eCinemaConnect.Services.Service
@@ -27,62 +29,53 @@ namespace eCinemaConnect.Services.Service
             _context = context;
             _mapper = mapper;
             _tipGledatelja = tipGledatelja;
-            _rabbitMQProducer= rabbitMQProducer;
+            _rabbitMQProducer = rabbitMQProducer;
         }
 
-        public async Task<KorisniciView> Login(KorisniciLogin login)
+        public async Task<KorisniciView> LoginAsync(KorisniciLogin login)
         {
-            // Pretražite korisnike u bazi podataka na osnovu korisničkog imena (ili email-a)
-            var user = _context.Korisnicis.Where(x => x.KorisnickoIme == login.KorisnickoIme).Include(t => t.TipGledatelja).FirstOrDefault();
-            //var user = _context.Korisnicis.SingleOrDefault(u => u.KorisnickoIme == login.KorisnickoIme);
+            var user = await _context.Korisnicis
+                .Where(x => x.KorisnickoIme == login.KorisnickoIme)
+                .Include(t => t.TipGledatelja)
+                .FirstOrDefaultAsync();
 
-            if (user != null)
+            if (user != null && VerifyPassword(login.Lozinka, user.Lozinka, user.Salt))
             {
-                // Proverite da li je unesena lozinka ispravna
-                if (VerifyPassword(login.Lozinka, user.Lozinka, user.Salt))
-                {
-                    // Lozinka je ispravna, korisnik se može prijaviti
-
-                    // Ovde možete vratiti KorisniciView sa podacima o prijavljenom korisniku
-                    var korisnikView = _mapper.Map<KorisniciView>(user);
-                    korisnikView.Tip = _mapper.Map<TipGledatelja>(user.TipGledatelja);
-                    return korisnikView;
-                }
+                var korisnikView = _mapper.Map<KorisniciView>(user);
+                korisnikView.Tip = _mapper.Map<TipGledatelja>(user.TipGledatelja);
+                return korisnikView;
             }
 
-            // Lozinka nije ispravna ili korisnik ne postoji
-            // Ovde možete vratiti odgovarajuću poruku o grešci ili null ako želite
             return null;
         }
 
-
-        private byte[] GenerateSalt()
+        private async Task<byte[]> GenerateSaltAsync()
         {
             byte[] salt = new byte[16]; // 16 bajtova soli
             using (RNGCryptoServiceProvider rngCsp = new RNGCryptoServiceProvider())
             {
-                rngCsp.GetBytes(salt);
+                await Task.Run(() => rngCsp.GetBytes(salt));
             }
             return salt;
         }
 
-        private byte[] HashPassword(string password, byte[] salt)
+        private async Task<byte[]> HashPasswordAsync(string password, byte[] salt)
         {
-            using (Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000))
+            return await Task.Run(() =>
             {
-                return pbkdf2.GetBytes(32);
-            }
+                using (Rfc2898DeriveBytes pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000))
+                {
+                    return pbkdf2.GetBytes(32);
+                }
+            });
         }
 
         private bool VerifyPassword(string enteredPassword, string storedPasswordHash, byte[] storedSalt)
         {
-            // Hashirajte unesenu lozinku koristeći isti salt iz baze podataka
-            byte[] enteredPasswordHash = HashPassword(enteredPassword, storedSalt);
+            byte[] enteredPasswordHash = HashPasswordAsync(enteredPassword, storedSalt).Result;
 
-            // Pretvorite hashiranu lozinku u string za upoređivanje sa vrednošću u bazi podataka
             string enteredPasswordHashString = BitConverter.ToString(enteredPasswordHash).Replace("-", "").ToLower();
 
-            // Uporedite unesenu lozinku sa vrednošću u bazi podataka
             return enteredPasswordHashString == storedPasswordHash;
         }
 
@@ -93,19 +86,13 @@ namespace eCinemaConnect.Services.Service
             public KorisniciView RegisteredKorisnik { get; set; }
         }
 
-        public SiginUpResult SiginUp(KorisniciRegistration registration)
+        public async Task<SiginUpResult> SiginUpAsync(KorisniciRegistration registration)
         {
-            // Generišite sol (salt) za novog korisnika
-            byte[] salt = GenerateSalt();
-
-            // Hashirajte lozinku koju je korisnik uneo prilikom registracije
-            byte[] hashedPassword = HashPassword(registration.Lozinka, salt);
-
-            // Pretvorite hashiranu lozinku u string
+            byte[] salt = await GenerateSaltAsync();
+            byte[] hashedPassword = await HashPasswordAsync(registration.Lozinka, salt);
             string hashedPasswordString = BitConverter.ToString(hashedPassword).Replace("-", "").ToLower();
 
-            // Provera da li već postoji korisnik sa istim emailom ili korisničkim imenom
-            var existingKorisnik = _context.Korisnicis.FirstOrDefault(k => k.KorisnickoIme == registration.KorisnickoIme || k.Email == registration.Email);
+            var existingKorisnik = await _context.Korisnicis.FirstOrDefaultAsync(k => k.KorisnickoIme == registration.KorisnickoIme || k.Email == registration.Email);
 
             if (existingKorisnik != null)
             {
@@ -117,17 +104,14 @@ namespace eCinemaConnect.Services.Service
                 };
             }
 
-            // Kreirajte novog korisnika sa hash-iranom lozinkom i solju
             var newKorisnik = _mapper.Map<Korisnici>(registration);
             newKorisnik.Salt = salt;
             newKorisnik.Lozinka = hashedPasswordString;
             newKorisnik.TipGledateljaId = 1;
 
-            // Dodajte novog korisnika u bazu podataka
             _context.Korisnicis.Add(newKorisnik);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            // Vratite KorisniciView sa podacima o registrovanom korisniku
             var korisnikView = _mapper.Map<KorisniciView>(newKorisnik);
 
             return new SiginUpResult
@@ -138,18 +122,15 @@ namespace eCinemaConnect.Services.Service
             };
         }
 
-        public KorisniciView UpdateProfiil(int id, KorisniciUpdate obj)
+        public async Task<KorisniciView> UpdateProfiilAsync(int id, KorisniciUpdate obj)
         {
-            // Pronađite korisnika u bazi podataka na osnovu ID-ja
-            var korisnik = _context.Korisnicis.SingleOrDefault(k => k.Idkorisnika == id);
+            var korisnik = await _context.Korisnicis.SingleOrDefaultAsync(k => k.Idkorisnika == id);
 
             if (korisnik == null)
             {
-                // Ako korisnik nije pronađen, možete vratiti odgovarajuću poruku o grešci ili null
                 return null;
             }
 
-            // Ažurirajte ime, prezime i/ili lozinku korisnika prema objektu KorisniciUpdate
             if (!string.IsNullOrEmpty(obj.Ime))
             {
                 korisnik.Ime = obj.Ime;
@@ -162,29 +143,22 @@ namespace eCinemaConnect.Services.Service
 
             if (!string.IsNullOrEmpty(obj.Lozinka))
             {
-                // Generišite novu sol za korisnika
-                byte[] newSalt = GenerateSalt();
-
-                // Hashirajte novu lozinku
-                byte[] newHashedPassword = HashPassword(obj.Lozinka, newSalt);
+                byte[] newSalt = await GenerateSaltAsync();
+                byte[] newHashedPassword = await HashPasswordAsync(obj.Lozinka, newSalt);
                 string newHashedPasswordString = BitConverter.ToString(newHashedPassword).Replace("-", "").ToLower();
 
-                // Ažurirajte lozinku i sol korisnika
                 korisnik.Lozinka = newHashedPasswordString;
                 korisnik.Salt = newSalt;
             }
 
-            // Sačuvajte promene u bazi podataka
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            // Vratite ažurirani KorisniciView sa novim podacima
             var updatedKorisnikView = _mapper.Map<KorisniciView>(korisnik);
             return updatedKorisnikView;
         }
 
-        public void SendMail(int korisnikID)
+        public async Task SendMailAsync(int korisnikID)
         {
-
             var objektMail = new EmailModel();
             objektMail.Recipient = _context.Korisnicis.Where(x => x.Idkorisnika == korisnikID).FirstOrDefault().Email ?? "husein.maric@edu.fit.ba";
             objektMail.Subject = "CinemaConnect - Vaš prozor u svijet filma";
@@ -199,26 +173,52 @@ namespace eCinemaConnect.Services.Service
             catch (Exception ex)
             {
                 
+                // Handle or log the exception
             }
-
         }
 
-        public KorisniciView LoginAdmin(KorisniciLogin login)
+        public async Task SendPurchaseConfirmationEmailAsync(int korisnikID, string filmNaziv, DateTime datumPrikazivanja, string sala, int brojKarata, decimal ukupnaCijena)
         {
-            // Pretražite korisnike u bazi podataka na osnovu korisničkog imena (ili email-a)
-            var user = _context.Korisnicis.Where(x => x.KorisnickoIme == login.KorisnickoIme).Include(t => t.TipGledatelja).FirstOrDefault();
-            //var user = _context.Korisnicis.SingleOrDefault(u => u.KorisnickoIme == login.KorisnickoIme);
+            var korisnik = _context.Korisnicis.FirstOrDefault(x => x.Idkorisnika == korisnikID);
+            if (korisnik == null)
+            {
+                return;
+            }
+
+            var objektMail = new EmailModel();
+            objektMail.Recipient = korisnik.Email;
+            objektMail.Subject = "Potvrda o kupovini karata - CinemaConnect";
+            objektMail.Content = $"Poštovani {korisnik.Ime},\n\n";
+            objektMail.Content += $"Ovo je potvrda da ste uspješno kupili karte za film '{filmNaziv}' za prikazivanje dana {datumPrikazivanja.ToString("dd.MM.yyyy")} u sali {sala}.\n\n";
+            objektMail.Content += $"Broj kupljenih karata: {brojKarata}\n";
+            objektMail.Content += $"Ukupna cijena: {ukupnaCijena.ToString("0.00")} KM\n\n";
+            objektMail.Content += "Hvala vam što koristite CinemaConnect. Želimo vam ugodan boravak u kinu!\n\n";
+            objektMail.Content += "Srdačan pozdrav,\nVaš CinemaConnect tim";
+
+            try
+            {
+                _rabbitMQProducer.SendMessage(objektMail);
+                Thread.Sleep(TimeSpan.FromSeconds(15));
+            }
+            catch (Exception ex)
+            {
+                // Handle or log the exception
+            }
+        }
+
+        public async Task<KorisniciView> LoginAdminAsync(KorisniciLogin login)
+        {
+            var user = await _context.Korisnicis
+                .Where(x => x.KorisnickoIme == login.KorisnickoIme)
+                .Include(t => t.TipGledatelja)
+                .FirstOrDefaultAsync();
 
             if (user != null)
             {
-                // Proverite da li je unesena lozinka ispravna
                 if (VerifyPassword(login.Lozinka, user.Lozinka, user.Salt))
                 {
                     if (user.TipGledatelja.NazivTipa == "Admin")
                     {
-                        // Lozinka je ispravna, korisnik se može prijaviti
-
-                        // Ovde možete vratiti KorisniciView sa podacima o prijavljenom korisniku
                         var korisnikView = _mapper.Map<KorisniciView>(user);
                         korisnikView.Tip = _mapper.Map<TipGledatelja>(user.TipGledatelja);
                         return korisnikView;
@@ -226,11 +226,7 @@ namespace eCinemaConnect.Services.Service
                 }
             }
 
-            // Lozinka nije ispravna ili korisnik ne postoji
-            // Ovde možete vratiti odgovarajuću poruku o grešci ili null ako želite
             return null;
         }
     }
-
-   
 }

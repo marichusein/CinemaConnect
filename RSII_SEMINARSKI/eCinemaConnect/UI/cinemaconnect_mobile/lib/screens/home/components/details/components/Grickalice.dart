@@ -16,6 +16,9 @@ class GrickaliceMenu extends StatefulWidget {
   final int odabranaProjekcija;
   final double Cijena;
   final Map<String, String> header;
+  final String NazivFilma;
+  final String datumVrijemeProjekcije;
+  final int brojSale;
 
   const GrickaliceMenu(
       {super.key,
@@ -23,7 +26,10 @@ class GrickaliceMenu extends StatefulWidget {
       required this.selektovanaSjedista,
       required this.odabranaProjekcija,
       required this.Cijena,
-      required this.header});
+      required this.header,
+      required this.NazivFilma,
+      required this.datumVrijemeProjekcije,
+      required this.brojSale});
   @override
   _GrickaliceMenuState createState() => _GrickaliceMenuState();
 }
@@ -117,7 +123,8 @@ class _GrickaliceMenuState extends State<GrickaliceMenu> {
         transactions: [
           {
             "amount": {
-              "total": double.parse((widget.Cijena*0.55).toStringAsFixed(2)), // Promijenite ovo s vašim ukupnim iznosom
+              "total": double.parse((widget.Cijena * 0.55).toStringAsFixed(
+                  2)), // Promijenite ovo s vašim ukupnim iznosom
               "currency": "USD",
             },
             "description": "Payment for reservation #your_reservation_id.",
@@ -126,7 +133,8 @@ class _GrickaliceMenuState extends State<GrickaliceMenu> {
                 {
                   "name": "Cijena",
                   "quantity": 1,
-                  "price": double.parse((widget.Cijena*0.55).toStringAsFixed(2)), // Promijenite ovo s cijenom vašeg artikla
+                  "price": double.parse((widget.Cijena * 0.55).toStringAsFixed(
+                      2)), // Promijenite ovo s cijenom vašeg artikla
                   "currency": "USD"
                 }
               ],
@@ -205,57 +213,66 @@ class _GrickaliceMenuState extends State<GrickaliceMenu> {
       body: jsonEncode(rezervacijaObj),
     );
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> responseJson = jsonDecode(response.body);
-      int idrezervacije = responseJson['idrezervacije'];
+if (response.statusCode == 200) {
+  Map<String, dynamic> responseJson = jsonDecode(response.body);
+  int idrezervacije = responseJson['idrezervacije'];
 
-      // Ispis idrezervacije
-      print('idrezervacije: $idrezervacije');
-      // Ako je zahtjev uspješno izvršen, prikažite QR kod u dijalogu
-      String reservationCode =
-          '$baseUrl/Rezervacije/PotvrdiUlazakRezervaciju=$idrezervacije'; // Generirajte jedinstveni kod ovdje
+  // Generirajte QR kod
+  String reservationCode =
+      '$baseUrl/Rezervacije/PotvrdiUlazakRezervaciju=$idrezervacije'; // Generirajte jedinstveni kod ovdje
+  QrImageView qrCodeWidget = QrImageView(
+    data: reservationCode,
+    version: QrVersions.auto,
+    size: 200.0,
+  );
 
-      // Generirajte QR kod
-      QrImageView qrCodeWidget = QrImageView(
-        data: reservationCode,
-        version: QrVersions.auto,
-        size: 200.0,
-      );
-
-      // ignore: use_build_context_synchronously
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return Dialog(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                      'Vaš QR kod za rezervaciju - u slučaju greške na aparatu Vaš jedinstevni broj rezervacije je $idrezervacije'),
-                ),
-                qrCodeWidget, // Ovdje se prikazuje QR kod
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(); // Zatvori dijalog
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: (context) => HomeScreen(
-                          userId: widget.KorisnikID,
-                          header: widget.header,
-                        ),
-                      ),
-                    ); // Redirekcija na HomeScreen
-                  },
-                  child: Text('Zatvori'),
-                ),
-              ],
+  // ignore: use_build_context_synchronously
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                  'Vaš QR kod za rezervaciju - u slučaju greške na aparatu Vaš jedinstevni broj rezervacije je $idrezervacije'),
             ),
-          );
-        },
+            qrCodeWidget, // Ovdje se prikazuje QR kod
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Zatvori dijalog
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(
+                      userId: widget.KorisnikID,
+                      header: widget.header,
+                    ),
+                  ),
+                ); // Redirekcija na HomeScreen
+              },
+              child: Text('Zatvori'),
+            ),
+          ],
+        ),
       );
-    } else {
+    },
+  );
+
+  var mailResponse = await http.post(
+    Uri.parse(
+        '$baseUrl/Korisnici/sendMailKupovina?korisnikID=${widget.KorisnikID}&NazivFilma=${widget.NazivFilma}&Datum=${widget.datumVrijemeProjekcije}&sala=${widget.brojSale}&brojkarata=${responseJson['brojRezervisanihKarata']}&cijena=${widget.Cijena}'),
+    headers: widget.header,
+  );
+
+  if (mailResponse.statusCode == 200) {
+    print('E-pošta uspješno poslana');
+  } else {
+    print('Greška prilikom slanja e-pošte: ${mailResponse.statusCode}');
+  }
+}
+ else {
       // Ako zahtjev nije uspio, obradite odgovarajuću grešku
       throw Exception('Failed to create reservation');
     }

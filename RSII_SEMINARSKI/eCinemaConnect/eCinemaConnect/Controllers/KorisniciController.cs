@@ -1,11 +1,12 @@
 ﻿using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
-using eCinemaConnect.Services;
-using eCinemaConnect.Services.Database;
+using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services.Interface;
-//using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace eCinemaConnect.Controllers
 {
@@ -17,74 +18,76 @@ namespace eCinemaConnect.Controllers
 
         public KorisniciController(IKorisnici korisnici)
         {
-           _korisnici= korisnici;
+            _korisnici = korisnici;
         }
 
         [HttpGet()]
-        public IEnumerable<Model.ViewRequests.KorisniciView> Get()
+        public async Task<IEnumerable<KorisniciView>> Get()
         {
-           return _korisnici.GetAll();
+            return await _korisnici.GetAllAsync();
         }
+
         [HttpGet("{id}")]
-        public Model.ViewRequests.KorisniciView GetById(int id)
+        public async Task<KorisniciView> GetById(int id)
         {
-            return _korisnici.GetObj(id);
+            return await _korisnici.GetObjAsync(id);
         }
 
         [HttpPost()]
-        public Model.ViewRequests.KorisniciView AddGlumca(KorisniciInsert obj)
+        public async Task<KorisniciView> AddGlumca(KorisniciInsert obj)
         {
-            return _korisnici.AddObj(obj);
+            return await _korisnici.AddObjAsync(obj);
         }
 
         [HttpPost("login")]
-        public Task<Model.ViewRequests.KorisniciView> Login(KorisniciLogin obj)
+        public async Task<KorisniciView> LoginAsync(KorisniciLogin obj)
         {
-            return  _korisnici.Login(obj);
+            return await _korisnici.LoginAsync(obj);
         }
 
         [HttpPost("loginAdmin")]
-        public Model.ViewRequests.KorisniciView LoginAdmin(KorisniciLogin obj)
+        public async Task<KorisniciView> LoginAdminAsync(KorisniciLogin obj)
         {
-            return _korisnici.LoginAdmin(obj);
+            return await _korisnici.LoginAdminAsync(obj);
         }
+
         [HttpPost("siginup")]
-        public IActionResult SiginUp(KorisniciRegistration obj)
+        public async Task<IActionResult> SiginUp(KorisniciRegistration obj)
         {
-            var result = _korisnici.SiginUp(obj);
+            var result = await _korisnici.SiginUpAsync(obj);
 
             if (result.Success)
             {
-                // Registracija uspesna, vratite KorisniciView
                 return Ok(result.RegisteredKorisnik);
             }
             else
             {
-                // Registracija nije uspela, vratite odgovarajuću poruku o gresci
                 return BadRequest(result.ErrorMessage);
             }
         }
 
-
         [HttpPut("{id}")]
-        public Model.ViewRequests.KorisniciView UpdateGlumca(int id, KorisniciUpdate obj)
+        public async Task<KorisniciView> UpdateGlumca(int id, KorisniciUpdate obj)
         {
-            return _korisnici.UpdateProfiil(id, obj);
+            return await _korisnici.UpdateProfiilAsync(id, obj);
         }
 
         [HttpDelete("{id}")]
-        public bool Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-            return _korisnici.DeleteById(id);
+            return await _korisnici.DeleteByIdAsync(id);
         }
 
         [HttpPost("sendMail")]
-        public void SendMail(int korisnikID)
+        public async Task SendMail(int korisnikID)
         {
-             _korisnici.SendMail(korisnikID);
-
-           
+            await _korisnici.SendMailAsync(korisnikID);
         }
 
+        [HttpPost("sendMailKupovina")]
+        public async Task SendMailKupovina(int korisnikID, string NazivFilma, DateTime Datum, string sala, int brojkarata, decimal cijena)
+        {
+            await _korisnici.SendPurchaseConfirmationEmailAsync(korisnikID, NazivFilma, Datum, sala, brojkarata, cijena);
+        }
     }
 }

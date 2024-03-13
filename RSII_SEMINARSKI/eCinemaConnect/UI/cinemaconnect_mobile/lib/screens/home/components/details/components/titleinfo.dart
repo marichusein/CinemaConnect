@@ -61,7 +61,7 @@ class TitleAndBasicInfo extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (context) => ProjekcijeSjedistaKomponenta(filmId: movie.id, korisnikID: KorisnikID, header: header,),
+          builder: (context) => ProjekcijeSjedistaKomponenta(filmId: movie.id, korisnikID: KorisnikID, header: header, NazivFilma: movie.title,),
         ),
       );
               },

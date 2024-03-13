@@ -5,21 +5,20 @@ using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace eCinemaConnect.Services.Service
 {
     public class FilmoviService : IFilmovi
     {
-        CinemaContext _context;
-        public IMapper _mapper { get; set; }
-        public IReziser _reziseri { get; set; }
-        public IZanrovi _zanrovi { get; set; }
-        public IOcijeni _ocijeni { get; set; }
+        private readonly CinemaContext _context;
+        private readonly IMapper _mapper;
+        private readonly IReziser _reziseri;
+        private readonly IZanrovi _zanrovi;
+        private readonly IOcijeni _ocijeni;
+
         public FilmoviService(CinemaContext context, IMapper mapper, IReziser reziseri, IZanrovi zanrovi, IOcijeni ocijeni)
         {
             _context = context;
@@ -28,17 +27,18 @@ namespace eCinemaConnect.Services.Service
             _zanrovi = zanrovi;
             _ocijeni = ocijeni;
         }
-        public FilmoviView AddFilm(FilmoviInsert filmoviInsert)
+
+        public async Task<FilmoviView> AddFilm(FilmoviInsert filmoviInsert)
         {
             var newFilm = new Database.Filmovi();
             _mapper.Map(filmoviInsert, newFilm);
-            newFilm.Reziser = _context.Reziseris.Find(filmoviInsert.ReziserId);
-            newFilm.Zanr = _context.Zanrovis.Find(filmoviInsert.ZanrId);
+            newFilm.Reziser = await _context.Reziseris.FindAsync(filmoviInsert.ReziserId);
+            newFilm.Zanr = await _context.Zanrovis.FindAsync(filmoviInsert.ZanrId);
             newFilm.Aktivan = true;
 
-
             _context.Add(newFilm);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
+
             if (filmoviInsert.glumciUFlimu != null)
             {
                 foreach (GlumciView g in filmoviInsert.glumciUFlimu)
@@ -50,93 +50,90 @@ namespace eCinemaConnect.Services.Service
                         GlumacId = glumacBaza.Idglumca
                     };
                     _context.GlumciFilmovis.Add(newFilmoviGlumic);
-                    _context.SaveChanges();
                 }
+                await _context.SaveChangesAsync();
             }
-
 
             return _mapper.Map<FilmoviView>(newFilm);
         }
 
-        public bool DeleteById(int id)
+        public async Task<bool> DeleteById(int id)
         {
             try
             {
-                var glumciFilmovi = _context.GlumciFilmovis
+                var glumciFilmovi = await _context.GlumciFilmovis
                                   .Where(x => x.FilmId == id)
-                                  .ToList();
+                                  .ToListAsync();
                 _context.GlumciFilmovis.RemoveRange(glumciFilmovi);
-                _context.SaveChanges();
-                var filmtodelete = _context.Filmovis.Find(id);
+                await _context.SaveChangesAsync();
+                var filmtodelete = await _context.Filmovis.FindAsync(id);
 
                 _context.Filmovis.Remove(filmtodelete);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch
             {
                 return false;
             }
             return true;
-
         }
 
-        public List<FilmoviView> GetAll()
+        public async Task<List<FilmoviView>> GetAll()
         {
-            var filmovi = _context.Filmovis.Include(z => z.Zanr).Include(r => r.Reziser).Where(x=>x.Aktivan==true).ToList();
+            var filmovi = await _context.Filmovis.Include(z => z.Zanr).Include(r => r.Reziser).Where(x => x.Aktivan == true).ToListAsync();
             return _mapper.Map<List<FilmoviView>>(filmovi);
         }
 
-        public FilmoviView GetById(int id)
+        public async Task<FilmoviView> GetById(int id)
         {
-            var filmovi = _context.Filmovis.Include(z => z.Zanr).Include(r => r.Reziser).ToList();
+            var filmovi = await _context.Filmovis.Include(z => z.Zanr).Include(r => r.Reziser).ToListAsync();
             var film = filmovi.Where(x => x.Idfilma == id).FirstOrDefault();
             return _mapper.Map<FilmoviView>(film);
-
         }
 
-        public bool IzbirsiFilm(int id)
+        public async Task<bool> IzbirsiFilm(int id)
         {
-            var film = _context.Filmovis
+            var film = await _context.Filmovis
                                 .Include(z => z.Zanr)
                                 .Include(r => r.Reziser)
-                                .FirstOrDefault(x => x.Idfilma == id);
+                                .FirstOrDefaultAsync(x => x.Idfilma == id);
 
             if (film != null)
             {
                 film.Aktivan = false;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             else
             {
-                return false; // Film with the given id was not found
+                return false;
             }
         }
 
-
-        public List<FilmoviView> GetFilmoviByGlumac(int id)
+        public async Task<List<FilmoviView>> GetFilmoviByGlumac(int id)
         {
-            var glumciFilmovi = _context.GlumciFilmovis.Where(x => x.GlumacId == id).Select(x => x.FilmId).ToList();
-            var filmovi = _context.Filmovis.Where(f => glumciFilmovi.Contains(f.Idfilma)).Include(z => z.Zanr).Include(r => r.Reziser).ToList();
+            var glumciFilmovi = await _context.GlumciFilmovis.Where(x => x.GlumacId == id).Select(x => x.FilmId).ToListAsync();
+            var filmovi = await _context.Filmovis.Where(f => glumciFilmovi.Contains(f.Idfilma)).Include(z => z.Zanr).Include(r => r.Reziser).ToListAsync();
             return _mapper.Map<List<FilmoviView>>(filmovi);
         }
 
-        public List<FilmoviView> GetFilmoviByReziser(int id)
+        public async Task<List<FilmoviView>> GetFilmoviByReziser(int id)
         {
-            var filmovi = _context.Filmovis.Include(z => z.Zanr).Include(r => r.Reziser).ToList();
+            var filmovi = await _context.Filmovis.Include(z => z.Zanr).Include(r => r.Reziser).ToListAsync();
             filmovi = filmovi.Where(x => x.ReziserId == id).ToList();
             return _mapper.Map<List<FilmoviView>>(filmovi);
         }
 
-        public List<FilmoviView> GetFilmoviByZanr(int id)
+        public async Task<List<FilmoviView>> GetFilmoviByZanr(int id)
         {
-            var filmovi = _context.Filmovis.Include(z => z.Zanr).Include(r => r.Reziser).ToList();
+            var filmovi = await _context.Filmovis.Include(z => z.Zanr).Include(r => r.Reziser).ToListAsync();
             filmovi = filmovi.Where(x => x.ZanrId == id).ToList();
             return _mapper.Map<List<FilmoviView>>(filmovi);
         }
-        public List<FilmoviView> GetFilmoviByMultipleFilters(int? zanrid, int? glumacid, int? reziserid)
+
+        public async Task<List<FilmoviView>> GetFilmoviByMultipleFilters(int? zanrid, int? glumacid, int? reziserid)
         {
-            var filmovi = _context.Filmovis.Include(z => z.Zanr).Include(r => r.Reziser).ToList();
+            var filmovi = await _context.Filmovis.Include(z => z.Zanr).Include(r => r.Reziser).ToListAsync();
 
             if (zanrid.HasValue)
             {
@@ -145,10 +142,10 @@ namespace eCinemaConnect.Services.Service
 
             if (glumacid.HasValue)
             {
-                var glumciFilmovi = _context.GlumciFilmovis
+                var glumciFilmovi = await _context.GlumciFilmovis
                                       .Where(x => x.GlumacId == glumacid.Value)
                                       .Select(x => x.FilmId)
-                                      .ToList();
+                                      .ToListAsync();
                 filmovi = filmovi.Where(f => glumciFilmovi.Contains(f.Idfilma)).ToList();
             }
 
@@ -160,25 +157,24 @@ namespace eCinemaConnect.Services.Service
             return _mapper.Map<List<FilmoviView>>(filmovi);
         }
 
-        public FilmoviView UpdateFilma(int id, FilmoviUpdate filmoviUpdate)
+        public async Task<FilmoviView> UpdateFilma(int id, FilmoviUpdate filmoviUpdate)
         {
-            var film = _context.Filmovis.Find(id);
+            var film = await _context.Filmovis.FindAsync(id);
 
             if (film != null)
             {
                 _mapper.Map(filmoviUpdate, film);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
 
             return _mapper.Map<FilmoviView>(film);
         }
 
-
-        public List<FilmoviView> GetPreprukuByKorisnikID(int korisnikId)
+        public async Task<List<FilmoviView>> GetPreprukuByKorisnikID(int korisnikId)
         {
-            var ocjeneKorisnika = _context.OcjeneIkomentaris
+            var ocjeneKorisnika = await _context.OcjeneIkomentaris
                 .Where(x => x.KorisnikId == korisnikId)
-                .ToList();
+                .ToListAsync();
 
             if (ocjeneKorisnika.Count == 0)
             {
@@ -192,11 +188,11 @@ namespace eCinemaConnect.Services.Service
             var matricaSlicnosti = new Dictionary<int, double>(); // KorisnikId, Slicnost
             foreach (var filmId in filmoviKorisnika)
             {
-                var korisniciKojiSuOceniliFilm = _context.OcjeneIkomentaris
+                var korisniciKojiSuOceniliFilm = await _context.OcjeneIkomentaris
                     .Where(x => x.FilmId == filmId && x.KorisnikId != korisnikId)
                     .Select(x => x.KorisnikId)
                     .Distinct()
-                    .ToList();
+                    .ToListAsync();
 
                 foreach (var korisnik in korisniciKojiSuOceniliFilm)
                 {
@@ -218,62 +214,62 @@ namespace eCinemaConnect.Services.Service
             var preporuceniFilmovi = new List<int?>();
             if (slicniKorisnici.Count > 0)
             {
-                preporuceniFilmovi = _context.OcjeneIkomentaris
+                preporuceniFilmovi = await _context.OcjeneIkomentaris
                     .Where(x => slicniKorisnici.Contains((int)x.KorisnikId) && x.Ocjena > 3)
                     .GroupBy(x => x.FilmId)
                     .OrderByDescending(g => g.Count())
                     .Select(g => g.Key)
                     .Take(10)
-                    .ToList();
+                    .ToListAsync();
             }
             else
             {
                 // Ako nema dovoljno sličnih korisnika, pronađi po dva najbolje ocijenjena filma
-                var ocjenePoFilmu = _context.OcjeneIkomentaris
+                var ocjenePoFilmu = await _context.OcjeneIkomentaris
                     .Where(x => x.KorisnikId != korisnikId && filmoviKorisnika.Contains(x.FilmId))
                     .GroupBy(x => x.FilmId)
                     .Select(g => new { FilmId = g.Key, ProsjecnaOcjena = g.Average(x => x.Ocjena) })
                     .OrderByDescending(x => x.ProsjecnaOcjena)
                     .Take(2)
                     .Select(x => x.FilmId)
-                    .ToList();
+                    .ToListAsync();
 
                 preporuceniFilmovi.AddRange((IEnumerable<int?>)ocjenePoFilmu);
             }
 
-            var preporuceniFilmoviDetalji = _context.Filmovis
+            var preporuceniFilmoviDetalji = await _context.Filmovis
                 .Where(x => preporuceniFilmovi.Contains(x.Idfilma))
                 .Include(z => z.Zanr)
                 .Include(r => r.Reziser)
-                .ToList();
+                .ToListAsync();
 
             var preporuceniFilmoviView = _mapper.Map<List<FilmoviView>>(preporuceniFilmoviDetalji);
 
             return preporuceniFilmoviView;
         }
 
-        public List<FilmoviView> GetSve()
+        public async Task<List<FilmoviView>> GetSve()
         {
-            var filmovi = _context.Filmovis.Include(z => z.Zanr).Include(r => r.Reziser).ToList();
+            var filmovi = await _context.Filmovis.Include(z => z.Zanr).Include(r => r.Reziser).ToListAsync();
             return _mapper.Map<List<FilmoviView>>(filmovi);
         }
 
-        public bool AktivirajFilm(int id)
+        public async Task<bool> AktivirajFilm(int id)
         {
-            var film = _context.Filmovis
+            var film = await _context.Filmovis
                                 .Include(z => z.Zanr)
                                 .Include(r => r.Reziser)
-                                .FirstOrDefault(x => x.Idfilma == id);
+                                .FirstOrDefaultAsync(x => x.Idfilma == id);
 
             if (film != null)
             {
                 film.Aktivan = true;
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
             else
             {
-                return false; 
+                return false;
             }
         }
     }

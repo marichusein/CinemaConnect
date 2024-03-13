@@ -4,6 +4,7 @@ using eCinemaConnect.Model.UpdateRequests;
 using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,9 +23,10 @@ namespace eCinemaConnect.Services.Service
             _mapper=mapper;
         }
 
-        public List<KomentariObavijestiView> getByObavijest(int obavijestId)
+        public async Task<List<KomentariObavijestiView>> getByObavijestAsync(int obavijestId)
         {
-            return _mapper.Map<List<KomentariObavijestiView>>(_context.KomentariObavijestis.Where(x => x.ObavijestId == obavijestId).ToList());
+            var komentari = await _context.KomentariObavijestis.Where(x => x.ObavijestId == obavijestId).ToListAsync();
+            return _mapper.Map<List<KomentariObavijestiView>>(komentari);
         }
     }
 }

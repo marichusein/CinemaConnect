@@ -358,23 +358,30 @@ class Movie {
 
   
   factory Movie.fromJson(Map<String, dynamic> json) {
-    final String poster = json['filmPlakat'] ?? "assets/images/poster_5.jpg";
+  final String poster = json['filmPlakat'] ?? "assets/images/poster_5.jpg";
 
-    return Movie(
-      id: json['idfilma'],
-          title: json['nazivFilma'],
-          year: json['godinaIzdanja'],
-          poster: poster,
-          backdrop: "assets/images/backdrop_1.jpg", // You can set this as needed
-          numOfRatings: 0, // You can set this as needed
-          rating: 0.0, // You can set this as needed
-          criticsReview: 0, // You can set this as needed
-          metascoreRating: 0, // You can set this as needed
-          genra: [json['zanr']['nazivZanra']],
-          plot: json['opis'],
-          cast: [], // You can set this as nee
-    );
+  // Handling genre as a list of strings
+  List<String> genreList = [];
+  if (json['zanr'] != null && json['zanr']['nazivZanra'] != null) {
+    genreList.add(json['zanr']['nazivZanra']);
   }
+
+  return Movie(
+    id: json['idfilma'],
+    title: json['nazivFilma'],
+    year: json['godinaIzdanja'],
+    poster: poster,
+    backdrop: "assets/images/backdrop_1.jpg", // You can set this as needed
+    numOfRatings: 0, // You can set this as needed
+    rating: 0.0, // You can set this as needed
+    criticsReview: 0, // You can set this as needed
+    metascoreRating: 0, // You can set this as needed
+    genra: genreList,
+    plot: json['opis'],
+    cast: []
+  );
+}
+
 }
 
 List<Movie> movies = [];

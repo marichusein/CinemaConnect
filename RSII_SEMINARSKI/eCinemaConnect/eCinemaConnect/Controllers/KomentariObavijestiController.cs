@@ -1,12 +1,11 @@
 using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
-using eCinemaConnect.Services;
-using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
-//using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace eCinemaConnect.Controllers
 {
@@ -19,42 +18,43 @@ namespace eCinemaConnect.Controllers
 
         public KomentariObavijestiController(IKomentariObavijesti glumci)
         {
-           _glumci= glumci;
+            _glumci = glumci;
         }
 
-        [HttpGet()]
-        public IEnumerable<Model.ViewRequests.KomentariObavijestiView> Get()
+        [HttpGet]
+        public async Task<IEnumerable<Model.ViewRequests.KomentariObavijestiView>> Get()
         {
-           return _glumci.GetAll();
+            return await _glumci.GetAllAsync();
         }
+
         [HttpGet("{id}")]
-        public Model.ViewRequests.KomentariObavijestiView GetById(int id)
+        public async Task<Model.ViewRequests.KomentariObavijestiView> GetById(int id)
         {
-            return _glumci.GetObj(id);
+            return await _glumci.GetObjAsync(id);
         }
 
-        [HttpPost()]
-        public Model.ViewRequests.KomentariObavijestiView AddGlumca(KomentariObavijestiInsert obj)
+        [HttpPost]
+        public async Task<Model.ViewRequests.KomentariObavijestiView> AddGlumca(KomentariObavijestiInsert obj)
         {
-            return _glumci.AddObj(obj);
+            return await _glumci.AddObjAsync(obj);
         }
 
         [HttpPut("{id}")]
-        public Model.ViewRequests.KomentariObavijestiView UpdateGlumca(int id, KomentariObavijestiUpdate obj)
+        public async Task<Model.ViewRequests.KomentariObavijestiView> UpdateGlumca(int id, KomentariObavijestiUpdate obj)
         {
-            return _glumci.UpdateObj(id, obj);
+            return await _glumci.UpdateObjAsync(id, obj);
         }
 
         [HttpDelete("{id}")]
-        public bool Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-            return _glumci.DeleteById(id);
+            return await _glumci.DeleteByIdAsync(id);
         }
 
         [HttpGet("obavijesti/{id}")]
-        public List<Model.ViewRequests.KomentariObavijestiView> GetByIdO(int id)
+        public async Task<List<Model.ViewRequests.KomentariObavijestiView>> GetByIdO(int id)
         {
-            return _glumci.getByObavijest(id);
+            return await _glumci.getByObavijestAsync(id);
         }
     }
 }

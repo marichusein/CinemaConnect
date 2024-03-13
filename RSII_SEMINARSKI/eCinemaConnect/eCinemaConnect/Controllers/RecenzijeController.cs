@@ -1,12 +1,11 @@
-using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
-using eCinemaConnect.Services;
-using eCinemaConnect.Services.Database;
+using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
-//using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace eCinemaConnect.Controllers
 {
@@ -20,37 +19,37 @@ namespace eCinemaConnect.Controllers
 
         public RecenzijeController(IRecenzije basic)
         {
-           _basic= basic;
+            _basic = basic;
         }
 
-        [HttpGet()]
-        public IEnumerable<Model.ViewRequests.RecenzijeView> Get()
+        [HttpGet]
+        public async Task<IEnumerable<RecenzijeView>> GetAsync()
         {
-           return _basic.GetAllWithPovezanoSvojstvo();
+            return await _basic.GetAllWithPovezanoSvojstvoAsync();
         }
+
         [HttpGet("{id}")]
-        public Model.ViewRequests.RecenzijeView GetById(int id)
+        public async Task<RecenzijeView> GetByIdAsync(int id)
         {
-            return _basic.GetById(id);
+            return await _basic.GetByIdAsync(id);
         }
 
-        [HttpPost()]
-        public Model.ViewRequests.RecenzijeView AddMenu(RecenzijeInsert obj)
+        [HttpPost]
+        public async Task<RecenzijeView> AddMenuAsync(RecenzijeInsert obj)
         {
-            return _basic.AddRecenziju(obj);
+            return await _basic.AddRecenzijuAsync(obj);
         }
 
         [HttpPut("{id}")]
-        public Model.ViewRequests.RecenzijeView UpdateMenu(int id, RecenzijeUpdate obj)
+        public async Task<RecenzijeView> UpdateMenuAsync(int id, RecenzijeUpdate obj)
         {
-            return _basic.UpdateObj(id, obj);
+            return await _basic.UpdateObjAsync(id, obj);
         }
 
         [HttpDelete("{id}")]
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            return _basic.DeleteById(id);
+            return await _basic.DeleteByIdAsync(id);
         }
-
     }
 }

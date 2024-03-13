@@ -9,22 +9,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace eCinemaConnect.Services.Service
 {
     public class BaseService<T, TInsert, TUpdate, TDBx, TDataBase> : IService<T, TInsert, TUpdate> where T : class where TInsert : class where TUpdate : class where TDBx : class where TDataBase : class, new()
     {
-        CinemaContext _context;
-        public IMapper _mapper { get; set; }
-        public BaseService(CinemaContext context, IMapper mapper) 
+        private readonly CinemaContext _context;
+        private readonly IMapper _mapper;
+
+        public BaseService(CinemaContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
         }
 
-        public List<T> GetAll(params Expression<Func<T, object>>[] includeProperties)
+        public async Task<List<T>> GetAllAsync(params Expression<Func<T, object>>[] includeProperties)
         {
             IQueryable<TDBx> query = _context.Set<TDBx>();
 
@@ -37,46 +37,46 @@ namespace eCinemaConnect.Services.Service
                 }
             }
 
-            var obj = query.ToList();
+            var obj = await query.ToListAsync();
             return _mapper.Map<List<T>>(obj);
         }
 
-        public T AddObj(TInsert Insert)
+        public async Task<T> AddObjAsync(TInsert Insert)
         {
             var newObj = new TDataBase();
             _mapper.Map(Insert, newObj);
             _context.Add(newObj);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return _mapper.Map<T>(newObj);
         }
 
-        public T UpdateObj(int id, TUpdate Update)
+        public async Task<T> UpdateObjAsync(int id, TUpdate Update)
         {
-            var existing = _context.Set<TDBx>().Find(id);
+            var existing = await _context.Set<TDBx>().FindAsync(id);
             if (existing != null)
             {
                 _mapper.Map(Update, existing);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return _mapper.Map<T>(existing);
             }
             return null;
         }
 
-        public T GetObj(int id)
+        public async Task<T> GetObjAsync(int id)
         {
-            var obj = _context.Set<TDBx>().Find(id);
+            var obj = await _context.Set<TDBx>().FindAsync(id);
             return _mapper.Map<T>(obj);
         }
 
-        public bool DeleteById(int id)
+        public async Task<bool> DeleteByIdAsync(int id)
         {
-            var objektIzBaze = _context.Set<TDBx>().Find(id);
+            var objektIzBaze = await _context.Set<TDBx>().FindAsync(id);
 
             if (objektIzBaze != null)
             {
                 _context.Set<TDBx>().Remove(objektIzBaze);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
 

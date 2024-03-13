@@ -1,56 +1,57 @@
 using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
+using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services;
 using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
-//using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace eCinemaConnect.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-
     public class SaleController : ControllerBase
     {
         private readonly ISale _sale;
 
         public SaleController(ISale sale)
         {
-           _sale= sale;
+            _sale = sale;
         }
 
         [HttpGet()]
-        public IEnumerable<Model.ViewRequests.SalaView> Get()
+        public async Task<IEnumerable<SalaView>> GetAsync()
         {
-           return _sale.GetAll();
+            return await _sale.GetAllAsync();
         }
+
         [HttpGet("{id}")]
-        public Model.ViewRequests.SalaView GetById(int id)
+        public async Task<SalaView> GetByIdAsync(int id)
         {
-            return _sale.GetObj(id);
+            return await _sale.GetObjAsync(id);
         }
 
         [HttpPost()]
-        public Model.ViewRequests.SalaView AddZanr(SaleInsert obj)
+        public async Task<SalaView> AddZanrAsync(SaleInsert obj)
         {
-            return _sale.AddObj(obj);
+            return await _sale.AddObjAsync(obj);
         }
 
         [HttpPut("{id}")]
-        public Model.ViewRequests.SalaView UpdateSalu(int id, SalaUpdate obj)
+        public async Task<SalaView> UpdateSaluAsync(int id, SalaUpdate obj)
         {
-            return _sale.UpdateObj(id, obj);
+            return await _sale.UpdateObjAsync(id, obj);
         }
 
         [HttpDelete("{id}")]
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            return _sale.DeleteById(id);
+            return await _sale.DeleteByIdAsync(id);
         }
-
     }
 }

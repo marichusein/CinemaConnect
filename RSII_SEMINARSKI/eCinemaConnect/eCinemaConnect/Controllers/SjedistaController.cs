@@ -1,62 +1,63 @@
 using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
+using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services;
 using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
-//using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace eCinemaConnect.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-
     public class SjedistaController : ControllerBase
     {
         private readonly ISjediste _basic;
 
         public SjedistaController(ISjediste basic)
         {
-           _basic= basic;
+            _basic = basic;
         }
 
         [HttpGet()]
-        public IEnumerable<Model.ViewRequests.SjedistaView> Get()
+        public async Task<IEnumerable<SjedistaView>> GetAsync()
         {
-           return _basic.GetAllWithPovezanoSvojstvo();
+            return await _basic.GetAllWithPovezanoSvojstvoAsync();
         }
+
         [HttpGet("{id}")]
-        public Model.ViewRequests.SjedistaView GetById(int id)
+        public async Task<SjedistaView> GetByIdAsync(int id)
         {
-            return _basic.GetById(id);
+            return await _basic.GetByIdAsync(id);
         }
 
         [HttpGet("sala/{id}")]
-        public IEnumerable<Model.ViewRequests.SjedistaView> GetBySAla(int id)
+        public async Task<IEnumerable<SjedistaView>> GetBySAlaAsync(int id)
         {
-            return _basic.GetAllBySala(id);
+            return await _basic.GetAllBySalaAsync(id);
         }
 
         [HttpPost()]
-        public Model.ViewRequests.SjedistaView AddMenu(SjedistaInsert obj)
+        public async Task<SjedistaView> AddMenuAsync(SjedistaInsert obj)
         {
-            return _basic.AddSpecial(obj);
+            return await _basic.AddSpecialAsync(obj);
         }
 
         [HttpPut("{id}")]
-        public Model.ViewRequests.SjedistaView UpdateMenu(int id, SjedistaUpdate obj)
+        public async Task<SjedistaView> UpdateMenuAsync(int id, SjedistaUpdate obj)
         {
-            return _basic.UpdateObj(id, obj);
+            return await _basic.UpdateObjAsync(id, obj);
         }
 
         [HttpDelete("{id}")]
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            return _basic.DeleteById(id);
+            return await _basic.DeleteByIdAsync(id);
         }
-
     }
 }

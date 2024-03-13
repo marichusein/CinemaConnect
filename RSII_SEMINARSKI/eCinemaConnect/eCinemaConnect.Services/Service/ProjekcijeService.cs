@@ -8,16 +8,16 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace eCinemaConnect.Services.Service
 {
     public class ProjekcijeService : IProjekcije
     {
-        CinemaContext _context;
-        public IMapper _mapper { get; set; }
-        public ISjediste _sjedista { get; set; }
+        private readonly CinemaContext _context;
+        private readonly IMapper _mapper;
+        private readonly ISjediste _sjedista;
+
         public ProjekcijeService(CinemaContext context, IMapper mapper, ISjediste sjedista)
         {
             _context = context;
@@ -25,21 +25,17 @@ namespace eCinemaConnect.Services.Service
             _sjedista = sjedista;
         }
 
-        public ProjekcijeView AddProjekciju(ProjekcijeInsert projekcijaInsert)
+        public async Task<ProjekcijeView> AddProjekcijuAsync(ProjekcijeInsert projekcijaInsert)
         {
-
-            var existingProjekcije = _context.Projekcijes
-    .Where(p => p.SalaId == projekcijaInsert.SalaId &&
-                p.DatumVrijemeProjekcije.Value.Date == projekcijaInsert.DatumVrijemeProjekcije.Value.Date)
-    .ToList();
-
+            var existingProjekcije = await _context.Projekcijes
+                .Where(p => p.SalaId == projekcijaInsert.SalaId &&
+                            p.DatumVrijemeProjekcije.Value.Date == projekcijaInsert.DatumVrijemeProjekcije.Value.Date)
+                .ToListAsync();
 
             foreach (var existingProjekcija in existingProjekcije)
             {
-                //Minimalno 3h izmedju pocetka projekicja u istoj sali 
                 var krajPostojeceProjekcije = existingProjekcija.DatumVrijemeProjekcije.Value.AddMinutes(180);
 
-                // Provjeri preklapanje s novom projekcijom
                 if (projekcijaInsert.DatumVrijemeProjekcije >= existingProjekcija.DatumVrijemeProjekcije &&
                     projekcijaInsert.DatumVrijemeProjekcije <= krajPostojeceProjekcije)
                 {
@@ -50,105 +46,143 @@ namespace eCinemaConnect.Services.Service
             var newProjekcija = new Database.Projekcije();
             _mapper.Map(projekcijaInsert, newProjekcija);
             _context.Add(newProjekcija);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            var sjedista = _sjedista.GetAllBySala((int)projekcijaInsert.SalaId);
-            for (int i = 0; i < sjedista.Count; i++)
+            var sjedista = await _sjedista.GetAllBySalaAsync((int)projekcijaInsert.SalaId);
+            foreach (var sjediste in sjedista)
             {
-                var projekcijasjediste = new Database.ProjekcijeSjedistum();
-                projekcijasjediste.SjedisteId = sjedista[i].Idsjedista;
-                projekcijasjediste.ProjekcijaId = newProjekcija.Idprojekcije;
-                projekcijasjediste.Slobodno = true;
+                var projekcijasjediste = new Database.ProjekcijeSjedistum
+                {
+                    SjedisteId = sjediste.Idsjedista,
+                    ProjekcijaId = newProjekcija.Idprojekcije,
+                    Slobodno = true
+                };
                 _context.Add(projekcijasjediste);
-                _context.SaveChanges();
             }
-
-
-
+            await _context.SaveChangesAsync();
 
             return _mapper.Map<ProjekcijeView>(newProjekcija);
         }
 
-        public bool DeleteById(int id)
+        public async Task<bool> DeleteByIdAsync(int id)
         {
-            var objektIzBaze = _context.Projekcijes.Find(id);
+            var objektIzBaze = await _context.Projekcijes.FindAsync(id);
 
             if (objektIzBaze != null)
             {
                 _context.Projekcijes.Remove(objektIzBaze);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return true;
             }
 
             return false;
         }
 
-        public List<ProjekcijeView> GetAll()
+        public async Task<List<ProjekcijeView>> GetAllAsync()
         {
-            var projekcije = _context.Projekcijes.Include(f => f.Film).Include(f => f.Film.Zanr).Include(f => f.Film.Reziser).Include(s => s.Sala).ToList();
+            var projekcije = await _context.Projekcijes
+                .Include(f => f.Film)
+                .Include(f => f.Film.Zanr)
+                .Include(f => f.Film.Reziser)
+                .Include(s => s.Sala)
+                .ToListAsync();
+
             return _mapper.Map<List<ProjekcijeView>>(projekcije);
         }
 
-        public List<ProjekcijeView> GetByFilm(int id)
+        public async Task<List<ProjekcijeView>> GetByFilmAsync(int id)
         {
-            var projekcije = _context.Projekcijes.Include(f => f.Film).Include(f => f.Film.Zanr).Include(f => f.Film.Reziser).Include(s => s.Sala).ToList();
-            projekcije = projekcije.Where(x => x.FilmId == id).ToList();
+            var projekcije = await _context.Projekcijes
+                .Include(f => f.Film)
+                .Include(f => f.Film.Zanr)
+                .Include(f => f.Film.Reziser)
+                .Include(s => s.Sala)
+                .Where(x => x.FilmId == id)
+                .ToListAsync();
+
             return _mapper.Map<List<ProjekcijeView>>(projekcije);
         }
 
-        public List<ProjekcijeView> GetByFilmAktivne(int id)
-        {
-            var projekcije = _context.Projekcijes.Include(f => f.Film).Include(f => f.Film.Zanr).Include(f => f.Film.Reziser).Include(s => s.Sala).ToList();
-            projekcije = projekcije.Where(x => x.FilmId == id).Where(x=>x.DatumVrijemeProjekcije>=DateTime.Now).ToList();
-            return _mapper.Map<List<ProjekcijeView>>(projekcije);
-        }
-
-        public ProjekcijeView GetById(int id)
-        {
-            var projekcija = _context.Projekcijes.Include(f=>f.Film).Include(s=>s.Sala).Where(x=>x.Idprojekcije==id).FirstOrDefault();
-            return _mapper.Map<ProjekcijeView>(projekcija);
-        }
-
-        public ProjekcijeView UpdateProjekciju(int id, ProjekcijeUpdate projekcijeUpdate)
-        {
-            var existingProjekcija = _context.Projekcijes.Find(id);
-            if (existingProjekcija != null)
-            {
-                _mapper.Map(projekcijeUpdate, existingProjekcija);
-                _context.SaveChanges();
-                return _mapper.Map<ProjekcijeView>(existingProjekcija);
-            }
-            return null;
-        }
-
-        public List<SjedistaViewProjekcija> GetSjedistaByProjekcija(int projekcijaID)
-        {
-            List<SjedistaViewProjekcija> sjedista = new List<SjedistaViewProjekcija>();
-            var projekcija = _context.ProjekcijeSjedista.Where(x => x.ProjekcijaId == projekcijaID).ToList();
-            for (int i = 0; i < projekcija.Count; i++)
-            {
-                SjedistaViewProjekcija s = new SjedistaViewProjekcija()
-                {
-                    Idsjedista = (int)projekcija[i].SjedisteId,
-                    Slobodno = (bool)projekcija[i].Slobodno,
-                    BrojSjedista = _context.Sjedista.Where(x => x.Idsjedista == projekcija[i].SjedisteId).FirstOrDefault().BrojSjedista,
-
-
-                };
-                sjedista.Add(s);
-            }
-            return sjedista;
-        }
-
-        public List<ProjekcijeView> GetAktivneProjekcije()
+        public async Task<List<ProjekcijeView>> GetByFilmAktivneAsync(int id)
         {
             var trenutakPretrage = DateTime.Now;
 
-            var aktivneProjekcije = _context.Projekcijes.Where(p => p.DatumVrijemeProjekcije > trenutakPretrage).Include(f => f.Film).Include(s => s.Sala).Include(z => z.Film.Zanr).Include(r=>r.Film.Reziser)
-                .ToList();
+            var projekcije = await _context.Projekcijes
+                .Include(f => f.Film)
+                .Include(f => f.Film.Zanr)
+                .Include(f => f.Film.Reziser)
+                .Include(s => s.Sala)
+                .Where(x => x.FilmId == id && x.DatumVrijemeProjekcije >= trenutakPretrage)
+                .ToListAsync();
+
+            return _mapper.Map<List<ProjekcijeView>>(projekcije);
+        }
+
+        public async Task<ProjekcijeView> GetByIdAsync(int id)
+        {
+            var projekcija = await _context.Projekcijes
+                .Include(f => f.Film)
+                .Include(s => s.Sala)
+                .FirstOrDefaultAsync(x => x.Idprojekcije == id);
+
+            return _mapper.Map<ProjekcijeView>(projekcija);
+        }
+
+        public async Task<ProjekcijeView> UpdateProjekcijuAsync(int id, ProjekcijeUpdate projekcijeUpdate)
+        {
+            var existingProjekcija = await _context.Projekcijes.FindAsync(id);
+
+            if (existingProjekcija != null)
+            {
+                _mapper.Map(projekcijeUpdate, existingProjekcija);
+                await _context.SaveChangesAsync();
+                return _mapper.Map<ProjekcijeView>(existingProjekcija);
+            }
+
+            return null;
+        }
+
+        public async Task<List<SjedistaViewProjekcija>> GetSjedistaByProjekcijaAsync(int projekcijaID)
+        {
+            var projekcija = await _context.ProjekcijeSjedista
+                .Where(x => x.ProjekcijaId == projekcijaID)
+                .ToListAsync();
+
+            var sjedista = new List<SjedistaViewProjekcija>();
+
+            foreach (var item in projekcija)
+            {
+                var sjediste = await _context.Sjedista.FindAsync(item.SjedisteId);
+
+                if (sjediste != null)
+                {
+                    var sjedisteView = new SjedistaViewProjekcija
+                    {
+                        Idsjedista = sjediste.Idsjedista,
+                        Slobodno = item.Slobodno,
+                        BrojSjedista = sjediste.BrojSjedista
+                    };
+
+                    sjedista.Add(sjedisteView);
+                }
+            }
+
+            return sjedista;
+        }
+
+        public async Task<List<ProjekcijeView>> GetAktivneProjekcijeAsync()
+        {
+            var trenutakPretrage = DateTime.Now;
+
+            var aktivneProjekcije = await _context.Projekcijes
+                .Where(p => p.DatumVrijemeProjekcije > trenutakPretrage)
+                .Include(f => f.Film)
+                .Include(s => s.Sala)
+                .Include(z => z.Film.Zanr)
+                .Include(r => r.Film.Reziser)
+                .ToListAsync();
 
             return _mapper.Map<List<ProjekcijeView>>(aktivneProjekcije);
         }
-
     }
 }

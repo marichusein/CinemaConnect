@@ -5,16 +5,19 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:intl/intl.dart';
 
+// ignore: must_be_immutable
 class ProjekcijeSjedistaKomponenta extends StatefulWidget {
   final int filmId;
   final int korisnikID;
   final Map<String, String> header;
+  String NazivFilma;
 
   ProjekcijeSjedistaKomponenta(
       {required this.filmId,
       Key? key,
       required this.korisnikID,
-      required this.header})
+      required this.header,
+      required this.NazivFilma})
       : super(key: key);
 
   @override
@@ -39,6 +42,8 @@ class _ProjekcijeSjedistaKomponentaState
   List<Map<String, dynamic>> projekcije = [];
   List<Map<String, dynamic>> sjedista = [];
   List<SelektovanoSjediste> selektovanaSjedista = [];
+  late String datumVrijemeProjekcije;
+  late int brojSale;
   double cijenaProjekcija = 0;
   int idprojekcije = 0;
   @override
@@ -57,6 +62,7 @@ class _ProjekcijeSjedistaKomponentaState
 
     if (response.statusCode == 200) {
       setState(() {
+         
         projekcije = List<Map<String, dynamic>>.from(jsonDecode(response.body));
       });
     }
@@ -72,6 +78,10 @@ class _ProjekcijeSjedistaKomponentaState
     if (response.statusCode == 200) {
       setState(() {
         sjedista = List<Map<String, dynamic>>.from(jsonDecode(response.body));
+       
+        //brojSale=jsonDecode(response.body)['datumVrijemeProjekcije'];
+        //datumVrijemeProjekcije=jsonDecode(response.body)['sala']['idsale'];
+
       });
     }
   }
@@ -98,10 +108,13 @@ class _ProjekcijeSjedistaKomponentaState
                       ),
                       subtitle: Text('Cijena: ${projekcija['cijenaKarte']}'),
                       onTap: () {
+                        print('Detalji odabrane projekcije: ${projekcija['sala']['idsale']}');
                         fetchSjedista(projekcija['idprojekcije']);
                         cijenaProjekcija = projekcija['cijenaKarte'];
                         idprojekcije = projekcija[
-                            'idprojekcije']; // Dohvati sjedišta za odabranu projekciju
+                            'idprojekcije'];
+                            datumVrijemeProjekcije=projekcija['datumVrijemeProjekcije'];
+                            brojSale=projekcija['sala']['idsale']; // Dohvati sjedišta za odabranu projekciju
                       },
                     ),
                 ],
@@ -255,6 +268,9 @@ class _ProjekcijeSjedistaKomponentaState
                             Cijena:
                                 selektovanaSjedista.length * cijenaProjekcija,
                             header: widget.header,
+                            NazivFilma: widget.NazivFilma,
+                            brojSale: brojSale,
+                            datumVrijemeProjekcije: datumVrijemeProjekcije,
                           ),
                         ),
                       );

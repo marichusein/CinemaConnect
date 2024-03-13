@@ -1,12 +1,11 @@
-using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
-using eCinemaConnect.Services;
-using eCinemaConnect.Services.Database;
+using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
-//using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace eCinemaConnect.Controllers
 {
@@ -20,36 +19,37 @@ namespace eCinemaConnect.Controllers
 
         public RepertoarController(IRepertoar basic)
         {
-           _basic= basic;
+            _basic = basic;
         }
 
-        [HttpGet()]
-        public IEnumerable<Model.ViewRequests.RepertoarView> Get()
+        [HttpGet]
+        public async Task<IEnumerable<RepertoarView>> GetAsync()
         {
-           return _basic.GetAll();
+            return await _basic.GetAllAsync();
         }
+
         [HttpGet("{id}")]
-        public Model.ViewRequests.RepertoarView GetById(int id)
+        public async Task<RepertoarView> GetByIdAsync(int id)
         {
-            return _basic.GetObj(id);
+            return await _basic.GetObjAsync(id);
         }
 
-        [HttpPost()]
-        public Model.ViewRequests.RepertoarView AddMenu(RepertoarInsert obj)
+        [HttpPost]
+        public async Task<RepertoarView> AddMenuAsync(RepertoarInsert obj)
         {
-            return _basic.AddObj(obj);
+            return await _basic.AddObjAsync(obj);
         }
 
         [HttpPut("{id}")]
-        public Model.ViewRequests.RepertoarView UpdateMenu(int id, RepertoarUpdate obj)
+        public async Task<RepertoarView> UpdateMenuAsync(int id, RepertoarUpdate obj)
         {
-            return _basic.UpdateObj(id, obj);
+            return await _basic.UpdateObjAsync(id, obj);
         }
 
         [HttpDelete("{id}")]
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            return _basic.DeleteById(id);
+            return await _basic.DeleteByIdAsync(id);
         }
 
     }

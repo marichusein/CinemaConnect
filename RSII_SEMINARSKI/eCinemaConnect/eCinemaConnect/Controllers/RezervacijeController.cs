@@ -1,50 +1,51 @@
-using eCinemaConnect.Model;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
-using eCinemaConnect.Services;
-using eCinemaConnect.Services.Database;
+using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
-//using eCinemaConnect.Services.Database;
-using Microsoft.AspNetCore.Mvc;
 
 namespace eCinemaConnect.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-
     public class RezervacijeController : ControllerBase
     {
         private readonly IRezervacije _glumci;
 
         public RezervacijeController(IRezervacije glumci)
         {
-           _glumci= glumci;
+            _glumci = glumci;
         }
 
-        [HttpGet()]
-        public IEnumerable<Model.ViewRequests.RezervacijaView> Get()
+        [HttpGet]
+        public async Task<IEnumerable<Model.ViewRequests.RezervacijaView>> Get()
         {
-           return _glumci.GetAll();
+            return await _glumci.GetAllAsync();
         }
+
         [HttpGet("/aktivnebykorisnik/{id}")]
-        public IEnumerable<Model.ViewRequests.RezervacijaView> GetAktivne(int id)
+        public async Task<IEnumerable<Model.ViewRequests.RezervacijaView>> GetAktivne(int id)
         {
-            return _glumci.AktivneRezervacijeByKorisnik(id);
+            return await _glumci.AktivneRezervacijeByKorisnikAsync(id);
         }
+
         [HttpGet("/neaktivnebykorisnik/{id}")]
-        public IEnumerable<Model.ViewRequests.RezervacijaView> GetNeaktivne(int id)
+        public async Task<IEnumerable<Model.ViewRequests.RezervacijaView>> GetNeaktivne(int id)
         {
-            return _glumci.NeaktivneRezervacijeByKorisnik(id);
+            return await _glumci.NeaktivneRezervacijeByKorisnikAsync(id);
         }
 
         [HttpGet("brojkarata")]
-        public IActionResult GetBrojKarata(DateTime? od = null, DateTime? doo = null)
+        public async Task<IActionResult> GetBrojKarata(DateTime? od = null, DateTime? doo = null)
         {
             try
             {
-                var rezultat = _glumci.BrojKupljenihKarataPoFilmu(od, doo);
+                var rezultat = await _glumci.BrojKupljenihKarataPoFilmuAsync(od, doo);
                 return Ok(rezultat);
             }
             catch (Exception ex)
@@ -54,11 +55,11 @@ namespace eCinemaConnect.Controllers
         }
 
         [HttpGet("zardaFilma")]
-        public IActionResult GetZaradu(DateTime? od = null, DateTime? doo = null)
+        public async Task<IActionResult> GetZaradu(DateTime? od = null, DateTime? doo = null)
         {
             try
             {
-                var rezultat = _glumci.ZaradaOdFilmova(od, doo);
+                var rezultat = await _glumci.ZaradaOdFilmovaAsync(od, doo);
                 return Ok(rezultat);
             }
             catch (Exception ex)
@@ -68,11 +69,11 @@ namespace eCinemaConnect.Controllers
         }
 
         [HttpGet("kartePoZanru")]
-        public IActionResult GetKartePoZanru()
+        public async Task<IActionResult> GetKartePoZanru()
         {
             try
             {
-                var rezultat = _glumci.BrojProdatihKarataPoZanru();
+                var rezultat = await _glumci.BrojProdatihKarataPoZanruAsync();
                 return Ok(rezultat);
             }
             catch (Exception ex)
@@ -82,29 +83,29 @@ namespace eCinemaConnect.Controllers
         }
 
         [HttpGet("{id}")]
-        public Model.ViewRequests.RezervacijaView GetById(int id)
+        public async Task<Model.ViewRequests.RezervacijaView> GetById(int id)
         {
-            return _glumci.GetObj(id);
+            return await _glumci.GetObjAsync(id);
         }
 
         [HttpPost()]
-        public Model.ViewRequests.RezervacijaView AddGlumca(RezervacijaInsert obj)
+        public async Task<Model.ViewRequests.RezervacijaView> AddGlumca(RezervacijaInsert obj)
         {
-            return _glumci.KreirajRezervaciju(obj);
+            return await _glumci.KreirajRezervacijuAsync(obj);
         }
 
         [HttpPut("{id}")]
-        public Model.ViewRequests.RezervacijaView UpdateGlumca(int id, RezervacijaUpdate obj)
+        public async Task<Model.ViewRequests.RezervacijaView> UpdateGlumca(int id, RezervacijaUpdate obj)
         {
-            return _glumci.UpdateObj(id, obj);
+            return await _glumci.UpdateObjAsync(id, obj);
         }
 
         [HttpPost("PotvrdiUlazakRezervaciju={id}")]
-        public IActionResult PotvrdiUlazakRezervaciju(int id)
+        public async Task<IActionResult> PotvrdiUlazakRezervaciju(int id)
         {
             try
             {
-                _glumci.OznaciRezervacijuKaoUsla(id);
+                await _glumci.OznaciRezervacijuKaoUslaAsync(id);
                 return Ok($"Ulazak za rezervaciju s ID-om {id} je potvrdjen.");
             }
             catch (Exception ex)
@@ -114,10 +115,9 @@ namespace eCinemaConnect.Controllers
         }
 
         [HttpDelete("{id}")]
-        public bool Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-            return _glumci.DeleteById(id);
+            return await _glumci.DeleteByIdAsync(id);
         }
-
     }
 }

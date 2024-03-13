@@ -1,60 +1,54 @@
 using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
-using eCinemaConnect.Services;
-using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
-//using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace eCinemaConnect.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-
     public class ObavijestiController : ControllerBase
     {
         private readonly IObavijesti _obavijest;
 
         public ObavijestiController(IObavijesti obavijesti)
         {
-           _obavijest= obavijesti;
+            _obavijest = obavijesti;
         }
 
-        [HttpGet()]
-        public IEnumerable<Model.ViewRequests.ObavijestiView> Get()
+        [HttpGet]
+        public async Task<IEnumerable<Model.ViewRequests.ObavijestiView>> Get()
         {
-           return _obavijest.GetAll();
+            return await _obavijest.GetAllAsync();
         }
 
         [HttpGet("{id}")]
-        public Model.ViewRequests.ObavijestiView GetById(int id)
+        public async Task<Model.ViewRequests.ObavijestiView> GetById(int id)
         {
-            return _obavijest.GetObj(id);
+            return await _obavijest.GetObjAsync(id);
         }
 
-        [HttpPost()]
-        public Model.ViewRequests.ObavijestiView AddFilmovi(ObavijestiInsert obj)
+        [HttpPost]
+        public async Task<Model.ViewRequests.ObavijestiView> AddFilmovi(ObavijestiInsert obj)
         {
-            return _obavijest.AddObj(obj);
+            return await _obavijest.AddObjAsync(obj);
         }
 
         [HttpPut("{id}")]
-        public Model.ViewRequests.ObavijestiView UpdateFilma(int id, ObavijestiUpdate obj)
+        public async Task<Model.ViewRequests.ObavijestiView> UpdateFilma(int id, ObavijestiUpdate obj)
         {
-            return _obavijest.UpdateObj(id, obj);
+            return await _obavijest.UpdateObjAsync(id, obj);
         }
-
-       
-
 
         [HttpDelete("{id}")]
-        public bool Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-            return _obavijest.DeleteById(id);
+            return await _obavijest.DeleteByIdAsync(id);
         }
-
     }
 }

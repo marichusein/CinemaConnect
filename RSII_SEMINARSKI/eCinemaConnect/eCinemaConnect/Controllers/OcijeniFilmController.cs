@@ -1,67 +1,66 @@
-using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
-using eCinemaConnect.Services;
-using eCinemaConnect.Services.Database;
+using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
-//using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace eCinemaConnect.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-
     public class OcijeniFilmController : ControllerBase
     {
         private readonly IOcijeni _ocijeni;
 
         public OcijeniFilmController(IOcijeni ocjeni)
         {
-           _ocijeni= ocjeni;
+            _ocijeni = ocjeni;
         }
 
-        [HttpGet()]
-        public IEnumerable<Model.ViewRequests.OcijeniFilmView> Get()
+        [HttpGet]
+        public async Task<IEnumerable<OcijeniFilmView>> GetAsync()
         {
-           return _ocijeni.GetAll();
+            return await _ocijeni.GetAllAsync();
         }
+
         [HttpGet("{id}")]
-        public Model.ViewRequests.OcijeniFilmView GetById(int id)
+        public async Task<OcijeniFilmView> GetByIdAsync(int id)
         {
-            return _ocijeni.GetObj(id);
-        }
-        [HttpGet("film/{id}")]
-        public List<Model.ViewRequests.OcijeniFilmView> GetByIdFilm(int id)
-        {
-            return _ocijeni.GetKomentareZaFilm(id);
+            return await _ocijeni.GetObjAsync(id);
         }
 
-        [HttpPost()]
-        public Model.ViewRequests.OcijeniFilmView AddGlumca(OcijeniFilmInsert obj)
+        [HttpGet("film/{id}")]
+        public async Task<List<OcijeniFilmView>> GetByIdFilmAsync(int id)
         {
-            return _ocijeni.AddObj(obj);
+            return await _ocijeni.GetKomentareZaFilmAsync(id);
+        }
+
+        [HttpPost]
+        public async Task<OcijeniFilmView> AddGlumcaAsync(OcijeniFilmInsert obj)
+        {
+            return await _ocijeni.AddObjAsync(obj);
         }
 
         [HttpPut("{id}")]
-        public Model.ViewRequests.OcijeniFilmView UpdateGlumca(int id, OcijeniFilmUpdate obj)
+        public async Task<OcijeniFilmView> UpdateGlumcaAsync(int id, OcijeniFilmUpdate obj)
         {
-            return _ocijeni.UpdateObj(id, obj);
+            return await _ocijeni.UpdateObjAsync(id, obj);
         }
 
         [HttpDelete("{id}")]
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            return _ocijeni.DeleteById(id);
+            return await _ocijeni.DeleteByIdAsync(id);
         }
 
         [HttpGet("/film")]
-        public double GetOcjenu(int id)
+        public async Task<double> GetOcjenuAsync(int id)
         {
-            return _ocijeni.getProsjekZaFilm(id);
+            return await _ocijeni.GetProsjekZaFilmAsync(id);
         }
-
     }
 }

@@ -1,56 +1,57 @@
 using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
+using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services;
 using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
-//using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace eCinemaConnect.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-
     public class ZanroviController : ControllerBase
     {
         private readonly IZanrovi _zanrovi;
 
         public ZanroviController(IZanrovi zanrovi)
         {
-           _zanrovi= zanrovi;
+            _zanrovi = zanrovi;
         }
 
         [HttpGet()]
-        public IEnumerable<Model.ViewRequests.ZanroviView> Get()
+        public async Task<IEnumerable<ZanroviView>> GetAsync()
         {
-           return _zanrovi.GetAll();
+            return await _zanrovi.GetAllAsync();
         }
+
         [HttpGet("{id}")]
-        public Model.ViewRequests.ZanroviView GetById(int id)
+        public async Task<ZanroviView> GetByIdAsync(int id)
         {
-            return _zanrovi.GetObj(id);
+            return await _zanrovi.GetObjAsync(id);
         }
 
         [HttpPost()]
-        public Model.ViewRequests.ZanroviView AddZanr(ZanroviInsert obj)
+        public async Task<ZanroviView> AddZanrAsync(ZanroviInsert obj)
         {
-            return _zanrovi.AddObj(obj);
+            return await _zanrovi.AddObjAsync(obj);
         }
 
         [HttpPut("{id}")]
-        public Model.ViewRequests.ZanroviView UpdateZanr(int id, ZanroviUpdate obj)
+        public async Task<ZanroviView> UpdateZanrAsync(int id, ZanroviUpdate obj)
         {
-            return _zanrovi.UpdateObj(id, obj);
+            return await _zanrovi.UpdateObjAsync(id, obj);
         }
 
         [HttpDelete("{id}")]
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            return _zanrovi.DeleteById(id);
+            return await _zanrovi.DeleteByIdAsync(id);
         }
-
     }
 }

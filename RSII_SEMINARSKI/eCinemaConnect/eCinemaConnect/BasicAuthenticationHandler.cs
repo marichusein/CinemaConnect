@@ -42,7 +42,7 @@ namespace eCinemaConnect
                 podaciZaPrijavu.KorisnickoIme = username;
                 podaciZaPrijavu.Lozinka = password;
 
-                korisnik = await _korisniciService.Login(podaciZaPrijavu);
+                korisnik = await _korisniciService.LoginAsync(podaciZaPrijavu);
 
                 if (korisnik == null)
                 {

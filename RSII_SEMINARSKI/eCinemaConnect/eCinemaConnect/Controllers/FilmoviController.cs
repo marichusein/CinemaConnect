@@ -1,16 +1,14 @@
-using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
-using eCinemaConnect.Services;
-using eCinemaConnect.Services.Database;
+using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
-//using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace eCinemaConnect.Controllers
 {
-
     [ApiController]
     [Route("[controller]")]
     [Authorize]
@@ -24,73 +22,102 @@ namespace eCinemaConnect.Controllers
         }
 
         [HttpGet()]
-        public IEnumerable<Model.ViewRequests.FilmoviView> Get()
+        public async Task<IEnumerable<FilmoviView>> Get()
         {
-            return _filmovi.GetAll();
+            return await _filmovi.GetAll();
         }
+
         [HttpGet("sve")]
-        public IEnumerable<Model.ViewRequests.FilmoviView> GetAll()
+        public async Task<IEnumerable<FilmoviView>> GetAll()
         {
-            return _filmovi.GetSve();
+            return await _filmovi.GetSve();
         }
 
         [HttpGet("zanr/{zanrid}")]
-        public IEnumerable<Model.ViewRequests.FilmoviView> GetByZanr(int zanrid)
+        public async Task<IEnumerable<FilmoviView>> GetByZanr(int zanrid)
         {
-            return _filmovi.GetFilmoviByZanr(zanrid);
+            return await _filmovi.GetFilmoviByZanr(zanrid);
         }
+
         [HttpGet("glumac/{glumacid}")]
-        public IEnumerable<Model.ViewRequests.FilmoviView> GetByGlumac(int glumacid)
+        public async Task<IEnumerable<FilmoviView>> GetByGlumac(int glumacid)
         {
-            return _filmovi.GetFilmoviByGlumac(glumacid);
+            return await _filmovi.GetFilmoviByGlumac(glumacid);
         }
+
         [HttpGet("reziser/{reziserid}")]
-        public IEnumerable<Model.ViewRequests.FilmoviView> GetByreziser(int reziserid)
+        public async Task<IEnumerable<FilmoviView>> GetByReziser(int reziserid)
         {
-            return _filmovi.GetFilmoviByReziser(reziserid);
+            return await _filmovi.GetFilmoviByReziser(reziserid);
         }
+
         [HttpGet("{id}")]
-        public Model.ViewRequests.FilmoviView GetById(int id)
+        public async Task<ActionResult<FilmoviView>> GetById(int id)
         {
-            return _filmovi.GetById(id);
+            var film = await _filmovi.GetById(id);
+            if (film == null)
+            {
+                return NotFound();
+            }
+            return film;
         }
 
         [HttpPost()]
-        public Model.ViewRequests.FilmoviView AddFilmovi(FilmoviInsert obj)
+        public async Task<ActionResult<FilmoviView>> AddFilmovi(FilmoviInsert obj)
         {
-            return _filmovi.AddFilm(obj);
+            var film = await _filmovi.AddFilm(obj);
+            return CreatedAtAction(nameof(GetById), new { id = film.Idfilma }, film);
         }
 
         [HttpPut("{id}")]
-        public Model.ViewRequests.FilmoviView UpdateFilma(int id, FilmoviUpdate obj)
+        public async Task<IActionResult> UpdateFilma(int id, FilmoviUpdate obj)
         {
-            return _filmovi.UpdateFilma(id, obj);
+            
+
+            var updatedFilm = await _filmovi.UpdateFilma(id, obj);
+
+            if (updatedFilm == null)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
         }
 
         [HttpGet("filter/multiple")]
-        public IEnumerable<Model.ViewRequests.FilmoviView> GetByMultipleFilters(int? zanrid, int? glumacid, int? reziserid)
+        public async Task<IEnumerable<FilmoviView>> GetByMultipleFilters(int? zanrid, int? glumacid, int? reziserid)
         {
-            return _filmovi.GetFilmoviByMultipleFilters(zanrid, glumacid, reziserid);
+            return await _filmovi.GetFilmoviByMultipleFilters(zanrid, glumacid, reziserid);
         }
 
         [HttpGet("preporuka")]
-        public IEnumerable<Model.ViewRequests.FilmoviView> GetPreporuka(int korisnikid)
+        public async Task<IEnumerable<FilmoviView>> GetPreporuka(int korisnikid)
         {
-            return _filmovi.GetPreprukuByKorisnikID(korisnikid);
+            return await _filmovi.GetPreprukuByKorisnikID(korisnikid);
         }
 
-
         [HttpDelete("{id}")]
-        public bool Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            return _filmovi.IzbirsiFilm(id);
+            var success = await _filmovi.IzbirsiFilm(id);
+            if (!success)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
         }
 
         [HttpPut("aktiviraj/{id}")]
-        public bool Aktiviraj(int id)
+        public async Task<IActionResult> Aktiviraj(int id)
         {
-            return _filmovi.AktivirajFilm(id);
-        }
+            var success = await _filmovi.AktivirajFilm(id);
+            if (!success)
+            {
+                return NotFound();
+            }
 
+            return NoContent();
+        }
     }
 }

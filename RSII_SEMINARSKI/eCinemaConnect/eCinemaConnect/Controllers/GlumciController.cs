@@ -6,8 +6,9 @@ using eCinemaConnect.Services;
 using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
-//using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace eCinemaConnect.Controllers
 {
@@ -20,42 +21,43 @@ namespace eCinemaConnect.Controllers
 
         public GlumciController(IGlumci glumci)
         {
-           _glumci= glumci;
+            _glumci = glumci;
         }
 
         [HttpGet()]
-        public IEnumerable<Model.ViewRequests.GlumciView> Get()
+        public async Task<IEnumerable<GlumciView>> GetAsync()
         {
-           return _glumci.GetAll();
+            return await _glumci.GetAllAsync();
         }
+
         [HttpGet("{id}")]
-        public Model.ViewRequests.GlumciView GetById(int id)
+        public async Task<GlumciView> GetByIdAsync(int id)
         {
-            return _glumci.GetObj(id);
+            return await _glumci.GetObjAsync(id);
         }
 
         [HttpGet("filmovibyglumacid/{Glumacid}")]
-        public IEnumerable<FilmoviView> GetByGlumacId(int Glumacid)
+        public async Task<IEnumerable<FilmoviView>> GetByGlumacIdAsync(int Glumacid)
         {
-            return _glumci.VratiFilmoveZaGlumca(Glumacid);
+            return await _glumci.VratiFilmoveZaGlumcaAsync(Glumacid);
         }
+
         [HttpPost()]
-        public Model.ViewRequests.GlumciView AddGlumca(GlumciInsert obj)
+        public async Task<GlumciView> AddGlumcaAsync(GlumciInsert obj)
         {
-            return _glumci.AddObj(obj);
+            return await _glumci.AddObjAsync(obj);
         }
 
         [HttpPut("{id}")]
-        public Model.ViewRequests.GlumciView UpdateGlumca(int id, GlumciUpdate obj)
+        public async Task<GlumciView> UpdateGlumcaAsync(int id, GlumciUpdate obj)
         {
-            return _glumci.UpdateObj(id, obj);
+            return await _glumci.UpdateObjAsync(id, obj);
         }
 
         [HttpDelete("{id}")]
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            return _glumci.DeleteById(id);
+            return await _glumci.DeleteByIdAsync(id);
         }
-
     }
 }

@@ -1,32 +1,28 @@
-﻿using eCinemaConnect.Model.InsertRequests;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
 using eCinemaConnect.Model.ViewRequests;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace eCinemaConnect.Services.Interface
 {
     public interface IFilmovi
     {
-        List<Model.ViewRequests.FilmoviView> GetAll();
-        List<Model.ViewRequests.FilmoviView> GetSve();
+        Task<List<FilmoviView>> GetAll();
+        Task<List<FilmoviView>> GetSve();
 
-        Model.ViewRequests.FilmoviView AddFilm(FilmoviInsert filmoviInsert);
-        Model.ViewRequests.FilmoviView UpdateFilma(int id, FilmoviUpdate filmoviUpdate);
-        Model.ViewRequests.FilmoviView GetById(int id);
-        bool DeleteById(int id);
-        bool IzbirsiFilm(int id);
-        bool AktivirajFilm(int id);
+        Task<FilmoviView> AddFilm(FilmoviInsert filmoviInsert);
+        Task<FilmoviView> UpdateFilma(int id, FilmoviUpdate filmoviUpdate);
+        Task<FilmoviView> GetById(int id);
+        Task<bool> DeleteById(int id);
+        Task<bool> IzbirsiFilm(int id);
+        Task<bool> AktivirajFilm(int id);
 
-        List<Model.ViewRequests.FilmoviView> GetFilmoviByReziser(int id);
-        List<Model.ViewRequests.FilmoviView> GetFilmoviByGlumac(int id);
-        List<Model.ViewRequests.FilmoviView> GetFilmoviByZanr(int id);
-        List<Model.ViewRequests.FilmoviView> GetFilmoviByMultipleFilters(int? zanrid, int? glumacid, int? reziserid);
+        Task<List<FilmoviView>> GetFilmoviByReziser(int id);
+        Task<List<FilmoviView>> GetFilmoviByGlumac(int id);
+        Task<List<FilmoviView>> GetFilmoviByZanr(int id);
+        Task<List<FilmoviView>> GetFilmoviByMultipleFilters(int? zanrid, int? glumacid, int? reziserid);
 
-        List<Model.ViewRequests.FilmoviView> GetPreprukuByKorisnikID(int korisnikid);
-
+        Task<List<FilmoviView>> GetPreprukuByKorisnikID(int korisnikid);
     }
 }

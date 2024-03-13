@@ -7,15 +7,12 @@ using System.Threading.Tasks;
 
 namespace eCinemaConnect.Services.Interface
 {
-    public interface IService<T, TInsert, TUpdate> where T: class where TInsert: class where TUpdate : class
+    public interface IService<T, TInsert, TUpdate> where T : class where TInsert : class where TUpdate : class
     {
-
-        List<T> GetAll(params Expression<Func<T, object>>[] includeProperties);
-        T AddObj(TInsert Insert);
-        T UpdateObj(int id, TUpdate Update);
-        T GetObj(int id);
-
-
-        bool DeleteById(int id);
+        Task<List<T>> GetAllAsync(params Expression<Func<T, object>>[] includeProperties);
+        Task<T> AddObjAsync(TInsert Insert);
+        Task<T> UpdateObjAsync(int id, TUpdate Update);
+        Task<T> GetObjAsync(int id);
+        Task<bool> DeleteByIdAsync(int id);
     }
 }

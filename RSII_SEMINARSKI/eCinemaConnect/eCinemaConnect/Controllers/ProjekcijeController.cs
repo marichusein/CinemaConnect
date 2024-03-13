@@ -1,67 +1,72 @@
 using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
+using eCinemaConnect.Model.ViewRequests;
 using eCinemaConnect.Services;
 using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
-//using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace eCinemaConnect.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-
     public class ProjekcijeController : ControllerBase
     {
         private readonly IProjekcije _projekcije;
 
         public ProjekcijeController(IProjekcije projekcije)
         {
-           _projekcije= projekcije;
+            _projekcije = projekcije;
         }
 
         [HttpGet()]
-        public IEnumerable<Model.ViewRequests.ProjekcijeView> Get()
+        public async Task<IEnumerable<ProjekcijeView>> GetAsync()
         {
-           return _projekcije.GetAll();
+            return await _projekcije.GetAllAsync();
         }
 
         [HttpGet("aktivne")]
-        public IEnumerable<Model.ViewRequests.ProjekcijeView> GetAktivne()
+        public async Task<IEnumerable<ProjekcijeView>> GetAktivneAsync()
         {
-            return _projekcije.GetAktivneProjekcije();
+            return await _projekcije.GetAktivneProjekcijeAsync();
         }
+
         [HttpGet("film/{filmId}")]
-        public IEnumerable<Model.ViewRequests.ProjekcijeView> GetByFilm(int filmId)
+        public async Task<IEnumerable<ProjekcijeView>> GetByFilmAsync(int filmId)
         {
-            return _projekcije.GetByFilm(filmId);
+            return await _projekcije.GetByFilmAsync(filmId);
         }
+
         [HttpGet("film/aktivne/{filmId}")]
-        public IEnumerable<Model.ViewRequests.ProjekcijeView> GetByFilmAktivne(int filmId)
+        public async Task<IEnumerable<ProjekcijeView>> GetByFilmAktivneAsync(int filmId)
         {
-            return _projekcije.GetByFilmAktivne(filmId);
+            return await _projekcije.GetByFilmAktivneAsync(filmId);
         }
+
         [HttpGet("{id}")]
-        public Model.ViewRequests.ProjekcijeView GetById(int id)
+        public async Task<ProjekcijeView> GetByIdAsync(int id)
         {
-            return _projekcije.GetById(id);
+            return await _projekcije.GetByIdAsync(id);
         }
 
         [HttpGet("sjedista/{projekcijaID}")]
-        public List<Model.ViewRequests.SjedistaViewProjekcija> GetByIdP(int projekcijaID)
+        public async Task<List<SjedistaViewProjekcija>> GetSjedistaByIdAsync(int projekcijaID)
         {
-            return _projekcije.GetSjedistaByProjekcija(projekcijaID);
+            return await _projekcije.GetSjedistaByProjekcijaAsync(projekcijaID);
         }
 
         [HttpPost()]
-        public IActionResult AddProjekciju(ProjekcijeInsert obj)
+        public async Task<IActionResult> AddProjekcijuAsync(ProjekcijeInsert obj)
         {
             try
             {
-                var projekcija = _projekcije.AddProjekciju(obj);
+                var projekcija = await _projekcije.AddProjekcijuAsync(obj);
                 return Ok(projekcija);
             }
             catch (Exception ex)
@@ -70,18 +75,16 @@ namespace eCinemaConnect.Controllers
             }
         }
 
-
         [HttpPut("{id}")]
-        public Model.ViewRequests.ProjekcijeView UpdateProjekciju(int id, ProjekcijeUpdate obj)
+        public async Task<ProjekcijeView> UpdateProjekcijuAsync(int id, ProjekcijeUpdate obj)
         {
-            return _projekcije.UpdateProjekciju(id, obj);
+            return await _projekcije.UpdateProjekcijuAsync(id, obj);
         }
 
         [HttpDelete("{id}")]
-        public bool Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            return _projekcije.DeleteById(id);
+            return await _projekcije.DeleteByIdAsync(id);
         }
-
     }
 }

@@ -1,56 +1,54 @@
 using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
-using eCinemaConnect.Services;
-using eCinemaConnect.Services.Database;
 using eCinemaConnect.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
-//using eCinemaConnect.Services.Database;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace eCinemaConnect.Controllers
 {
     [ApiController]
     [Route("[controller]")]
     [Authorize]
-
     public class MeniGrickalicaController : ControllerBase
     {
         private readonly IMeniGrickalica _meni;
 
         public MeniGrickalicaController(IMeniGrickalica meni)
         {
-           _meni= meni;
+            _meni = meni;
         }
 
-        [HttpGet()]
-        public IEnumerable<Model.ViewRequests.MeniGrickalicaView> Get()
+        [HttpGet]
+        public async Task<IEnumerable<Model.ViewRequests.MeniGrickalicaView>> Get()
         {
-           return _meni.GetAll();
+            return await _meni.GetAllAsync();
         }
+
         [HttpGet("{id}")]
-        public Model.ViewRequests.MeniGrickalicaView GetById(int id)
+        public async Task<Model.ViewRequests.MeniGrickalicaView> GetById(int id)
         {
-            return _meni.GetObj(id);
+            return await _meni.GetObjAsync(id);
         }
 
-        [HttpPost()]
-        public Model.ViewRequests.MeniGrickalicaView AddMenu(MeniGrickalicaInsert obj)
+        [HttpPost]
+        public async Task<Model.ViewRequests.MeniGrickalicaView> AddMenu(MeniGrickalicaInsert obj)
         {
-            return _meni.AddObj(obj);
+            return await _meni.AddObjAsync(obj);
         }
 
         [HttpPut("{id}")]
-        public Model.ViewRequests.MeniGrickalicaView UpdateMenu(int id, MeniGrickalicaUpdate obj)
+        public async Task<Model.ViewRequests.MeniGrickalicaView> UpdateMenu(int id, MeniGrickalicaUpdate obj)
         {
-            return _meni.UpdateObj(id, obj);
+            return await _meni.UpdateObjAsync(id, obj);
         }
 
         [HttpDelete("{id}")]
-        public bool Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-            return _meni.DeleteById(id);
+            return await _meni.DeleteByIdAsync(id);
         }
-
     }
 }
