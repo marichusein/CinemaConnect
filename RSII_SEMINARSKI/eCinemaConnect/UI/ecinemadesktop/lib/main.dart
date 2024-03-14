@@ -264,128 +264,149 @@ class UserDashboard extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: 20),
-                Column(
-  crossAxisAlignment: CrossAxisAlignment.start,
-  children: <Widget>[
-    // Filmovi grupa
-    ExpansionTile(
-      title: Text('Filmovi'), // Naslov grupe
-      leading: Icon(Icons.movie), // Ikona za grupu
-      children: [
-        _buildNavItem(
-          Icons.movie,
-          'Dodaj film',
-          context,
-          MovieForm(
-            header: header,
-          ),
-        ),
-        _buildNavItem(
-          Icons.movie_filter,
-          'Pregled filmova',
-          context,
-          MovieListPage(),
-        ),
-        _buildNavItem(
-          Icons.movie_edit,
-          'Nova projekcija',
-          context,
-          DodavanjeProjekcijeScreen(),
-        ),
-         _buildNavItem(
-          Icons.movie_creation_sharp,
-          'Uredi postojeće projekcije',
-          context,
-          ProjekcijeScreen(),
-        ),
-      ],
-    ),
-    // Glumci grupa
-    ExpansionTile(
-      title: Text('Glumci'), // Naslov grupe
-      leading: Icon(Icons.person), // Ikona za grupu
-      children: [
-        _buildNavItem(
-          Icons.person,
-          'Dodaj glumca',
-          context,
-          ActorForm(),
-        ),
-        _buildNavItem(
-          Icons.person_2_outlined,
-          'Pregled glumaca',
-          context,
-          GlumciScreen(),
-        ),
-      ],
-    ),
-    // Obavijesti grupa
-    ExpansionTile(
-      title: Text('Obavijesti', selectionColor: Colors.white,), // Naslov grupe
-      leading: Icon(Icons.newspaper), // Ikona za grupu
-      children: [
-        _buildNavItem(
-          Icons.newspaper,
-          'Dodaj obavijest',
-          context,
-          ObavijestForm(
-            korisnikId: idkorisnika,
-          ),
-        ),
-        _buildNavItem(
-          Icons.newspaper_rounded,
-          'Pregled obavijesti',
-          context,
-          NotificationScreen(),
-        ),
-      ],
-    ),
-    // Ostale navigacijske stavke
-    _buildNavItem(
-      Icons.person_add,
-      'Dodaj režisera',
-      context,
-      DodajReziseraForma(),
-    ),
-    _buildNavItem(
-      Icons.insert_chart_outlined,
-      'Kreiraj izvještaj poslovanja',
-      context,
-      BusinessReportForm(),
-    ),
-    _buildNavItem(
-      Icons.comment_bank,
-      'Pregled i brisanje komentara filmova',
-      context,
-      CommentsScreen(),
-    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      // Filmovi grupa
+                      ExpansionTile(
+                        title: Text('Filmovi'), // Naslov grupe
+                        leading: Icon(Icons.movie), // Ikona za grupu
+                        children: [
+                          _buildNavItem(
+                            Icons.movie,
+                            'Dodaj film',
+                            context,
+                            MovieForm(
+                              header: header,
+                            ),
+                          ),
+                          _buildNavItem(
+                            Icons.movie_filter,
+                            'Pregled filmova',
+                            context,
+                            MovieListPage(),
+                          ),
+                          _buildNavItem(
+                            Icons.movie_edit,
+                            'Nova projekcija',
+                            context,
+                            DodavanjeProjekcijeScreen(),
+                          ),
+                          _buildNavItem(
+                            Icons.movie_creation_sharp,
+                            'Uredi postojeće projekcije',
+                            context,
+                            ProjekcijeScreen(),
+                          ),
+                        ],
+                      ),
+                      // Glumci grupa
+                      ExpansionTile(
+                        title: Text('Glumci'), // Naslov grupe
+                        leading: Icon(Icons.person), // Ikona za grupu
+                        children: [
+                          _buildNavItem(
+                            Icons.person,
+                            'Dodaj glumca',
+                            context,
+                            ActorForm(),
+                          ),
+                          _buildNavItem(
+                            Icons.person_2_outlined,
+                            'Pregled glumaca',
+                            context,
+                            GlumciScreen(),
+                          ),
+                        ],
+                      ),
+                      // Obavijesti grupa
+                      ExpansionTile(
+                        title: Text(
+                          'Obavijesti',
+                          selectionColor: Colors.white,
+                        ), // Naslov grupe
+                        leading: Icon(Icons.newspaper), // Ikona za grupu
+                        children: [
+                          _buildNavItem(
+                            Icons.newspaper,
+                            'Dodaj obavijest',
+                            context,
+                            ObavijestForm(
+                              korisnikId: idkorisnika,
+                            ),
+                          ),
+                          _buildNavItem(
+                            Icons.newspaper_rounded,
+                            'Pregled obavijesti',
+                            context,
+                            NotificationScreen(),
+                          ),
+                        ],
+                      ),
 
-    _buildNavItem(
-      Icons.comment_bank,
-      'Pregled i brisanje komentara obavijesti',
-      context,
-      CommentListWidget(),
-    ),
+                      ExpansionTile(
+                        title: Text(
+                          'Brisanje komentara',
+                          selectionColor: Colors.white,
+                        ), // Naslov grupe
+                        leading:
+                            Icon(Icons.comment_bank_outlined), // Ikona za grupu
+                        children: [
+                          _buildNavItem(
+                            Icons.comment_bank,
+                            'Pregled i brisanje komentara filmova',
+                            context,
+                            CommentsScreen(),
+                          ),
+                          _buildNavItem(
+                            Icons.comment_bank,
+                            'Pregled i brisanje komentara obavijesti',
+                            context,
+                            CommentListWidget(),
+                          ),
+                        ],
+                      ),
 
-       _buildNavItem(
-      Icons.food_bank,
-      'Dodaj menu',
-      context,
-      MenuItemForm(),
-      
-    ),
+                       ExpansionTile(
+                        title: Text(
+                          'Menu Kina',
+                          selectionColor: Colors.white,
+                        ), // Naslov grupe
+                        leading:
+                            Icon(Icons.food_bank_sharp), // Ikona za grupu
+                        children: [
+                            _buildNavItem(
+                        Icons.food_bank,
+                        'Dodaj menu',
+                        context,
+                        MenuItemForm(),
+                      ),
 
-     _buildNavItem(
-      Icons.food_bank,
-      'Pregled menija',
-      context,
-      MenusList(),
-      
-    ),
-    
-  ],
-),
+                      _buildNavItem(
+                        Icons.food_bank_outlined,
+                        'Pregled menija',
+                        context,
+                        MenusList(),
+                      ),
+                        ],
+                      ),
+                      // Ostale navigacijske stavke
+                      _buildNavItem(
+                        Icons.person_add,
+                        'Dodaj režisera',
+                        context,
+                        DodajReziseraForma(),
+                      ),
+                      _buildNavItem(
+                        Icons.insert_chart_outlined,
+                        'Kreiraj izvještaj poslovanja',
+                        context,
+                        BusinessReportForm(),
+                      ),
 
+                    
+                    ],
+                  ),
                 ],
               ),
             ),

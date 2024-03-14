@@ -438,9 +438,9 @@ class _EditNotificationScreenState extends State<EditNotificationScreen> {
     });
   }
 
-  void _updateNotification() {
+ void _updateNotification() async {
+  try {
     // Konvertujemo sliku u base64 format
-
     String imageBase64 = '';
     if (_imageFile != null) {
       List<int> imageBytes = File(_imageFile!.path).readAsBytesSync();
@@ -458,6 +458,21 @@ class _EditNotificationScreenState extends State<EditNotificationScreen> {
       "datumUredjivanja": dateTimeNow
     };
 
+    // Pozivamo API servis za uređivanje obavijesti
     ApiService.editObavijest(widget.obavijestID, requestData);
+
+    // Ako izvršenje dođe do ovde, obavijest je uspješno ažurirana
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Obavijest je uspješno ažurirana')),
+    );
+
+    // Vraćamo se na prethodnu stranicu
+    Navigator.pop(context);
+  } catch (e) {
+    // Ako se izuzetak dogodi, prikazujemo odgovarajuću poruku korisniku
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Došlo je do greške prilikom ažuriranja obavijesti: $e')),
+    );
   }
+}
 }

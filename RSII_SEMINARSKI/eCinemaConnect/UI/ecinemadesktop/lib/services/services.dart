@@ -255,7 +255,7 @@ class ApiService {
   static Future<void> posaljiObavijest(int korisnikId, String naslov, String sadrzaj, String base64Image) async {
     try {
       final response = await http.post(
-        Uri.parse('$base64Url/Obavijesti'),
+        Uri.parse('$baseUrl/Obavijesti'),
         headers: zaglavlje,
         body: jsonEncode({
           'korisnikId': korisnikId,
