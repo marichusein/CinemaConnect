@@ -1,14 +1,18 @@
 import 'package:ecinemadesktop/forms/ActorForm.dart';
+import 'package:ecinemadesktop/forms/Add-Edit-meni.dart';
 import 'package:ecinemadesktop/forms/AllActors.dart';
 import 'package:ecinemadesktop/forms/BusinessReportForm.dart';
 import 'package:ecinemadesktop/forms/CreateAccountForm.dart';
 import 'package:ecinemadesktop/forms/DirectorForm.dart';
 import 'package:ecinemadesktop/forms/EditProfile.dart';
 import 'package:ecinemadesktop/forms/KomentariForms.dart';
+import 'package:ecinemadesktop/forms/KomentariObavijestiForms.dart';
 import 'package:ecinemadesktop/forms/ListaFilmova.dart';
 import 'package:ecinemadesktop/forms/MovieForm.dart';
 import 'package:ecinemadesktop/forms/AddObavijestiForm.dart';
+import 'package:ecinemadesktop/forms/PregeldMenija.dart';
 import 'package:ecinemadesktop/forms/PregeldObavijesti.dart';
+import 'package:ecinemadesktop/forms/PregledProjekcija.dart';
 import 'package:ecinemadesktop/forms/ProjekcijaForm.dart';
 import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
@@ -288,6 +292,12 @@ class UserDashboard extends StatelessWidget {
           context,
           DodavanjeProjekcijeScreen(),
         ),
+         _buildNavItem(
+          Icons.movie_creation_sharp,
+          'Uredi postojeće projekcije',
+          context,
+          ProjekcijeScreen(),
+        ),
       ],
     ),
     // Glumci grupa
@@ -345,10 +355,34 @@ class UserDashboard extends StatelessWidget {
     ),
     _buildNavItem(
       Icons.comment_bank,
-      'Pregled i brisanje komentara',
+      'Pregled i brisanje komentara filmova',
       context,
       CommentsScreen(),
     ),
+
+    _buildNavItem(
+      Icons.comment_bank,
+      'Pregled i brisanje komentara obavijesti',
+      context,
+      CommentListWidget(),
+    ),
+
+       _buildNavItem(
+      Icons.food_bank,
+      'Dodaj menu',
+      context,
+      MenuItemForm(),
+      
+    ),
+
+     _buildNavItem(
+      Icons.food_bank,
+      'Pregled menija',
+      context,
+      MenusList(),
+      
+    ),
+    
   ],
 ),
 

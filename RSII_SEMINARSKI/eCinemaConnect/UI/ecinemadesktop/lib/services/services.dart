@@ -467,7 +467,97 @@ class ApiService {
 
   }
 
+    static Future<List<Projekcija>> fetchProjekcije() async {
+    final response = await http.get(Uri.parse('$baseUrl/Projekcije/aktivne'), headers: zaglavlje);
+    if (response.statusCode == 200) {
+      final List<dynamic> responseData = jsonDecode(response.body);
+      return responseData.map((data) => Projekcija.fromJson(data)).toList();
+    } else {
+      throw Exception('Failed to load projekcije');
+    }
+  }
 
+  static Future<void> editProjekcija(Projekcija projekcija, DateTime editedDatumVrijemeProjekcije, double editedCijenaKarte) async {
+    final String url = '$baseUrl/Projekcije/${projekcija.idprojekcije}';
+    final Map<String, dynamic> data = {
+      'datumVrijemeProjekcije': editedDatumVrijemeProjekcije.toIso8601String(),
+      'cijenaKarte': editedCijenaKarte,
+    };
+
+    final response = await http.put(
+      Uri.parse(url),
+      headers: zaglavlje,
+      body: jsonEncode(data),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update projekcija');
+    }
+  }
+
+  static Future<List<CommentN>> fetchCommentsN() async {
+    final response = await http.get(Uri.parse('$baseUrl/KomentariObavijesti'), headers: zaglavlje);
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonData = jsonDecode(response.body);
+      return jsonData.map((e) => CommentN.fromJson(e)).toList();
+    } else {
+      throw Exception('Failed to load comments');
+    }
+  }
+
+  static Future<void> deleteCommentN(int commentId) async {
+    final response = await http.delete(Uri.parse('$baseUrl/KomentariObavijesti/$commentId'), headers: zaglavlje);
+    if (response.statusCode != 200) {
+      throw Exception('Failed to delete comment');
+    }
+  }
+
+  static Future<NotificationDetails> fetchNotificationDetails(int notificationId) async {
+    final response = await http.get(Uri.parse('$baseUrl/Obavijesti/$notificationId'), headers: zaglavlje);
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      return NotificationDetails.fromJson(jsonData);
+    } else {
+      throw Exception('Failed to load notification details');
+    }
+  }
+
+  static Future<Map<String, dynamic>> fetchMenuItemDetails(int menuItemId) async {
+    var response = await http.get(Uri.parse('$baseUrl/MeniGrickalica/$menuItemId'), headers: zaglavlje);
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      return {
+        'naziv': data['naziv'],
+        'opis': data['opis'],
+        'cijena': data['cijena'],
+        'slika': data['slika'],
+      };
+    } else {
+      throw Exception('Failed to fetch menu item details');
+    }
+  }
+
+  static Future<void> submitMenuItem(Map<String, dynamic> data, [int? menuItemId]) async {
+    var url = menuItemId != null
+        ? '$baseUrl/MeniGrickalica/$menuItemId'
+        : '$baseUrl/MeniGrickalica';
+    var response = await (menuItemId != null
+        ? http.put(Uri.parse(url), body: jsonEncode(data), headers: zaglavlje)
+        : http.post(Uri.parse(url), body: jsonEncode(data), headers: zaglavlje));
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to ${menuItemId != null ? 'update' : 'add'} menu item');
+    }
+  }
+
+  static Future<List<dynamic>> fetchMenus() async {
+    var response = await http.get(Uri.parse('$baseUrl/MeniGrickalica'), headers: zaglavlje);
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body);
+    } else {
+      throw Exception('Failed to load menus');
+    }
+  }
 }
 
 
@@ -536,4 +626,161 @@ class Comment {
     required this.komentar,
     required this.datumOcjene,
   });
+}
+
+
+class Projekcija {
+  final int idprojekcije;
+  final DateTime datumVrijemeProjekcije;
+  final double cijenaKarte;
+  final Film film;
+  final Sala sala;
+
+  Projekcija({
+    required this.idprojekcije,
+    required this.datumVrijemeProjekcije,
+    required this.cijenaKarte,
+    required this.film,
+    required this.sala,
+  });
+
+  factory Projekcija.fromJson(Map<String, dynamic> json) {
+    return Projekcija(
+      idprojekcije: json['idprojekcije'],
+      datumVrijemeProjekcije: DateTime.parse(json['datumVrijemeProjekcije']),
+      cijenaKarte: json['cijenaKarte'].toDouble(),
+      film: Film.fromJson(json['film']),
+      sala: Sala.fromJson(json['sala']),
+    );
+  }
+}
+
+class Film {
+  final int idfilma;
+  final String nazivFilma;
+  final String opis;
+  final String filmPlakat;
+
+  Film({
+    required this.idfilma,
+    required this.nazivFilma,
+    required this.opis,
+    required this.filmPlakat,
+  });
+
+  factory Film.fromJson(Map<String, dynamic> json) {
+    return Film(
+      idfilma: json['idfilma'],
+      nazivFilma: json['nazivFilma'],
+      opis: json['opis'],
+      filmPlakat: json['filmPlakat'],
+    );
+  }
+}
+
+class Sala {
+  final int idsale;
+  final String nazivSale;
+
+  Sala({
+    required this.idsale,
+    required this.nazivSale,
+  });
+
+  factory Sala.fromJson(Map<String, dynamic> json) {
+    return Sala(
+      idsale: json['idsale'],
+      nazivSale: json['nazivSale'],
+    );
+  }
+}
+
+class CommentN {
+  final int id;
+  final int obavijestId;
+  final int korisnikId;
+  final String tekstKomentara;
+  final DateTime datumKomentara;
+
+  CommentN({
+    required this.id,
+    required this.obavijestId,
+    required this.korisnikId,
+    required this.tekstKomentara,
+    required this.datumKomentara,
+  });
+
+  factory CommentN.fromJson(Map<String, dynamic> json) {
+    return CommentN(
+      id: json['id'],
+      obavijestId: json['obavijestId'],
+      korisnikId: json['korisnikId'],
+      tekstKomentara: json['tekstKomentara'],
+      datumKomentara: DateTime.parse(json['datumKomentara']),
+    );
+  }
+}
+
+class NotificationDetails {
+  final int id;
+  final int korisnikId;
+  final String naslov;
+  final String sadrzaj;
+  final DateTime datumObjave;
+  final String slika;
+  final DateTime datumUredjivanja;
+
+  NotificationDetails({
+    required this.id,
+    required this.korisnikId,
+    required this.naslov,
+    required this.sadrzaj,
+    required this.datumObjave,
+    required this.slika,
+    required this.datumUredjivanja,
+  });
+
+  factory NotificationDetails.fromJson(Map<String, dynamic> json) {
+    return NotificationDetails(
+      id: json['idobavijesti'],
+      korisnikId: json['korisnikId'],
+      naslov: json['naslov'],
+      sadrzaj: json['sadrzaj'],
+      datumObjave: DateTime.parse(json['datumObjave']),
+      slika: json['slika'],
+      datumUredjivanja: DateTime.parse(json['datumUredjivanja']),
+    );
+  }
+}
+
+class UserN {
+  final int id;
+  final String ime;
+  final String prezime;
+  final String korisnickoIme;
+  final String email;
+  final String token;
+  final Map<String, dynamic> tip;
+
+  UserN({
+    required this.id,
+    required this.ime,
+    required this.prezime,
+    required this.korisnickoIme,
+    required this.email,
+    required this.token,
+    required this.tip,
+  });
+
+  factory UserN.fromJson(Map<String, dynamic> json) {
+    return UserN(
+      id: json['idkorisnika'],
+      ime: json['ime'],
+      prezime: json['prezime'],
+      korisnickoIme: json['korisnickoIme'],
+      email: json['email'],
+      token: json['token'],
+      tip: json['tip'],
+    );
+  }
 }
