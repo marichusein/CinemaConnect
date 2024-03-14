@@ -1,10 +1,12 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() {
   runApp(MyApp());
@@ -126,8 +128,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
-  
-
   // Dodato
   void _showNotificationDetails(
       BuildContext context, Map<String, dynamic> notification) {
@@ -238,7 +238,6 @@ class NotificationGrid extends StatelessWidget {
       },
     );
   }
-
 }
 
 class NotificationCard extends StatefulWidget {
@@ -325,7 +324,15 @@ class _NotificationCardState extends State<NotificationCard> {
             IconButton(
               icon: Icon(Icons.edit),
               onPressed: () {
-                // Ovdje pozovite funkciju za otvaranje forme za uređivanje
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => EditNotificationScreen(
+                      notification: widget.notification,
+                      obavijestID: widget.notification['idobavijesti'],
+                    ),
+                  ),
+                );
               },
             ),
           ],
@@ -335,13 +342,12 @@ class _NotificationCardState extends State<NotificationCard> {
   }
 }
 
-
-
 class EditNotificationScreen extends StatefulWidget {
   final Map<String, dynamic> notification;
   final int obavijestID;
 
-  EditNotificationScreen({required this.notification, required this.obavijestID});
+  EditNotificationScreen(
+      {required this.notification, required this.obavijestID});
 
   @override
   _EditNotificationScreenState createState() => _EditNotificationScreenState();
@@ -358,6 +364,22 @@ class _EditNotificationScreenState extends State<EditNotificationScreen> {
     super.initState();
     titleController.text = widget.notification['naslov'];
     contentController.text = widget.notification['sadrzaj'] ?? '';
+
+    _loadImage();
+  }
+
+  Future<void> _loadImage() async {
+    if (widget.notification.containsKey('slika')) {
+      Uint8List imageData = base64Decode(widget.notification['slika']);
+      String tempPath = (await getTemporaryDirectory()).path;
+      String filePath =
+          '$tempPath/image_${DateTime.now().millisecondsSinceEpoch}.png';
+      File imageFile = File(filePath);
+      await imageFile.writeAsBytes(imageData);
+      setState(() {
+        _imageFile = XFile(filePath);
+      });
+    }
   }
 
   @override
@@ -418,6 +440,7 @@ class _EditNotificationScreenState extends State<EditNotificationScreen> {
 
   void _updateNotification() {
     // Konvertujemo sliku u base64 format
+
     String imageBase64 = '';
     if (_imageFile != null) {
       List<int> imageBytes = File(_imageFile!.path).readAsBytesSync();
@@ -435,8 +458,6 @@ class _EditNotificationScreenState extends State<EditNotificationScreen> {
       "datumUredjivanja": dateTimeNow
     };
 
-    ApiService.editObavijest(widget.obavijestID , requestData);
-    
+    ApiService.editObavijest(widget.obavijestID, requestData);
   }
 }
-

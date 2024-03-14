@@ -450,12 +450,15 @@ class ApiService {
 }
 
   static Future<void> editObavijest(int obavijestId, Map<String, dynamic> obavijest) async{
-      final response = await http.put(
-    Uri.parse('$baseUrl/Obavijesti/$obavijest'),
+
+   
+   print(obavijestId);
+    final response = await http.put(
+    Uri.parse('$baseUrl/Obavijesti/$obavijestId'),
     headers: zaglavlje,
-    body: jsonEncode({
+    body: jsonEncode(
       obavijest
-    }),
+    ),
   );
 
   if (response.statusCode == 200) {
