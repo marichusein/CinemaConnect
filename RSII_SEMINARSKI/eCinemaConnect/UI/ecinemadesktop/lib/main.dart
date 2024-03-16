@@ -8,6 +8,7 @@ import 'package:ecinemadesktop/forms/EditProfile.dart';
 import 'package:ecinemadesktop/forms/KomentariForms.dart';
 import 'package:ecinemadesktop/forms/KomentariObavijestiForms.dart';
 import 'package:ecinemadesktop/forms/ListaFilmova.dart';
+import 'package:ecinemadesktop/forms/ModelPrepruke.dart';
 import 'package:ecinemadesktop/forms/MovieForm.dart';
 import 'package:ecinemadesktop/forms/AddObavijestiForm.dart';
 import 'package:ecinemadesktop/forms/PregeldMenija.dart';
@@ -378,6 +379,13 @@ class UserDashboard extends StatelessWidget {
                           'Kreiraj izvještaj poslovanja',
                           context,
                           BusinessReportForm(),
+                        ),
+                        _buildNavItem(
+                          Icons.insert_chart_outlined,
+                          'Utreniraj model preporuke',
+                          context,
+                          ModelPreporuke(),
+                          
                         ),
                       ],
                     ),

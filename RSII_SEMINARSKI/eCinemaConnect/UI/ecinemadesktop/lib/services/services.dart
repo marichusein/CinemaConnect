@@ -562,7 +562,14 @@ class ApiService {
     }
   }
 
-
+ static Future<void> trenirjaModel() async {
+    var response = await http.get(Uri.parse('$baseUrl/Filmovi/utrenirajpreporuku'), headers: zaglavlje);
+    if (response.statusCode == 200) {
+       print(response);
+    } else {
+      throw Exception('Failed to load menus');
+    }
+  }
   
 }
 
