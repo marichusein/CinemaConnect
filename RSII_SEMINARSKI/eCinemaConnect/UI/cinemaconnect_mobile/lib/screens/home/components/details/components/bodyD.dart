@@ -1,4 +1,5 @@
 import 'package:cinemaconnect_mobile/api-konstante.dart';
+import 'package:cinemaconnect_mobile/screens/home/components/details/components/PreporucenFilmIndo.dart';
 import 'package:flutter/material.dart';
 import 'package:cinemaconnect_mobile/const.dart';
 import 'package:cinemaconnect_mobile/models/movie.dart';
@@ -169,15 +170,16 @@ recommendedMovies.isEmpty
     : Column(
         children: recommendedMovies.map((movie) {
           return GestureDetector(
+             key: ValueKey(movie.id),
             onTap: () {
               // Otvorite detalje za odabrani film
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => BodyD(
-                    movie: movie,
-                    KorisnikID: widget.KorisnikID,
-                    header: widget.header,
+                  builder: (context) => MovieCard(
+                    base64Image: movie.poster,
+                    title: movie.title,
+                    description: movie.plot,
                   ),
                 ),
               );

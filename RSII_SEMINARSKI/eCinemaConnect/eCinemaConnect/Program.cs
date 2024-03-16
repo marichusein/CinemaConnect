@@ -30,7 +30,9 @@ builder.Services.AddTransient<IObavijesti, ObavijestiService>();
 builder.Services.AddTransient<IOcijeni, OcijeniFilmService>();
 builder.Services.AddTransient<IKomentariObavijesti, KomentariObavijestiService>();
 builder.Services.AddTransient<IRezervacije, RezervacijeService>();
-builder.Services.AddTransient<IRabbitMQProducer, RabbitMQProducer>();
+builder.Services.AddScoped<IRabbitMQProducer, RabbitMQProducer>();
+builder.Services.AddTransient<IRecommender, RecommenderService>();
+
 
 
 
@@ -132,5 +134,32 @@ app.UseCors(builder =>
 });
 
 app.MapControllers();
+
+Console.WriteLine("Ovdje");
+
+using (var scope = app.Services.CreateScope())
+{
+
+    Console.WriteLine("Ovdje 2");
+
+    var dataContext = scope.ServiceProvider.GetRequiredService<CinemaContext>();
+    if (dataContext.Database.CanConnect())
+    {
+        Console.WriteLine("Ovdje 3");
+
+        dataContext.Database.Migrate();
+
+        var recommendResutService = scope.ServiceProvider.GetRequiredService<IRecommender>();
+        try
+        {
+            Console.WriteLine("Ovdje 4");
+
+            await recommendResutService.TrainModelAsync();
+        }
+        catch (Exception e)
+        {
+        }
+    }
+}
 
 app.Run();

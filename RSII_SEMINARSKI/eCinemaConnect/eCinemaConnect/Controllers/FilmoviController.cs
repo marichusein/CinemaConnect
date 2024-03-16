@@ -15,10 +15,13 @@ namespace eCinemaConnect.Controllers
     public class FilmoviController : ControllerBase
     {
         private readonly IFilmovi _filmovi;
+        private readonly IRecommender _preporuka;
 
-        public FilmoviController(IFilmovi filmovi)
+
+        public FilmoviController(IFilmovi filmovi, IRecommender preporuka)
         {
             _filmovi = filmovi;
+            _preporuka = preporuka;
         }
 
         [HttpGet()]
@@ -91,9 +94,9 @@ namespace eCinemaConnect.Controllers
         }
 
         [HttpGet("preporuka")]
-        public async Task<IEnumerable<FilmoviView>> GetPreporuka(int korisnikid)
+        public  List<FilmoviView>GetPreporuka(int korisnikid)
         {
-            return await _filmovi.GetPreprukuByKorisnikID(korisnikid);
+            return _preporuka.Recommend(korisnikid);
         }
 
         [HttpDelete("{id}")]

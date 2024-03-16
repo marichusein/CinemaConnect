@@ -40,6 +40,8 @@ public partial class CinemaContext : DbContext
     public virtual DbSet<ProjekcijeSjedistum> ProjekcijeSjedista { get; set; }
 
     public virtual DbSet<Recenzije> Recenzijes { get; set; }
+    public virtual DbSet<Recommender> Recommenders { get; set; }
+
 
     public virtual DbSet<Repertoari> Repertoaris { get; set; }
 
@@ -296,6 +298,23 @@ public partial class CinemaContext : DbContext
                 .HasForeignKey(d => d.FilmId)
                 .HasConstraintName("FK__Recenzije__FilmI__5CD6CB2B");
         });
+
+        modelBuilder.Entity<Recommender>(entity =>
+        {
+            entity.ToTable("Recommender");
+
+            entity.Property(e => e.Id).HasColumnName("Id");
+            entity.Property(e => e.FilmId).HasColumnName("FilmId");
+            entity.Property(e => e.CoFilmId1).HasColumnName("CoFilmId1");
+            entity.Property(e => e.CoFilmId2).HasColumnName("CoFilmId2");
+            entity.Property(e => e.CoFilmId3).HasColumnName("CoFilmId3");
+
+            // Postavljanje primarnog ključa
+            entity.HasKey(e => e.Id).HasName("PK_Recommender_Id");
+
+        
+        });
+
 
         modelBuilder.Entity<Repertoari>(entity =>
         {
