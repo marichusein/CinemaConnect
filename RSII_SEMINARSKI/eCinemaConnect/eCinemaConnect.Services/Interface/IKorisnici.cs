@@ -11,6 +11,7 @@ namespace eCinemaConnect.Services.Interface
         Task<KorisniciView> LoginAsync(KorisniciLogin login);
         Task<KorisniciView> LoginAdminAsync(KorisniciLogin login);
         Task<SiginUpResult> SiginUpAsync(KorisniciRegistration registration);
+        Task<SiginUpResult> SiginUpAdminAsync(KorisniciRegistration registration);
         Task<KorisniciView> UpdateProfiilAsync(int id, KorisniciUpdate obj);
         Task SendMailAsync(int korisnikID);
         Task SendPurchaseConfirmationEmailAsync(int korisnikID, string filmNaziv, DateTime datumPrikazivanja, string sala, int brojKarata, decimal ukupnaCijena);

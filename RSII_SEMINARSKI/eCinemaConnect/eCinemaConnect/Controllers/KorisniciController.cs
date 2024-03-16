@@ -65,6 +65,20 @@ namespace eCinemaConnect.Controllers
                 return BadRequest(result.ErrorMessage);
             }
         }
+        [HttpPost("siginupadmin")]
+        public async Task<IActionResult> SiginUpAdmin(KorisniciRegistration obj)
+        {
+            var result = await _korisnici.SiginUpAdminAsync(obj);
+
+            if (result.Success)
+            {
+                return Ok(result.RegisteredKorisnik);
+            }
+            else
+            {
+                return BadRequest(result.ErrorMessage);
+            }
+        }
 
         [HttpPut("{id}")]
         public async Task<KorisniciView> UpdateGlumca(int id, KorisniciUpdate obj)

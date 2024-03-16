@@ -103,11 +103,52 @@ namespace eCinemaConnect.Services.Service
                     RegisteredKorisnik = null
                 };
             }
-
+            int regularGledateljaId = _context.TipoviGledateljas
+  .Where(x => x.NazivTipa == "Regular")
+  .Select(y => y.Idtipa)
+  .FirstOrDefault();
             var newKorisnik = _mapper.Map<Korisnici>(registration);
             newKorisnik.Salt = salt;
             newKorisnik.Lozinka = hashedPasswordString;
-            newKorisnik.TipGledateljaId = 1;
+            newKorisnik.TipGledateljaId = regularGledateljaId;
+
+            _context.Korisnicis.Add(newKorisnik);
+            await _context.SaveChangesAsync();
+
+            var korisnikView = _mapper.Map<KorisniciView>(newKorisnik);
+
+            return new SiginUpResult
+            {
+                Success = true,
+                ErrorMessage = null,
+                RegisteredKorisnik = korisnikView
+            };
+        }
+        public async Task<SiginUpResult> SiginUpAdminAsync(KorisniciRegistration registration)
+        {
+            byte[] salt = await GenerateSaltAsync();
+            byte[] hashedPassword = await HashPasswordAsync(registration.Lozinka, salt);
+            string hashedPasswordString = BitConverter.ToString(hashedPassword).Replace("-", "").ToLower();
+
+            var existingKorisnik = await _context.Korisnicis.FirstOrDefaultAsync(k => k.KorisnickoIme == registration.KorisnickoIme || k.Email == registration.Email);
+
+            if (existingKorisnik != null)
+            {
+                return new SiginUpResult
+                {
+                    Success = false,
+                    ErrorMessage = "Korisničko ime ili email već postoje.",
+                    RegisteredKorisnik = null
+                };
+            }
+            int adminTipGledateljaId = _context.TipoviGledateljas
+    .Where(x => x.NazivTipa == "Admin")
+    .Select(y => y.Idtipa)
+    .FirstOrDefault(); 
+            var newKorisnik = _mapper.Map<Korisnici>(registration);
+            newKorisnik.Salt = salt;
+            newKorisnik.Lozinka = hashedPasswordString;
+            newKorisnik.TipGledateljaId = adminTipGledateljaId;
 
             _context.Korisnicis.Add(newKorisnik);
             await _context.SaveChangesAsync();

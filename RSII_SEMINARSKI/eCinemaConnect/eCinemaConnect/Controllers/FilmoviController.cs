@@ -122,5 +122,11 @@ namespace eCinemaConnect.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("utrenirajpreporuku")]
+        public async Task UtrenirajModdel()
+        {
+             await _preporuka.TrainModelAsync();
+        }
     }
 }

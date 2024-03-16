@@ -171,16 +171,10 @@ class _LoginPageState extends State<LoginPage> {
                       );
                     },
                     icon: Icon(Icons.person_add),
-                    label: Text('Create New Account'),
+                    label: Text('Create New Admin Account'),
                   ),
                   SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      // TODO: Navigate to add user screen
-                    },
-                    icon: Icon(Icons.person_add_alt),
-                    label: Text('Add User'),
-                  ),
+                 
                 ],
               ),
             ),

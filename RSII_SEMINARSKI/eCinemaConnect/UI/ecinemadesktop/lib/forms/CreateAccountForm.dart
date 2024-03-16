@@ -1,3 +1,4 @@
+import 'package:ecinemadesktop/api-konstante.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -16,7 +17,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
   final TextEditingController _lozinkaController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _telefonController = TextEditingController();
-
+final String baseUrl = ApiKonstante.baseUrl;
   String _errorText = '';
    bool _isLoading = false; 
   void _submitForm() async {
@@ -37,7 +38,7 @@ class _CreateAccountFormState extends State<CreateAccountForm> {
       // Pošaljite zahtjev za registraciju koristeći RegisterService
       try {
         final response = await http.post(
-          Uri.parse('https://localhost:7125/Korisnici/siginup'),
+          Uri.parse('$baseUrl/Korisnici/siginupadmin'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(registrationData),
         );
