@@ -14,7 +14,7 @@ Welcome to **Cinema Connect**, where the magic of cinema comes alive in the palm
 ### Desktop app
 - Username: admin1234
 - Password: admin1234
-### PayPal Sendbox
+### PayPal Sandbox
 - eMail: sb-hkit627362503@personal.example.com
 - pass: testtest
 
