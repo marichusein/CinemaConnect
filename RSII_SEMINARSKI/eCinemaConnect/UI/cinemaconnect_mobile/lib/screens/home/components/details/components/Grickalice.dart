@@ -37,6 +37,7 @@ class GrickaliceMenu extends StatefulWidget {
 class _GrickaliceMenuState extends State<GrickaliceMenu> {
   List<Map<String, dynamic>> grickalice = [];
   int selectedItemId = 0;
+  double cijenaMenija=0.0;
 
   @override
   void initState() {
@@ -75,10 +76,11 @@ class _GrickaliceMenuState extends State<GrickaliceMenu> {
             onTap: () {
               setState(() {
                 selectedItemId = grickalica['idgrickalice'];
+                cijenaMenija=grickalica['cijena'];
               });
             },
             title: Text(grickalica['naziv']),
-            subtitle: Text(grickalica['opis']),
+            subtitle: Text(grickalica['opis']+' Cijena menija:'+grickalica['cijena'].toString()),
             leading: Image.memory(
               base64Decode(grickalica['slika']),
               width: 60,
@@ -123,7 +125,7 @@ class _GrickaliceMenuState extends State<GrickaliceMenu> {
         transactions: [
           {
             "amount": {
-              "total": double.parse((widget.Cijena * 0.55).toStringAsFixed(
+              "total": double.parse(((widget.Cijena * 0.55)+cijenaMenija).toStringAsFixed(
                   2)), // Promijenite ovo s vašim ukupnim iznosom
               "currency": "USD",
             },
@@ -133,7 +135,7 @@ class _GrickaliceMenuState extends State<GrickaliceMenu> {
                 {
                   "name": "Cijena",
                   "quantity": 1,
-                  "price": double.parse((widget.Cijena * 0.55).toStringAsFixed(
+                  "price": double.parse(((widget.Cijena * 0.55)+cijenaMenija).toStringAsFixed(
                       2)), // Promijenite ovo s cijenom vašeg artikla
                   "currency": "USD"
                 }
