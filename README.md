@@ -4,12 +4,19 @@ Welcome to **Cinema Connect**, where the magic of cinema comes alive in the palm
 
 ## Login data 🌟
 ### Mobile app 
-- Username: korisnik
-- Password: korisnik
+#### User
+- Username: user
+- Password: user1234
+#### Admin
+- Username: admin1234
+- Password: admin1234
 
 ### Desktop app
-- Username: admin
-- Password: admin
+- Username: admin1234
+- Password: admin1234
+### PayPal Sendbox
+- eMail: sb-hkit627362503@personal.example.com
+- pass: testtest
 
 ## 🌟 Features That Define Your Experience 🌟
 
