@@ -17,6 +17,7 @@ namespace eCinemaConnect.Model.ViewRequests
         public string? KorisnickoIme { get; set; }
         public string? Email { get; set; }
         public string? Token { get; set; }
+        public string? Telefon { get; set; }
 
         public TipGledatelja Tip { get; set; }
 

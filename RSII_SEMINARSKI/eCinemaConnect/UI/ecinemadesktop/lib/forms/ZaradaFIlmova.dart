@@ -160,7 +160,7 @@ class _ZaradaFilmovaState extends State<ZaradaFilmova> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Zarada po  Report'),
+        title: Text('Zarada '),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {

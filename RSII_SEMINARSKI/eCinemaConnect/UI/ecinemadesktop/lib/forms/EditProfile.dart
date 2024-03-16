@@ -13,6 +13,11 @@ class EditProfileForm extends StatefulWidget {
 class _EditProfileFormState extends State<EditProfileForm> {
   TextEditingController _firstNameController = TextEditingController();
   TextEditingController _lastNameController = TextEditingController();
+  TextEditingController _usernameController = TextEditingController();
+  TextEditingController _mailController = TextEditingController();
+  TextEditingController _telefonController = TextEditingController();
+
+
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _confirmPasswordController = TextEditingController();
   bool _passwordVisible = false;
@@ -29,6 +34,9 @@ class _EditProfileFormState extends State<EditProfileForm> {
       setState(() {
         _firstNameController.text = userData['ime'] ?? '';
         _lastNameController.text = userData['prezime'] ?? '';
+        _usernameController.text=userData['korisnickoIme'] ?? '';
+        _mailController.text=userData['email'] ?? '';
+        _telefonController.text=userData['telefon']??'';
       });
     } catch (error) {
       // Handle error
@@ -38,6 +46,10 @@ class _EditProfileFormState extends State<EditProfileForm> {
   void _updateProfile(BuildContext context) async {
     String enteredFirstName = _firstNameController.text;
     String enteredLastName = _lastNameController.text;
+    String entereduserName = _usernameController.text;
+    String enteredeMail = _mailController.text;
+    String enteredtelefon = _telefonController.text;
+
     String enteredPassword = _passwordController.text;
     String confirmPassword = _confirmPasswordController.text;
 
@@ -67,7 +79,11 @@ class _EditProfileFormState extends State<EditProfileForm> {
       "idkorisnika": widget.idkorisnika,
       "ime": enteredFirstName,
       "prezime": enteredLastName,
-      "lozinka": enteredPassword,
+      "email": enteredeMail,
+      "telefon": enteredtelefon,
+      "korisnickoIme": entereduserName,
+
+
     };
 
     try {
@@ -105,6 +121,18 @@ class _EditProfileFormState extends State<EditProfileForm> {
             TextField(
               controller: _lastNameController,
               decoration: InputDecoration(labelText: "Prezime"),
+            ),
+            TextField(
+              controller: _usernameController,
+              decoration: InputDecoration(labelText: "Username"),
+            ),
+            TextField(
+              controller: _mailController,
+              decoration: InputDecoration(labelText: "Mail"),
+            ),
+            TextField(
+              controller: _telefonController,
+              decoration: InputDecoration(labelText: "Telefon"),
             ),
             TextField(
               controller: _passwordController,

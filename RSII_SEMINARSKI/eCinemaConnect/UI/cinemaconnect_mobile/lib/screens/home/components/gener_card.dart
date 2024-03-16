@@ -36,8 +36,10 @@ class _GenresState extends State<Genres> {
     
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
+      
+      // Dodavanje "Sve" kao prvog žanra
       setState(() {
-        genres = data.map((genre) => genre['nazivZanra'].toString()).toList();
+        genres = ['Sve', ...data.map((genre) => genre['nazivZanra'].toString()).toList()];
       });
     } else {
       print(response.body);

@@ -12,6 +12,8 @@ class MovieListPage extends StatefulWidget {
 
 class _MovieListPageState extends State<MovieListPage> {
   List<dynamic> movies = [];
+  List<dynamic> allmovies = [];
+
   bool isLoading = true;
   
   @override
@@ -24,6 +26,7 @@ class _MovieListPageState extends State<MovieListPage> {
     final fetchedMovies = await ApiService.fetchMovies();
     setState(() {
       movies = fetchedMovies;
+      allmovies=fetchedMovies;
       isLoading = false;
     });
   }
@@ -34,8 +37,27 @@ class _MovieListPageState extends State<MovieListPage> {
   }
 
   Future<void> _searchMovies(String query) async {
-    // Implement search functionality
+  setState(() {
+    isLoading = true; // Postavite isLoading na true dok se izvršava pretraga
+  });
+
+  if (query.isEmpty) {
+    // Ako je upit prazan, prikažite sve filmove
+    setState(() {
+      isLoading = false;
+      movies = allmovies; 
+    });
+    return;
   }
+
+  final List<dynamic> searchResults = movies.where((movie) => movie['nazivFilma'].toLowerCase().contains(query.toLowerCase())).toList();
+
+  setState(() {
+    isLoading = false;
+    movies = searchResults;
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {

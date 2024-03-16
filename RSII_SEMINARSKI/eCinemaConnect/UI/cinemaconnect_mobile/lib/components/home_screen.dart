@@ -27,6 +27,10 @@ class _HomeScreenState extends State<HomeScreen> {
   late String lastName = "";
   late String email = "";
   late String newPassword = "";
+  late String username = "";
+  late String telefon = "";
+
+
   final String baseUrl = ApiKonstante.baseUrl;
   
 
@@ -47,7 +51,9 @@ class _HomeScreenState extends State<HomeScreen> {
         firstName = userData['ime'];
         lastName = userData['prezime'];
         email = userData['email'];
-        // Učitajte trenutnu lozinku ako je dostupna
+        username=userData['korisnickoIme'];
+        telefon=userData['telefon'];
+        
       });
     } else {
       throw Exception('Failed to load user data');
@@ -61,6 +67,9 @@ class _HomeScreenState extends State<HomeScreen> {
       body: jsonEncode({
         'ime': firstName,
         'prezime': lastName,
+        'telefon': telefon,
+        'korisnickoIme': username,
+        'email': email,
         'lozinika': newPassword, // Ažurirajte lozinku prema potrebi
       }),
     );
@@ -186,37 +195,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ); 
             }
           ),
-          ListTile(
-            leading: Icon(Icons.star),
-            title: Text(
-              'Preporuka',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                fontFamily: "SFUIText",
-                color: Colors.black87,
-              ),
-            ),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text(
-              'Podešavanja',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                fontFamily: "SFUIText",
-                color: Colors.black87,
-              ),
-            ),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
+      
           ListTile(
             // Dodani dio za odjavu
             leading: Icon(Icons.logout),
@@ -271,6 +250,33 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 decoration: InputDecoration(labelText: 'Prezime'),
                 controller: TextEditingController(text: lastName),
+              ),
+               TextField(
+                onChanged: (value) {
+                  setState(() {
+                    username = value;
+                  });
+                },
+                decoration: InputDecoration(labelText: 'Username'),
+                controller: TextEditingController(text: username),
+              ),
+               TextField(
+                onChanged: (value) {
+                  setState(() {
+                    telefon = value;
+                  });
+                },
+                decoration: InputDecoration(labelText: 'Telefon'),
+                controller: TextEditingController(text: telefon),
+              ),
+              TextField(
+                onChanged: (value) {
+                  setState(() {
+                    email = value;
+                  });
+                },
+                decoration: InputDecoration(labelText: 'Email'),
+                controller: TextEditingController(text: email),
               ),
               TextField(
                 onChanged: (value) {

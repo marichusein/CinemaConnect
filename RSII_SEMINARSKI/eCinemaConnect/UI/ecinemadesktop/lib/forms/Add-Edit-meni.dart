@@ -80,12 +80,43 @@ class _MenuItemFormState extends State<MenuItemForm> {
         // Handle success
         print(
             'Menu item ${widget.menuItemId != null ? 'updated' : 'added'} successfully');
+        _showSuccessMessage();
+        _clearForm();
       } catch (e) {
         // Handle error
         print(
             'Failed to ${widget.menuItemId != null ? 'update' : 'add'} menu item: $e');
       }
     }
+  }
+
+  void _showSuccessMessage() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Success'),
+          content: Text('Menu item ${widget.menuItemId != null ? 'updated' : 'added'} successfully'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _clearForm() {
+    _nazivController.clear();
+    _opisController.clear();
+    _cijenaController.clear();
+    setState(() {
+      _imageFile = null;
+    });
   }
 
   @override

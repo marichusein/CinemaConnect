@@ -17,12 +17,14 @@ class MovieCarousel extends StatefulWidget {
   final int IDKorisnika;
   final Map<String, String> header;
 
-  const MovieCarousel({
-    Key? key,
-    required this.selectedGenre,
-    required this.searchQuery, required this.IDKorisnika,
-    required this.header // Dodajte searchQuery
-  }) : super(key: key);
+  const MovieCarousel(
+      {Key? key,
+      required this.selectedGenre,
+      required this.searchQuery,
+      required this.IDKorisnika,
+      required this.header // Dodajte searchQuery
+      })
+      : super(key: key);
 
   @override
   State<MovieCarousel> createState() => _MovieCarouselState();
@@ -33,7 +35,7 @@ class _MovieCarouselState extends State<MovieCarousel> {
   int initialPage = 1;
   List<Movie> movies = [];
   final String baseUrl = ApiKonstante.baseUrl;
-  
+
   @override
   void initState() {
     super.initState();
@@ -48,57 +50,56 @@ class _MovieCarouselState extends State<MovieCarousel> {
   }
 
   Future<double> fetchMovieRating(int movieId) async {
-  final Uri url = Uri.parse('$baseUrl/film?id=$movieId');
-  final response = await http.get(url, headers: widget.header);
+    final Uri url = Uri.parse('$baseUrl/film?id=$movieId');
+    final response = await http.get(url, headers: widget.header);
 
-  if (response.statusCode == 200) {
-    final double apiRating = double.parse(response.body);
+    if (response.statusCode == 200) {
+      final double apiRating = double.parse(response.body);
 
-    // Provjerite je li ocjena u razumnom rasponu (0-10)
-    if (apiRating >= 0 && apiRating <= 10) {
-      return apiRating;
+      // Provjerite je li ocjena u razumnom rasponu (0-10)
+      if (apiRating >= 0 && apiRating <= 10) {
+        return apiRating;
+      } else {
+        return 0.00; // Ako je ocjena izvan raspona, postavi je na 0.00
+      }
     } else {
-      return 0.00; // Ako je ocjena izvan raspona, postavi je na 0.00
+      throw Exception('Pogreška prilikom dohvaćanja ocjene filma');
     }
-  } else {
-    throw Exception('Pogreška prilikom dohvaćanja ocjene filma');
   }
-}
 
-  Future<String> iconToBase64String(IconData iconData, {double size = 100}) async {
-  // Create an icon widget
-  Widget iconWidget = Icon(iconData, size: size);
+  Future<String> iconToBase64String(IconData iconData,
+      {double size = 100}) async {
+    // Create an icon widget
+    Widget iconWidget = Icon(iconData, size: size);
 
-  // Create a global key for the repaint boundary
-  GlobalKey globalKey = GlobalKey();
+    // Create a global key for the repaint boundary
+    GlobalKey globalKey = GlobalKey();
 
-  // Wrap the icon widget with a repaint boundary
-  RepaintBoundary(
-    key: globalKey,
-    child: iconWidget,
-  );
+    // Wrap the icon widget with a repaint boundary
+    RepaintBoundary(
+      key: globalKey,
+      child: iconWidget,
+    );
 
-  // Create the widget tree and render it
-  WidgetsBinding.instance.renderView.configuration =
-      ViewConfiguration(size: Size(size, size));
-  BuildContext context = globalKey.currentContext!;
-  RenderRepaintBoundary boundary =
-      context.findRenderObject() as RenderRepaintBoundary;
-  ui.Image image = await boundary.toImage(pixelRatio: 1.0);
-  ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-  Uint8List byteList = byteData!.buffer.asUint8List();
+    // Create the widget tree and render it
+    WidgetsBinding.instance.renderView.configuration =
+        ViewConfiguration(size: Size(size, size));
+    BuildContext context = globalKey.currentContext!;
+    RenderRepaintBoundary boundary =
+        context.findRenderObject() as RenderRepaintBoundary;
+    ui.Image image = await boundary.toImage(pixelRatio: 1.0);
+    ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    Uint8List byteList = byteData!.buffer.asUint8List();
 
-  // Convert byte array to base64 string
-  String base64String = base64Encode(byteList);
+    // Convert byte array to base64 string
+    String base64String = base64Encode(byteList);
 
-  return base64String;
-}
-
-
+    return base64String;
+  }
 
   Future<void> fetchMovies() async {
     final Uri url = Uri.parse('$baseUrl/Filmovi');
-    final response = await http.get(url, headers: widget.header );
+    final response = await http.get(url, headers: widget.header);
 
     if (mounted) {
       // Provjerite je li widget još uvijek montiran prije poziva setState
@@ -135,15 +136,16 @@ class _MovieCarouselState extends State<MovieCarousel> {
                 apiMovie['trajanje'], // Možete postaviti ovo prema potrebi
             rating: ratingF, // Možete postaviti ovo prema potrebi
             criticsReview: 0, // Možete postaviti ovo prema potrebi
-            metascoreRating: 0, 
+            metascoreRating: 0,
             genra: [apiMovie['zanr']['nazivZanra']],
             plot: apiMovie['opis'],
-            cast: [], 
+            cast: [],
           );
 
           // Provjeri je li odabrani žanr prazan ili odgovara žanru filma
           // Provjeri je li pretraga prazna ili sadrži naziv filma
           if ((widget.selectedGenre.isEmpty ||
+                  widget.selectedGenre == 'Sve' ||
                   movie.genra.contains(widget.selectedGenre)) &&
               (getSearchQuery().isEmpty ||
                   movie.title.toLowerCase().contains(getSearchQuery()))) {
@@ -203,18 +205,25 @@ class _MovieCarouselState extends State<MovieCarousel> {
           }
           return Transform.rotate(
             angle: math.pi * value,
-            child: MovieCard(movie: movies[index], KorisnikID: widget.IDKorisnika, header: widget.header,),
+            child: MovieCard(
+              movie: movies[index],
+              KorisnikID: widget.IDKorisnika,
+              header: widget.header,
+            ),
           );
         },
       );
 }
 
-
 class MovieCard extends StatelessWidget {
   final Movie movie;
   final int KorisnikID;
   final Map<String, String> header;
-  const MovieCard({Key? key, required this.movie, required this.KorisnikID, required this.header});
+  const MovieCard(
+      {Key? key,
+      required this.movie,
+      required this.KorisnikID,
+      required this.header});
 
   @override
   Widget build(BuildContext context) {
@@ -224,42 +233,45 @@ class MovieCard extends StatelessWidget {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => DetailsScreen(movie: movie, KorisnikID: KorisnikID, header: header,),
+            builder: (context) => DetailsScreen(
+              movie: movie,
+              KorisnikID: KorisnikID,
+              header: header,
+            ),
           ),
         ),
         child: Column(
           children: <Widget>[
             Expanded(
               child: Container(
-  decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(50),
-    boxShadow: [
-      BoxShadow(
-        color: Colors.black.withOpacity(0.5),
-        offset: const Offset(0, 2),
-        blurRadius: 5,
-        spreadRadius: 5,
-      ),
-    ],
-  ),
-  child: ClipRRect(
-    borderRadius: BorderRadius.circular(50),
-    child: Image.memory(
-      base64Decode(movie.poster.split(',').last),
-      fit: BoxFit.fill,
-    ),
-  ),
-),
-
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(50),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.5),
+                      offset: const Offset(0, 2),
+                      blurRadius: 5,
+                      spreadRadius: 5,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(50),
+                  child: Image.memory(
+                    base64Decode(movie.poster.split(',').last),
+                    fit: BoxFit.fill,
+                  ),
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 15.0),
               child: Text(
                 movie.title,
                 style: Theme.of(context).textTheme.bodyText1?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  fontFamily: 'SFUIText',
-                ),
+                      fontWeight: FontWeight.w600,
+                      fontFamily: 'SFUIText',
+                    ),
               ),
             ),
             Row(
@@ -275,9 +287,9 @@ class MovieCard extends StatelessWidget {
                 Text(
                   "${movie.rating}",
                   style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                    fontWeight: FontWeight.w400,
-                    fontFamily: 'SFUIText',
-                  ),
+                        fontWeight: FontWeight.w400,
+                        fontFamily: 'SFUIText',
+                      ),
                 ),
               ],
             ),
@@ -291,7 +303,8 @@ class MovieCard extends StatelessWidget {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return CircularProgressIndicator();
                   } else if (snapshot.hasError) {
-                    return Text('Pogreška prilikom dohvaćanja projekcija: ${snapshot.error}');
+                    return Text(
+                        'Pogreška prilikom dohvaćanja projekcija: ${snapshot.error}');
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return Text('Projekcije još uvijek nisu dostupne');
                   } else {
@@ -301,7 +314,8 @@ class MovieCard extends StatelessWidget {
                       itemCount: projections.length,
                       itemBuilder: (context, index) {
                         return Card(
-                          margin: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
+                          margin:
+                              EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -328,12 +342,9 @@ class MovieCard extends StatelessWidget {
     );
   }
 
-  
-
   Future<List<String>> fetchProjections(int movieId) async {
-     final String baseUrl = ApiKonstante.baseUrl;
-    final Uri url =
-        Uri.parse('$baseUrl/Projekcije/film/aktivne/$movieId');
+    final String baseUrl = ApiKonstante.baseUrl;
+    final Uri url = Uri.parse('$baseUrl/Projekcije/film/aktivne/$movieId');
     final response = await http.get(url, headers: header);
 
     if (response.statusCode == 200) {
@@ -343,14 +354,15 @@ class MovieCard extends StatelessWidget {
       for (var apiProjection in apiProjections) {
         final DateTime projectionDateTime =
             DateTime.parse(apiProjection['datumVrijemeProjekcije']);
-         String formattedProjectionDateTime =
+        String formattedProjectionDateTime =
             '${projectionDateTime.day.toString().padLeft(2, '0')}.${projectionDateTime.month.toString().padLeft(2, '0')}.${projectionDateTime.year.toString().substring(2)} '
             '${projectionDateTime.hour}:${projectionDateTime.minute} ${projectionDateTime.hour < 12 ? 'AM' : 'PM'}';
-            double cijena=apiProjection['cijenaKarte'];
-            formattedProjectionDateTime=formattedProjectionDateTime+" - "+cijena.toString()+" KM";
-            if(apiProjection['sala']['idsale'] == 2){
-              formattedProjectionDateTime=formattedProjectionDateTime + " - 3D ";
-            }
+        double cijena = apiProjection['cijenaKarte'];
+        formattedProjectionDateTime =
+            formattedProjectionDateTime + " - " + cijena.toString() + " KM";
+        if (apiProjection['sala']['idsale'] == 2) {
+          formattedProjectionDateTime = formattedProjectionDateTime + " - 3D ";
+        }
         projections.add(formattedProjectionDateTime);
       }
 
@@ -359,7 +371,4 @@ class MovieCard extends StatelessWidget {
       throw Exception('Pogreška prilikom dohvaćanja projekcija');
     }
   }
-
-
-
 }
