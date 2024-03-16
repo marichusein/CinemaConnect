@@ -10,5 +10,6 @@ namespace eCinemaConnect.Services.Interface
     {
         Task<double> GetProsjekZaFilmAsync(int idfilma);
         Task<List<OcijeniFilmView>> GetKomentareZaFilmAsync(int idFilma);
+        Task<OcijeniFilmView> Ocijeni(OcijeniFilmInsert ocjena);
     }
 }

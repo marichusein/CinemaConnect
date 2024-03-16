@@ -42,5 +42,37 @@ namespace eCinemaConnect.Services.Service
             }
             return 0.0;
         }
+
+        public async Task<OcijeniFilmView> Ocijeni(OcijeniFilmInsert ocjena)
+        {
+            // Provjera da li je korisnik već ocijenio film
+            var ocjenaExists = await _context.OcjeneIkomentaris
+                .FirstOrDefaultAsync(x => x.KorisnikId == ocjena.KorisnikId && x.FilmId == ocjena.FilmId);
+
+            if (ocjenaExists != null)
+            {
+                // Ažuriranje postojeće ocjene i komentara
+                ocjenaExists.Ocjena = ocjena.Ocjena;
+                ocjenaExists.Komentar = ocjena.Komentar;
+                ocjenaExists.DatumOcjene = ocjena.DatumOcjene;
+                _context.OcjeneIkomentaris.Update(ocjenaExists);
+            }
+            else
+            {
+                // Dodavanje nove ocjene
+                var novaOcjena = _mapper.Map<OcjeneIkomentari>(ocjena);
+                _context.OcjeneIkomentaris.Add(novaOcjena);
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Vraćanje ocijenjenog filma
+            var ocijenjeniFilm = await _context.OcjeneIkomentaris
+                .FirstOrDefaultAsync(x => x.KorisnikId == ocjena.KorisnikId && x.FilmId == ocjena.FilmId);
+
+            return _mapper.Map<OcijeniFilmView>(ocijenjeniFilm);
+        }
+
+
     }
 }

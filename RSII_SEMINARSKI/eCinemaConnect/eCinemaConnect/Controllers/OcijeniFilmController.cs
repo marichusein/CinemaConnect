@@ -42,7 +42,8 @@ namespace eCinemaConnect.Controllers
         [HttpPost]
         public async Task<OcijeniFilmView> AddGlumcaAsync(OcijeniFilmInsert obj)
         {
-            return await _ocijeni.AddObjAsync(obj);
+            return await _ocijeni.Ocijeni(obj);
+            
         }
 
         [HttpPut("{id}")]
