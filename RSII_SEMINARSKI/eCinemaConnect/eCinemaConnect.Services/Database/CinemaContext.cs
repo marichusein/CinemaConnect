@@ -304,7 +304,7 @@ public partial class CinemaContext : DbContext
             entity.ToTable("Recommender");
 
             entity.Property(e => e.Id).HasColumnName("Id");
-            entity.Property(e => e.FilmId).HasColumnName("FilmId");
+            entity.Property(e => e.KorisnikId).HasColumnName("KorisnikId");
             entity.Property(e => e.CoFilmId1).HasColumnName("CoFilmId1");
             entity.Property(e => e.CoFilmId2).HasColumnName("CoFilmId2");
             entity.Property(e => e.CoFilmId3).HasColumnName("CoFilmId3");

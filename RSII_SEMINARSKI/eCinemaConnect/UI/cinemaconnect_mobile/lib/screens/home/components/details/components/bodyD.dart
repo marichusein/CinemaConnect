@@ -3,7 +3,7 @@ import 'package:cinemaconnect_mobile/screens/home/components/details/components/
 import 'package:flutter/material.dart';
 import 'package:cinemaconnect_mobile/const.dart';
 import 'package:cinemaconnect_mobile/models/movie.dart';
-import 'package:cinemaconnect_mobile/screens/home/components/details/components/castandcrew.dart';
+//import 'package:cinemaconnect_mobile/screens/home/components/details/components/castandcrew.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/details/components/geners.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/details/components/titleinfo.dart';
 import 'backdrop_rating.dart';
@@ -38,7 +38,7 @@ class _BodyDState extends State<BodyD> {
   Future<void> loadComments() async {
     final String baseUrl = ApiKonstante.baseUrl;
     final url =
-        '$baseUrl/OcijeniFilm/film/${widget.movie.id}'; // Zamijenite s pravim URL-om
+        '$baseUrl/OcijeniFilm/film/${widget.movie.id}'; 
     final response = await http.get(Uri.parse(url), headers: widget.header);
 
     if (response.statusCode == 200) {
@@ -47,7 +47,7 @@ class _BodyDState extends State<BodyD> {
       for (var data in commentData) {
         final comment = Comment.fromJson(data);
         final userUrl =
-            '$baseUrl/Korisnici/${comment.korisnikId}'; // Zamijenite s pravim URL-om
+            '$baseUrl/Korisnici/${comment.korisnikId}'; 
         final userResponse = await http.get(Uri.parse(userUrl), headers: widget.header);
 
         if (userResponse.statusCode == 200) {
@@ -197,7 +197,7 @@ recommendedMovies.isEmpty
         }).toList(),
       ),
 
-          CastAndCrew(casts: widget.movie.cast),
+          //CastAndCrew(casts: widget.movie.cast),
         ],
       ),
     );

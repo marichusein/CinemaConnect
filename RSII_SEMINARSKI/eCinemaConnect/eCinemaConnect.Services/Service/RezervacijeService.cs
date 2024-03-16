@@ -31,7 +31,7 @@ namespace eCinemaConnect.Services.Service
             await _context.SaveChangesAsync();
 
             var projekcijaIds = novaRezervacija.odabranaSjedista.Select(s => s.Idsjedista).ToList();
-            var projekcijeSjedista = await _context.ProjekcijeSjedista
+            var projekcijeSjedista = await _context.ProjekcijeSjedista.Where(r => r.ProjekcijaId == novaRezervacija.ProjekcijaId)
                 .Where(s => projekcijaIds.Contains((int)s.SjedisteId))
                 .ToListAsync();
 

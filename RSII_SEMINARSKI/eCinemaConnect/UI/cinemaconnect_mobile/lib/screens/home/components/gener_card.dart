@@ -27,18 +27,27 @@ class _GenresState extends State<Genres> {
   }
 
   Future<void> fetchGenres() async {
-    final String baseUrl = ApiKonstante.baseUrl;
+  final String baseUrl = ApiKonstante.baseUrl;
+  
+  try {
     final response = await http.get(Uri.parse('$baseUrl/Zanrovi'), headers: widget.header);
-
+    print('Dohvacanje zanrova ${widget.header}');
+    print('Api -> $baseUrl');
+    
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       setState(() {
         genres = data.map((genre) => genre['nazivZanra'].toString()).toList();
       });
     } else {
+      print(response.body);
       throw Exception('Failed to load genres');
     }
+  } catch (e) {
+    print('Greška prilikom dohvaćanja žanrova: $e');
+    // Ovdje možete dodati logiku za prikazivanje greške korisniku, npr. prikazivanjem dijaloga ili snackbara.
   }
+}
 
   @override
   Widget build(BuildContext context) {

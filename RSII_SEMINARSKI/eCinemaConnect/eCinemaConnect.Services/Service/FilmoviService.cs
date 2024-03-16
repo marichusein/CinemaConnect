@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using eCinemaConnect.Model;
 using eCinemaConnect.Model.InsertRequests;
 using eCinemaConnect.Model.UpdateRequests;
 using eCinemaConnect.Model.ViewRequests;
@@ -172,73 +173,17 @@ namespace eCinemaConnect.Services.Service
 
         public async Task<List<FilmoviView>> GetPreprukuByKorisnikID(int korisnikId)
         {
-            var ocjeneKorisnika = await _context.OcjeneIkomentaris
-                .Where(x => x.KorisnikId == korisnikId)
-                .ToListAsync();
-
-            if (ocjeneKorisnika.Count == 0)
+            var preporuka= await _context.Recommenders.Where(x=>x.KorisnikId== korisnikId).ToListAsync();
+            var listaId = new List<int>();
+            foreach(var p in preporuka)
             {
-                // Ako korisnik nije ocijenio nijedan film, vrati praznu listu
-                return new List<FilmoviView>();
+                listaId.Add(p.CoFilmId1);
+                listaId.Add(p.CoFilmId2);
+                listaId.Add(p.CoFilmId3);
+
             }
-
-            var filmoviKorisnika = ocjeneKorisnika.Select(x => x.FilmId).ToList();
-
-            // Izračunaj matricu sličnosti korisnika
-            var matricaSlicnosti = new Dictionary<int, double>(); // KorisnikId, Slicnost
-            foreach (var filmId in filmoviKorisnika)
-            {
-                var korisniciKojiSuOceniliFilm = await _context.OcjeneIkomentaris
-                    .Where(x => x.FilmId == filmId && x.KorisnikId != korisnikId)
-                    .Select(x => x.KorisnikId)
-                    .Distinct()
-                    .ToListAsync();
-
-                foreach (var korisnik in korisniciKojiSuOceniliFilm)
-                {
-                    if (!matricaSlicnosti.ContainsKey((int)korisnik))
-                        matricaSlicnosti[(int)korisnik] = 0;
-
-                    matricaSlicnosti[(int)korisnik] += 1; // Možete koristiti neki drugi metod za izračunavanje sličnosti
-                }
-            }
-
-            // Sortiraj korisnike po sličnosti i odaberi najslinih 5
-            var slicniKorisnici = matricaSlicnosti
-                .OrderByDescending(kv => kv.Value)
-                .Take(5)
-                .Select(kv => kv.Key)
-                .ToList();
-
-            // Generiraj preporuke na temelju sličnih korisnika
-            var preporuceniFilmovi = new List<int?>();
-            if (slicniKorisnici.Count > 0)
-            {
-                preporuceniFilmovi = await _context.OcjeneIkomentaris
-                    .Where(x => slicniKorisnici.Contains((int)x.KorisnikId) && x.Ocjena > 3)
-                    .GroupBy(x => x.FilmId)
-                    .OrderByDescending(g => g.Count())
-                    .Select(g => g.Key)
-                    .Take(10)
-                    .ToListAsync();
-            }
-            else
-            {
-                // Ako nema dovoljno sličnih korisnika, pronađi po dva najbolje ocijenjena filma
-                var ocjenePoFilmu = await _context.OcjeneIkomentaris
-                    .Where(x => x.KorisnikId != korisnikId && filmoviKorisnika.Contains(x.FilmId))
-                    .GroupBy(x => x.FilmId)
-                    .Select(g => new { FilmId = g.Key, ProsjecnaOcjena = g.Average(x => x.Ocjena) })
-                    .OrderByDescending(x => x.ProsjecnaOcjena)
-                    .Take(2)
-                    .Select(x => x.FilmId)
-                    .ToListAsync();
-
-                preporuceniFilmovi.AddRange((IEnumerable<int?>)ocjenePoFilmu);
-            }
-
             var preporuceniFilmoviDetalji = await _context.Filmovis
-                .Where(x => preporuceniFilmovi.Contains(x.Idfilma))
+                .Where(x => listaId.Contains(x.Idfilma))
                 .Include(z => z.Zanr)
                 .Include(r => r.Reziser)
                 .ToListAsync();

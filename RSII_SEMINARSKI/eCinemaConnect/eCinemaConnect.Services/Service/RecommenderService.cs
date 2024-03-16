@@ -73,11 +73,8 @@ namespace eCinemaConnect.Services.Service
                         MatrixColumnIndexColumnName = nameof(FilmoviPreporuka.FilmID),
                         MatrixRowIndexColumnName = nameof(FilmoviPreporuka.KorisnikID),
                         LabelColumnName = nameof(FilmoviPreporuka.Ocjena),
-                        LossFunction = MatrixFactorizationTrainer.LossFunctionType.SquareLossOneClass,
-                        Alpha = 0.01,
-                        Lambda = 0.025,
-                        NumberOfIterations = 40,
-                        C = 0.00001
+                        NumberOfIterations = 20,
+                        ApproximationRank = 100
                     };
 
 
@@ -86,46 +83,48 @@ namespace eCinemaConnect.Services.Service
                     model = est.Fit(trainData);
                 }
             }
+            var predictionengine = mlContext.Model.CreatePredictionEngine<FilmoviPreporuka, CoFilmovi_prediction>(model);
 
-            var ocjeneIkomentaris = _context.OcjeneIkomentaris.Where(x => x.KorisnikId != id).ToList();
             var ocijenjeniFilmovi = _context.OcjeneIkomentaris
-    .Where(x => x.KorisnikId == id)
-    .Select(x => x.FilmId)
-    .ToList();
+                                            .Where(x => x.KorisnikId == id)
+                                            .Select(x => x.FilmId)
+                                            .ToList();
 
+            var filmoviNijeOcijenio = _context.Filmovis
+                                        .Where(f => !ocijenjeniFilmovi.Contains(f.Idfilma))
+                                        .ToList();
 
-            var predictionResult = new List<Tuple<uint, uint, float>>();
+            var predvidjeneOcjene = new List<Tuple<Database.Filmovi, float>>();
 
-            foreach (var ocjena in ocjeneIkomentaris)
+            foreach (var film in filmoviNijeOcijenio)
             {
-                var predictionengine = mlContext.Model.CreatePredictionEngine<FilmoviPreporuka, CoFilmovi_prediction>(model);
-                var prediction = predictionengine.Predict(
-                                        new FilmoviPreporuka()
-                                        {
-                                            FilmID = (uint)ocjena.FilmId,
-                                            KorisnikID = (uint)ocjena.KorisnikId
-                                        });
+                var movieratingprediction = predictionengine.Predict(
+                    new FilmoviPreporuka()
+                    {
+                        KorisnikID = (uint)id,
+                        FilmID = (uint)film.Idfilma
+                    }
+                );
 
-                if (!ocijenjeniFilmovi.Contains(ocjena.FilmId))
-                {
-                    predictionResult.Add(new Tuple<uint, uint, float>((uint)ocjena.FilmId, (uint)ocjena.KorisnikId, prediction.Score));
-                }
-
-                
+               
+                predvidjeneOcjene.Add(Tuple.Create(film, movieratingprediction.Score));
             }
 
-            // Sortirajte predikcije prema ocjeni od najviše do najmanje
-            predictionResult = predictionResult.OrderByDescending(x => x.Item3).ToList();
-            var finalResult = predictionResult.GroupBy(x => x.Item1)
-                                              .Select(g => new { FilmID = g.Key, AverageScore = g.Average(x => x.Item3) })
-                                              .OrderByDescending(x => x.AverageScore)
-                                              .Take(3)
-                                              .ToList();
-            
            
+            predvidjeneOcjene = predvidjeneOcjene.OrderByDescending(x => x.Item2).Take(3).ToList();
 
-            var recommendedFilms = _context.Filmovis.Where(f => finalResult.Select(r => (int)r.FilmID).Contains(f.Idfilma)).ToList();
-            return _mapper.Map<List<Model.ViewRequests.FilmoviView>>(recommendedFilms);
+          
+            var recommendedFilms = _context.Filmovis
+                                        .Where(f => predvidjeneOcjene.Select(r => r.Item1.Idfilma).Contains(f.Idfilma))
+                                        .ToList();
+
+        
+            var recommendedFilmViewModels = _mapper.Map<List<FilmoviView>>(recommendedFilms);
+
+
+
+            return recommendedFilmViewModels;
+
         }
         public async Task<List<Model.ViewRequests.RecommenderView>> TrainModelAsync(CancellationToken cancellationToken = default)
         {
@@ -142,7 +141,7 @@ namespace eCinemaConnect.Services.Service
 
                     var resultRecommend = new Database.Recommender()
                     {
-                        FilmId = korisnik.Idkorisnika,
+                        KorisnikId = korisnik.Idkorisnika,
                         CoFilmId1 = recommendedFilms[0].Idfilma,
                         CoFilmId2 = recommendedFilms[1].Idfilma,
                         CoFilmId3 = recommendedFilms[2].Idfilma
@@ -175,7 +174,7 @@ namespace eCinemaConnect.Services.Service
                 {
                     for (int i = 0; i < filmCount; i++)
                     {
-                        existingRecommendations[i].FilmId = results[i].FilmId;
+                        existingRecommendations[i].KorisnikId = results[i].KorisnikId;
                         existingRecommendations[i].CoFilmId1 = results[i].CoFilmId1;
                         existingRecommendations[i].CoFilmId2 = results[i].CoFilmId2;
                         existingRecommendations[i].CoFilmId3 = results[i].CoFilmId3;
@@ -190,7 +189,7 @@ namespace eCinemaConnect.Services.Service
                 {
                     for (int i = 0; i < recordCount; i++)
                     {
-                        existingRecommendations[i].FilmId = results[i].FilmId;
+                        existingRecommendations[i].KorisnikId = results[i].KorisnikId;
                         existingRecommendations[i].CoFilmId1 = results[i].CoFilmId1;
                         existingRecommendations[i].CoFilmId2 = results[i].CoFilmId2;
                         existingRecommendations[i].CoFilmId3 = results[i].CoFilmId3;

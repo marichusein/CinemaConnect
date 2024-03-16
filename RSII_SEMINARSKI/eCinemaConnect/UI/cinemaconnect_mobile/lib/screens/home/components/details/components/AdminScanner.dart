@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cinemaconnect_mobile/api-konstante.dart';
 import 'package:cinemaconnect_mobile/screens/home/components/details/components/RezultatSkeniranja.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -19,7 +20,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   late QRViewController controller;
   TextEditingController idController = TextEditingController();
-
+  final String baseUrl = ApiKonstante.baseUrl;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,10 +52,27 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Dohvati ID iz polja i proslijedi ga dalje
-          //String? id = idController.text.isNotEmpty ? idController.text : null;
-          //Navigator.pop(context, id);
+        onPressed: () async {
+          String? id = idController.text.isNotEmpty ? idController.text : null;
+          var response = await http.post(
+              Uri.parse('$baseUrl/Rezervacije/PotvrdiUlazakRezervaciju=$id'),
+              headers: widget.authorizationHeader);
+          if (response.statusCode == 200) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ResultScreen(message: response.body),
+              ));
+          }
+           else {
+            // API poziv nije uspio, prikaži poruku o grešci
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ResultScreen(message: '${response.body}'),
+              ),
+            );
+          }
         },
         child: Icon(Icons.check),
       ),
@@ -79,8 +97,6 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
 
       String id = scanData.code!;
       String apiUrl = '$id'; // Zamijeni s pravim URL-om API-ja
-
-      
 
       try {
         var response = await http.post(Uri.parse(apiUrl),

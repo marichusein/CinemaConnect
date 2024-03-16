@@ -28,6 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
   late String email = "";
   late String newPassword = "";
   final String baseUrl = ApiKonstante.baseUrl;
+  
 
   @override
   void initState() {
@@ -143,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             currentAccountPicture: CircleAvatar(
-              backgroundImage: AssetImage("assets/images/profile_picture.jpg"),
+              backgroundImage: AssetImage("assets/images/profile_picture1.jpg"),
             ),
             decoration: BoxDecoration(
               color: Color.fromARGB(31, 194, 186, 95),
@@ -229,6 +230,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             onTap: () {
+              
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
                   builder: (BuildContext context) => LoginScreen(),

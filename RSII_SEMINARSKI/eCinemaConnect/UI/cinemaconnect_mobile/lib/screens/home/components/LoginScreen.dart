@@ -16,59 +16,61 @@ class LoginScreen extends StatelessWidget {
   final String baseUrl = ApiKonstante.baseUrl;
 
   String errorMessage = '';
-
   LoginScreen({super.key});
 
   Future<void> _login(BuildContext context) async {
     final korisnickoIme = korisnickoImeController.text;
     final lozinka = lozinkaController.text;
-
-    final response = await http.post(
-      Uri.parse('$baseUrl/Korisnici/login'),
-      headers: <String, String>{
-        'accept': 'text/plain',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(<String, String>{
-        'korisnickoIme': korisnickoIme,
-        'lozinka': lozinka,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      // Uspješna prijava
-      final jsonResponse = jsonDecode(response.body);
-      // ignore: unused_local_variable
-      final idKorisnika = jsonResponse['idkorisnika'];
-      final ime = jsonResponse['ime'];
-      final prezime = jsonResponse['prezime'];
-      // ignore: unused_local_variable
-      final korisnickoIme = jsonResponse['korisnickoIme'];
-      authorizationHeader = createHeaders();
-      errorMessage =
-          'Uspješna prijava. Pijavljeni ste kao ' + ime + ' ' + prezime;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-        ),
+    
+      final response = await http.post(
+        Uri.parse('$baseUrl/Korisnici/login'),
+        headers: <String, String>{
+          'accept': 'text/plain',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode(<String, String>{
+          'korisnickoIme': korisnickoIme,
+          'lozinka': lozinka,
+        }),
       );
 
-      // Navigirajte na sljedeći ekran (ako je potrebno)
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (BuildContext context) =>
-              HomeScreen(userId: idKorisnika, header: authorizationHeader),
-        ),
-      );
-    } else {
-      // Neuspješna prijava
-      errorMessage = 'Neuspješna prijava. Provjerite korisničko ime i lozinku.';
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(errorMessage),
-        ),
-      );
-    }
+      if (response.statusCode == 200) {
+       
+        // Uspješna prijava
+        final jsonResponse = jsonDecode(response.body);
+        // ignore: unused_local_variable
+        final idKorisnika = jsonResponse['idkorisnika'];
+        final ime = jsonResponse['ime'];
+        final prezime = jsonResponse['prezime'];
+        // ignore: unused_local_variable
+        final korisnickoIme = jsonResponse['korisnickoIme'];
+        authorizationHeader = createHeaders();
+        errorMessage =
+            'Uspješna prijava. Pijavljeni ste kao ' + ime + ' ' + prezime;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+          ),
+        );
+
+        // Navigirajte na sljedeći ekran (ako je potrebno)
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (BuildContext context) =>
+                HomeScreen(userId: idKorisnika, header: authorizationHeader),
+          ),
+        );
+      } else {
+        // Neuspješna prijava
+        errorMessage =
+            'Neuspješna prijava. Provjerite korisničko ime i lozinku.';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+          ),
+        );
+      }
+    
   }
 
   @override
@@ -163,8 +165,7 @@ class LoginScreen extends StatelessWidget {
   //   );
   // }
 
-
-   @override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -176,7 +177,8 @@ class LoginScreen extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/login.jpg'), // Postavite putanju do slike pozadine
+                image: AssetImage(
+                    'assets/images/login.jpg'), // Postavite putanju do slike pozadine
                 fit: BoxFit.cover,
               ),
             ),
@@ -206,21 +208,25 @@ class LoginScreen extends StatelessWidget {
                 SizedBox(height: 20),
                 TextField(
                   controller: korisnickoImeController,
-                  style: TextStyle(color: Colors.white), // Postavite bijelu boju teksta
+                  style: TextStyle(
+                      color: Colors.white), // Postavite bijelu boju teksta
                   decoration: InputDecoration(
                     labelText: 'Korisničko ime',
-                    labelStyle: TextStyle(color: Colors.white), // Postavite bijelu boju labele
+                    labelStyle: TextStyle(
+                        color: Colors.white), // Postavite bijelu boju labele
                     border: OutlineInputBorder(),
                   ),
                 ),
                 SizedBox(height: 10),
                 TextField(
                   controller: lozinkaController,
-                  style: TextStyle(color: Colors.white), // Postavite bijelu boju teksta
+                  style: TextStyle(
+                      color: Colors.white), // Postavite bijelu boju teksta
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Lozinka',
-                    labelStyle: TextStyle(color: Colors.white), // Postavite bijelu boju labele
+                    labelStyle: TextStyle(
+                        color: Colors.white), // Postavite bijelu boju labele
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -244,7 +250,8 @@ class LoginScreen extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => AdminLoginScreen()),
+                          MaterialPageRoute(
+                              builder: (context) => AdminLoginScreen()),
                         );
                       },
                       child: Text('Admin'),
@@ -269,6 +276,7 @@ class LoginScreen extends StatelessWidget {
       ),
     );
   }
+
   Map<String, String> createHeaders() {
     String username = korisnickoImeController.text;
     String password = lozinkaController.text;

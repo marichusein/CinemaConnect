@@ -84,7 +84,7 @@ namespace eCinemaConnect.Controllers
                 return NotFound();
             }
 
-            return NoContent();
+            return Ok();
         }
 
         [HttpGet("filter/multiple")]
@@ -94,9 +94,9 @@ namespace eCinemaConnect.Controllers
         }
 
         [HttpGet("preporuka")]
-        public  List<FilmoviView>GetPreporuka(int korisnikid)
+        public async Task< List<FilmoviView>> GetPreporuka(int korisnikid)
         {
-            return _preporuka.Recommend(korisnikid);
+            return await _filmovi.GetPreprukuByKorisnikID(korisnikid);
         }
 
         [HttpDelete("{id}")]
