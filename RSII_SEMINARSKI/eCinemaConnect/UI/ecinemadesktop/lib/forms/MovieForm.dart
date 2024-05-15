@@ -81,7 +81,8 @@ class _MovieFormState extends State<MovieForm> {
   Future<void> _fetchData() async {
     try {
       final List<Genre> genres = await _movieService.fetchGenres(widget.header);
-      final List<Director> directors = await _movieService.fetchDirectors(widget.header);
+      final List<Director> directors =
+          await _movieService.fetchDirectors(widget.header);
       final List<Actor> actors = await _movieService.fetchActors(widget.header);
 
       setState(() {
@@ -96,7 +97,8 @@ class _MovieFormState extends State<MovieForm> {
 
   Future<void> _pickImage() async {
     final imagePicker = ImagePicker();
-    final XFile? pickedImage = await imagePicker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedImage =
+        await imagePicker.pickImage(source: ImageSource.gallery);
 
     if (pickedImage != null) {
       setState(() {
@@ -129,6 +131,7 @@ class _MovieFormState extends State<MovieForm> {
                     return null;
                   },
                 ),
+                SizedBox(height: 10),
                 DropdownButtonFormField<Genre>(
                   value: _selectedGenre,
                   items: _genres.map((genre) {
@@ -144,7 +147,14 @@ class _MovieFormState extends State<MovieForm> {
                     });
                   },
                   decoration: InputDecoration(labelText: 'Žanr'),
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Odaberite žanr';
+                    }
+                    return null;
+                  },
                 ),
+                SizedBox(height: 10),
                 DropdownButtonFormField<Director>(
                   value: _selectedDirector,
                   items: _directors.map((director) {
@@ -160,7 +170,14 @@ class _MovieFormState extends State<MovieForm> {
                     });
                   },
                   decoration: InputDecoration(labelText: 'Režiser'),
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Odaberite režisera';
+                    }
+                    return null;
+                  },
                 ),
+                SizedBox(height: 10),
                 TextFormField(
                   decoration: InputDecoration(labelText: 'Opis'),
                   maxLines: 6,
@@ -172,28 +189,48 @@ class _MovieFormState extends State<MovieForm> {
                     return null;
                   },
                 ),
+                SizedBox(height: 10),
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Trajanje (u minutama)'),
+                  decoration:
+                      InputDecoration(labelText: 'Trajanje (u minutama)'),
                   keyboardType: TextInputType.number,
-                  onSaved: (value) => _newMovie.trajanje = int.parse(value ?? '0'),
+                  onSaved: (value) =>
+                      _newMovie.trajanje = int.parse(value ?? '0'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Unesite trajanje';
                     }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  decoration: InputDecoration(labelText: 'Godina izdanja'),
-                  keyboardType: TextInputType.number,
-                  onSaved: (value) => _newMovie.godinaIzdanja = int.parse(value ?? '0'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Unesite godinu izdanja';
+                    final intValue = int.tryParse(value);
+                    if (intValue == null) {
+                      return 'Unesite ispravan broj';
+                    }
+                    if (intValue < 30 || intValue > 350) {
+                      return 'Trajanje filma mora biti između 30 i 350 minuta';
                     }
                     return null;
                   },
                 ),
+                SizedBox(height: 10),
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Godina izdanja'),
+                  keyboardType: TextInputType.number,
+                  onSaved: (value) =>
+                      _newMovie.godinaIzdanja = int.parse(value ?? '0'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Unesite godinu izdanja';
+                    }
+                    final intValue = int.tryParse(value);
+                    if (intValue == null) {
+                      return 'Unesite ispravan broj';
+                    }
+                    if (intValue < 1900 || intValue > DateTime.now().year) {
+                      return 'Godina izdanja mora biti između 1900 i trenutne godine';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 10),
                 DropdownButtonFormField<Actor>(
                   value: null,
                   items: _actors.map((actor) {
@@ -212,7 +249,14 @@ class _MovieFormState extends State<MovieForm> {
                   decoration: InputDecoration(labelText: 'Odaberite glumce'),
                   isDense: true,
                   isExpanded: true,
+                  validator: (value) {
+                    if (_selectedActors.isEmpty) {
+                      return 'Odaberite barem jednog glumca';
+                    }
+                    return null;
+                  },
                 ),
+                SizedBox(height: 10),
                 Text('Odabrani glumci:'),
                 Wrap(
                   children: _selectedActors.map((actor) {
@@ -226,12 +270,14 @@ class _MovieFormState extends State<MovieForm> {
                     );
                   }).toList(),
                 ),
+                SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: _pickImage,
                   child: Text('Odaberite poster filma'),
                 ),
                 if (_selectedImage != null)
-                  Image.file(File(_selectedImage!.path), width: 100, height: 100),
+                  Image.file(File(_selectedImage!.path),
+                      width: 100, height: 100),
                 if (_message.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -252,6 +298,7 @@ class _MovieFormState extends State<MovieForm> {
                       ],
                     ),
                   ),
+                SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () {
                     _submitForm();

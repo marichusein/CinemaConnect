@@ -96,7 +96,8 @@ class _MenuItemFormState extends State<MenuItemForm> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Success'),
-          content: Text('Menu item ${widget.menuItemId != null ? 'updated' : 'added'} successfully'),
+          content: Text(
+              'Menu item ${widget.menuItemId != null ? 'updated' : 'added'} successfully'),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -160,13 +161,22 @@ class _MenuItemFormState extends State<MenuItemForm> {
                   if (value == null || value.isEmpty) {
                     return 'Unesite cijenu';
                   }
+                  double? cijena = double.tryParse(value);
+                  if (cijena == null || cijena <= 0 || cijena >= 25) {
+                    return 'Cijena mora biti broj veći od 0 i manji od 25';
+                  }
                   return null;
                 },
               ),
               SizedBox(height: 20),
               _imageFile == null
                   ? Text('Nema odabrane slike')
-                  : Image.file(File(_imageFile!.path), fit: BoxFit.cover),
+                  : Image.file(
+                      File(_imageFile!.path),
+                      fit: BoxFit.fitHeight,
+                      width: 300,
+                      height: 300,
+                    ),
               ElevatedButton(
                 onPressed: _pickImage,
                 child: Text('Odaberi sliku'),

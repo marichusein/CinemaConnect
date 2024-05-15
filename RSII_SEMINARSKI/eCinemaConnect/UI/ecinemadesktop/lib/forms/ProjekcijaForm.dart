@@ -100,6 +100,18 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
   }
 
   void dodajProjekciju() async {
+    if (selectedFilmId == null ||
+        selectedSalaId == null ||
+        datumController.text.isEmpty ||
+        cijenaController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Sva polja su obavezna!'),
+        ),
+      );
+      return;
+    }
+
     final formattedDate =
         DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'").format(pickedDateTimef);
 
@@ -234,17 +246,30 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
               ),
 
               // Unos datuma
+              // Unos datuma
               TextFormField(
                 controller: datumController,
+                readOnly: true, // Onemogućuje uređivanje teksta ručno
+                onTap: () {
+                  _selectDate(
+                      context); // Otvori DateTime picker pritiskom na polje
+                },
                 decoration: InputDecoration(
                   labelText: 'Datum i vrijeme projekcije',
                   suffixIcon: IconButton(
                     icon: Icon(Icons.calendar_today),
                     onPressed: () {
-                      _selectDate(context);
+                      _selectDate(
+                          context); // Otvori DateTime picker pritiskom na ikonu
                     },
                   ),
                 ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Datum i vrijeme su obavezni!';
+                  }
+                  return null;
+                },
               ),
 
               // Unos cijene
@@ -255,12 +280,28 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
                   labelText: 'Cijena karte',
                   suffixIcon: Icon(Icons.attach_money),
                 ),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Cijena karte je obavezna!';
+                  }
+                  final cijena = int.tryParse(value);
+                  if (cijena == null) {
+                    return 'Unesite ispravan broj za cijenu!';
+                  } else if (cijena < 1 || cijena > 20) {
+                    return 'Cijena karte mora biti broj između 1 i 20!';
+                  }
+                  return null;
+                },
               ),
 
               // Gumb za dodavanje projekcije
-              ElevatedButton(
-                onPressed: dodajProjekciju,
-                child: Text('Dodaj Projekciju'),
+              Padding(
+                padding: const EdgeInsets.only(
+                    top: 20.0), // Dodajemo razmak iznad gumba
+                child: ElevatedButton(
+                  onPressed: dodajProjekciju,
+                  child: Text('Dodaj Projekciju'),
+                ),
               ),
             ],
           ),

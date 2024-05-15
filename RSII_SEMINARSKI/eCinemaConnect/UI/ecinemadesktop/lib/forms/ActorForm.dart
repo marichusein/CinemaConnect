@@ -33,13 +33,26 @@ class _ActorFormState extends State<ActorForm> {
     String ime = imeController.text;
     String prezime = prezimeController.text;
 
-    if (slikaBase64 == null) {
+    if (ime == "") {
       setState(() {
-        poruka = 'Morate odabrati sliku.';
+        poruka = 'Greška! Morate unijeti ime.';
+      });
+      return;
+    }
+     if (prezime == "") {
+      setState(() {
+        poruka = 'Greška! Morate unijeti prezime.';
       });
       return;
     }
 
+    if (slikaBase64 == null) {
+      setState(() {
+        poruka = 'Greška! Morate odabrati sliku.';
+      });
+      return;
+    }
+ 
     try {
       await ApiService.dodajGlumca(ime, prezime, slikaBase64!);
 
@@ -134,7 +147,7 @@ class _ActorFormState extends State<ActorForm> {
                 ],
               ),
               child: InkWell(
-                onHover: (_) {}, // Dodajte željeni hover efekt ovdje
+                onHover: (_) {},
                 child: Image.memory(
                   base64Decode(slikaBase64!),
                 ),
