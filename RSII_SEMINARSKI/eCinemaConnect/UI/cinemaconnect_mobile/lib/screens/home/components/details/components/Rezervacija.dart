@@ -206,50 +206,53 @@ class _ProjekcijeSjedistaKomponentaState
                       final int brojSjedista =
                           sjediste['brojSjedista'].toInt();
 
-                      return GestureDetector(
-                        onTap: () {
-                          if (sjediste['slobodno'] &&
-                              selektovanaSjedista.length < 20) {
-                            setState(() {
-                              selektovanaSjedista.add(SelektovanoSjediste(
-                                idsjedista: idsjedista,
-                                brojSjedista: brojSjedista,
-                                slobodno: false,
-                              ));
-                              sjediste['slobodno'] = false;
-                            });
-                          }
-                        },
-                        child: Container(
-                          width: 50,
-                          height: 50,
-                          margin: EdgeInsets.all(5),
-                          decoration: BoxDecoration(
-                            color: sjediste['slobodno']
-                                ? Colors
-                                    .green // Zelena boja za slobodna sjedišta
-                                : selektovanaSjedista
-                                        .contains(idsjedista)
-                                    ? Colors
-                                        .yellow // Žuta boja za označena sjedišta
-                                    : Colors
-                                        .grey, // Siva boja za zauzeta sjedišta
-                            borderRadius:
-                                BorderRadius.circular(10), // Dodajte zaobljenje
-                          ),
-                          child: Center(
-                            child: Text(
-                              brojSjedista.toString(),
-                              style: TextStyle(
-                                color: sjediste['slobodno']
-                                    ? Colors.white
-                                    : Colors.black, // Boja teksta
-                                fontWeight: FontWeight.bold, // Debljina teksta
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
+                   return GestureDetector(
+  onTap: () {
+    setState(() {
+      final existingIndex = selektovanaSjedista.indexWhere((s) => s.idsjedista == idsjedista);
+      if (existingIndex != -1) {
+        // Ako je sjedište već selektovano, ukloni ga iz liste selektovanih sjedišta
+        selektovanaSjedista.removeAt(existingIndex);
+        sjediste['slobodno'] = true; // Oslobodi sjedište
+      } else if (sjediste['slobodno'] && selektovanaSjedista.length < 20) {
+        // Ako sjedište nije selektovano, dodaj ga u listu selektovanih sjedišta
+        selektovanaSjedista.add(SelektovanoSjediste(
+          idsjedista: idsjedista,
+          brojSjedista: brojSjedista,
+          slobodno: false,
+        ));
+        sjediste['slobodno'] = false; // Oznaci sjedište kao zauzeto
+      }
+    });
+  },
+  child: Container(
+    width: 50,
+    height: 50,
+    margin: EdgeInsets.all(5),
+    decoration: BoxDecoration(
+      color: selektovanaSjedista.any((s) => s.idsjedista == idsjedista)
+          ? Colors.yellow // Žuta boja za označena sjedišta
+          : sjediste['slobodno']
+              ? Colors.green // Zelena boja za slobodna sjedišta
+              : Colors.grey, // Siva boja za zauzeta sjedišta
+      borderRadius: BorderRadius.circular(10), // Dodajte zaobljenje
+    ),
+    child: Center(
+      child: Text(
+        brojSjedista.toString(),
+        style: TextStyle(
+          color: selektovanaSjedista.any((s) => s.idsjedista == idsjedista)
+              ? Colors.black
+              : sjediste['slobodno']
+                  ? Colors.white
+                  : Colors.black, // Boja teksta
+          fontWeight: FontWeight.bold, // Debljina teksta
+        ),
+      ),
+    ),
+  ),
+);
+
                     }),
                   ),
                   Text(
