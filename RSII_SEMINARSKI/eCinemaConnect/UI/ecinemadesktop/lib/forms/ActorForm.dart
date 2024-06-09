@@ -4,24 +4,23 @@ import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-
 class ActorForm extends StatefulWidget {
   @override
   _ActorFormState createState() => _ActorFormState();
 }
 
 class _ActorFormState extends State<ActorForm> {
-  TextEditingController imeController = TextEditingController();
-  TextEditingController prezimeController = TextEditingController();
+  final TextEditingController imeController = TextEditingController();
+  final TextEditingController prezimeController = TextEditingController();
   String? slikaBase64;
   String? poruka;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   Future<void> _odaberiSliku() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      // Konvertuj sliku u base64 format
       List<int> imageBytes = await pickedFile.readAsBytes();
       setState(() {
         slikaBase64 = base64Encode(imageBytes);
@@ -30,21 +29,12 @@ class _ActorFormState extends State<ActorForm> {
   }
 
   void _dodajGlumca() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     String ime = imeController.text;
     String prezime = prezimeController.text;
-
-    if (ime == "") {
-      setState(() {
-        poruka = 'Greška! Morate unijeti ime.';
-      });
-      return;
-    }
-     if (prezime == "") {
-      setState(() {
-        poruka = 'Greška! Morate unijeti prezime.';
-      });
-      return;
-    }
 
     if (slikaBase64 == null) {
       setState(() {
@@ -52,7 +42,7 @@ class _ActorFormState extends State<ActorForm> {
       });
       return;
     }
- 
+
     try {
       await ApiService.dodajGlumca(ime, prezime, slikaBase64!);
 
@@ -62,6 +52,8 @@ class _ActorFormState extends State<ActorForm> {
         prezimeController.clear();
         slikaBase64 = null;
       });
+
+      _formKey.currentState!.reset();
     } catch (error) {
       setState(() {
         poruka = 'Greška pri dodavanju glumca: $error';
@@ -75,85 +67,136 @@ class _ActorFormState extends State<ActorForm> {
       appBar: AppBar(
         title: Text('Dodavanje Glumca'),
       ),
-      body: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TextFormField(
-                    controller: imeController,
-                    decoration: InputDecoration(
-                      labelText: 'Ime',
-                      prefixIcon: Icon(Icons.person), // Dodaj ikonicu ovdje
-                    ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextFormField(
+                  controller: imeController,
+                  decoration: InputDecoration(
+                    labelText: 'Ime',
+                    prefixIcon: Icon(Icons.person),
                   ),
-                  TextFormField(
-                    controller: prezimeController,
-                    decoration: InputDecoration(
-                      labelText: 'Prezime',
-                      prefixIcon: Icon(Icons.person), // Dodaj ikonicu ovdje
-                    ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Ime je obavezno!';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16.0),
+                TextFormField(
+                  controller: prezimeController,
+                  decoration: InputDecoration(
+                    labelText: 'Prezime',
+                    prefixIcon: Icon(Icons.person),
                   ),
-                  SizedBox(height: 16.0),
-                  ElevatedButton(
-                    onPressed: _odaberiSliku,
-                    child: Text('Odaberi Sliku'),
-                  ),
-                  SizedBox(height: 16.0),
-                  InkWell(
-                    onTap: _dodajGlumca,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Prezime je obavezno!';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16.0),
+                ElevatedButton(
+                  onPressed: _odaberiSliku,
+                  child: Text('Odaberi Sliku'),
+                ),
+                if (slikaBase64 != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                      height: 300.0, 
+                      width: 200.0, 
                       decoration: BoxDecoration(
-                        color: Colors.blue,
+                        border: Border.all(color: Colors.black),
                         borderRadius: BorderRadius.circular(8.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 5,
+                            blurRadius: 7,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
                       ),
-                      child: Text(
-                        'Dodaj Glumca',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                  if (poruka != null)
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        poruka!,
-                        style: TextStyle(
-                          color: poruka!.contains('Greška') ? Colors.red : Colors.green,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: Image.memory(
+                          base64Decode(slikaBase64!),
+                          fit: BoxFit.cover,
                         ),
                       ),
                     ),
-                ],
-              ),
+                  )
+                else
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: Container(
+                      height: 300.0, 
+                      width: 200.0, 
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.black),
+                        borderRadius: BorderRadius.circular(8.0),
+                        color: Colors.grey[200],
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 5,
+                            blurRadius: 7,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: Center(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal:
+                                  20.0), 
+                          child: Text(
+                            'Ovdje će se prikazati Vaša slika kada je odaberete. Preporuka je da slike bude u 16:9 formatu',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                SizedBox(height: 16.0),
+                InkWell(
+                  onTap: _dodajGlumca,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Text(
+                      'Dodaj Glumca',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+                if (poruka != null)
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      poruka!,
+                      style: TextStyle(
+                        color: poruka!.contains('Greška')
+                            ? Colors.red
+                            : Colors.green,
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
-          if (slikaBase64 != null)
-            Container(
-              width: MediaQuery.of(context).size.width / 2,
-              padding: EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5),
-                    spreadRadius: 5,
-                    blurRadius: 7,
-                    offset: Offset(0, 3),
-                  ),
-                ],
-              ),
-              child: InkWell(
-                onHover: (_) {},
-                child: Image.memory(
-                  base64Decode(slikaBase64!),
-                ),
-              ),
-            ),
-        ],
+        ),
       ),
     );
   }

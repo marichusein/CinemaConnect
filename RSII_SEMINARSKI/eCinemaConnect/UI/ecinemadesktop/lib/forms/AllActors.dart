@@ -28,6 +28,9 @@ class _GlumciScreenState extends State<GlumciScreen> {
   TextEditingController editPrezimeController = TextEditingController();
   int selectedGlumacId = -1;
 
+  String? imeErrorText;
+  String? prezimeErrorText;
+
   @override
   void initState() {
     super.initState();
@@ -60,40 +63,71 @@ class _GlumciScreenState extends State<GlumciScreen> {
     selectedGlumacId = id;
     editImeController.text = selectedGlumac.ime;
     editPrezimeController.text = selectedGlumac.prezime;
+    imeErrorText = null;
+    prezimeErrorText = null;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Uredi glumca'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: editImeController,
-                decoration: InputDecoration(labelText: 'Ime'),
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return AlertDialog(
+              title: Text('Uredi glumca'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: editImeController,
+                    decoration: InputDecoration(
+                      labelText: 'Ime',
+                      errorText: imeErrorText,
+                    ),
+                    textCapitalization: TextCapitalization.words,
+                  ),
+                  TextField(
+                    controller: editPrezimeController,
+                    decoration: InputDecoration(
+                      labelText: 'Prezime',
+                      errorText: prezimeErrorText,
+                    ),
+                    textCapitalization: TextCapitalization.words,
+                  ),
+                ],
               ),
-              TextField(
-                controller: editPrezimeController,
-                decoration: InputDecoration(labelText: 'Prezime'),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Otkaži'),
-            ),
-            TextButton(
-              onPressed: () {
-                updateGlumac(selectedGlumacId);
-                Navigator.of(context).pop();
-              },
-              child: Text('Spremi'),
-            ),
-          ],
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('Otkaži'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      imeErrorText = editImeController.text.isEmpty
+                          ? 'Ime ne smije biti prazno.'
+                          : !editImeController.text[0].isUpperCase
+                              ? 'Ime mora počinjati velikim slovom.'
+                              : null;
+
+                      prezimeErrorText = editPrezimeController.text.isEmpty
+                          ? 'Prezime ne smije biti prazno.'
+                          : !editPrezimeController.text[0].isUpperCase
+                              ? 'Prezime mora počinjati velikim slovom.'
+                              : null;
+                    });
+
+                    if (imeErrorText == null && prezimeErrorText == null) {
+                      updateGlumac(selectedGlumacId).then((_) {
+                        Navigator.of(context).pop();
+                      });
+                    }
+                  },
+                  child: Text('Spremi'),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -140,6 +174,7 @@ class _GlumciScreenState extends State<GlumciScreen> {
               decoration: InputDecoration(
                 labelText: 'Pretraži glumce',
                 prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
               ),
             ),
           ),
@@ -149,8 +184,7 @@ class _GlumciScreenState extends State<GlumciScreen> {
                 crossAxisCount: 4, // Broj kartica u redu
                 crossAxisSpacing: 16.0, // Razmak između kartica po horizontali
                 mainAxisSpacing: 16.0, // Razmak između kartica po vertikali
-                childAspectRatio:
-                    5 / 3, // Omjer širine i visine kartice (50% visine)
+                childAspectRatio: 5 / 3, // Omjer širine i visine kartice
               ),
               itemCount: filteredGlumci.length,
               itemBuilder: (context, index) {
@@ -159,28 +193,30 @@ class _GlumciScreenState extends State<GlumciScreen> {
                   onTap: () {
                     showEditDialog(glumac.id);
                   },
-                  child: Card(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.memory(
-                          glumac.slika.isNotEmpty
-                              ? base64Decode(glumac.slika)
-                              : base64Decode(base64Encode(Uint8List.fromList(File(
-                                      'assets/noPhoto.jpg')
-                                  .readAsBytesSync()))), // Putanja zamjenske slike
-                          width: 150, // Povećana širina slike
-                          height: 150, // Povećana visina slike
-                        ),
-                        SizedBox(height: 8.0), // Razmak između slike i teksta
-                        Text(
-                          '${glumac.ime} ${glumac.prezime}',
-                          style: TextStyle(
-                            fontSize: 18.0, // Povećana veličina teksta
-                            fontWeight: FontWeight.bold, // Boldirani tekst
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: Card(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.memory(
+                            glumac.slika.isNotEmpty
+                                ? base64Decode(glumac.slika)
+                                : base64Decode(base64Encode(Uint8List.fromList(File('assets/noPhoto.jpg').readAsBytesSync()))), // Putanja zamjenske slike
+                            width: 150, // Povećana širina slike
+                            height: 150, // Povećana visina slike
                           ),
-                        ),
-                      ],
+                          SizedBox(height: 8.0), // Razmak između slike i teksta
+                          Text(
+                            '${glumac.ime} ${glumac.prezime}',
+                            style: TextStyle(
+                              fontSize: 18.0, // Povećana veličina teksta
+                              fontWeight: FontWeight.bold, // Boldirani tekst
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
@@ -191,4 +227,8 @@ class _GlumciScreenState extends State<GlumciScreen> {
       ),
     );
   }
+}
+
+extension StringExtension on String {
+  bool get isUpperCase => this.isNotEmpty && this[0] == this[0].toUpperCase();
 }

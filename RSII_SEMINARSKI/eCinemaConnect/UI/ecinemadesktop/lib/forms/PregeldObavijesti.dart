@@ -1,10 +1,10 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
-
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -110,6 +110,17 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   },
                   child: Text("Apply Filters"),
                 ),
+                SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      filterTitle = "";
+                      filterDate = "";
+                      fetchNotifications();
+                    });
+                  },
+                  child: Text("Reset Filters"),
+                ),
               ],
             ),
           ),
@@ -120,7 +131,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
               filterTitle: filterTitle,
               filterDate: filterDate,
               fetchUser: fetchUser,
-              showNotificationDetails: _showNotificationDetails, // Dodato
+              showNotificationDetails: _showNotificationDetails,
+              fetchNotifications: fetchNotifications, // Pass fetchNotifications
             ),
           ),
         ],
@@ -128,7 +140,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
-  // Dodato
   void _showNotificationDetails(
       BuildContext context, Map<String, dynamic> notification) {
     showDialog(
@@ -199,14 +210,16 @@ class NotificationGrid extends StatelessWidget {
   final String filterDate;
   final Future<Map<String, dynamic>> Function(int userId) fetchUser;
   final void Function(BuildContext context, Map<String, dynamic> notification)
-      showNotificationDetails; // Dodato
+      showNotificationDetails;
+  final VoidCallback fetchNotifications; // Add fetchNotifications parameter
 
   NotificationGrid({
     required this.notifications,
     required this.filterTitle,
     required this.filterDate,
     required this.fetchUser,
-    required this.showNotificationDetails, // Dodato
+    required this.showNotificationDetails,
+    required this.fetchNotifications, // Initialize fetchNotifications
   });
 
   @override
@@ -221,10 +234,22 @@ class NotificationGrid extends StatelessWidget {
       return titleMatches && dateMatches;
     }).toList();
 
+    if (filteredNotifications.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('No notifications found.'),
+            SizedBox(height: 16),
+          ],
+        ),
+      );
+    }
+
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3, // Broj kolona
-        childAspectRatio: 1.1, // Omjer visine i širine
+        crossAxisCount: 3,
+        childAspectRatio: 1.1,
       ),
       itemCount: filteredNotifications.length,
       itemBuilder: (context, index) {
@@ -233,7 +258,8 @@ class NotificationGrid extends StatelessWidget {
           notification: notification,
           fetchUser: fetchUser,
           showNotificationDetails: () =>
-              showNotificationDetails(context, notification), // Dodato
+              showNotificationDetails(context, notification),
+          fetchNotifications: fetchNotifications, // Pass fetchNotifications
         );
       },
     );
@@ -243,12 +269,14 @@ class NotificationGrid extends StatelessWidget {
 class NotificationCard extends StatefulWidget {
   final Map<String, dynamic> notification;
   final Future<Map<String, dynamic>> Function(int userId) fetchUser;
-  final VoidCallback showNotificationDetails; // Dodato
+  final VoidCallback showNotificationDetails;
+  final VoidCallback fetchNotifications; // Add fetchNotifications parameter
 
   NotificationCard({
     required this.notification,
     required this.fetchUser,
-    required this.showNotificationDetails, // Dodato
+    required this.showNotificationDetails,
+    required this.fetchNotifications, // Initialize fetchNotifications
   });
 
   @override
@@ -280,7 +308,6 @@ class _NotificationCardState extends State<NotificationCard> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Ovdje pozovite funkciju za prikaz detalja obavijesti
         widget.showNotificationDetails();
       },
       child: Card(
@@ -300,16 +327,15 @@ class _NotificationCardState extends State<NotificationCard> {
                   Text(
                     widget.notification['naslov'],
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 8),
                   Text(
-                    widget.notification['sadrzaj'] != null &&
-                            widget.notification['sadrzaj'].length > 40
+                    widget.notification['sadrzaj'].length > 40
                         ? widget.notification['sadrzaj'].substring(0, 40) +
-                            "..."
+                            '...'
                         : widget.notification['sadrzaj'] ?? 'No content',
                     style: TextStyle(fontSize: 16),
                   ),
@@ -330,6 +356,7 @@ class _NotificationCardState extends State<NotificationCard> {
                     builder: (context) => EditNotificationScreen(
                       notification: widget.notification,
                       obavijestID: widget.notification['idobavijesti'],
+                      fetchNotifications: widget.fetchNotifications,
                     ),
                   ),
                 );
@@ -345,9 +372,13 @@ class _NotificationCardState extends State<NotificationCard> {
 class EditNotificationScreen extends StatefulWidget {
   final Map<String, dynamic> notification;
   final int obavijestID;
+  final VoidCallback fetchNotifications;
 
-  EditNotificationScreen(
-      {required this.notification, required this.obavijestID});
+  EditNotificationScreen({
+    required this.notification,
+    required this.obavijestID,
+    required this.fetchNotifications,
+  });
 
   @override
   _EditNotificationScreenState createState() => _EditNotificationScreenState();
@@ -358,13 +389,14 @@ class _EditNotificationScreenState extends State<EditNotificationScreen> {
   TextEditingController contentController = TextEditingController();
   XFile? _imageFile;
   final ImagePicker _picker = ImagePicker();
+  String? titleError;
+  String? contentError;
 
   @override
   void initState() {
     super.initState();
     titleController.text = widget.notification['naslov'];
     contentController.text = widget.notification['sadrzaj'] ?? '';
-
     _loadImage();
   }
 
@@ -410,12 +442,18 @@ class _EditNotificationScreenState extends State<EditNotificationScreen> {
             SizedBox(height: 20),
             TextField(
               controller: titleController,
-              decoration: InputDecoration(labelText: 'Title'),
+              decoration: InputDecoration(
+                labelText: 'Title',
+                errorText: titleError,
+              ),
             ),
             SizedBox(height: 20),
             TextField(
               controller: contentController,
-              decoration: InputDecoration(labelText: 'Content'),
+              decoration: InputDecoration(
+                labelText: 'Content',
+                errorText: contentError,
+              ),
               maxLines: null, // Omogućava višelinijsko tekstualno polje
             ),
             SizedBox(height: 20),
@@ -438,41 +476,51 @@ class _EditNotificationScreenState extends State<EditNotificationScreen> {
     });
   }
 
- void _updateNotification() async {
-  try {
-    // Konvertujemo sliku u base64 format
-    String imageBase64 = '';
-    if (_imageFile != null) {
-      List<int> imageBytes = File(_imageFile!.path).readAsBytesSync();
-      imageBase64 = base64Encode(imageBytes);
+  void _updateNotification() async {
+    if (titleController.text.isEmpty || contentController.text.isEmpty) {
+      setState(() {
+        titleError = titleController.text.isEmpty ? 'Title is required' : null;
+        contentError =
+            contentController.text.isEmpty ? 'Content is required' : null;
+      });
+      return;
     }
 
-    // Konvertujemo datum u string u formatu ISO 8601
-    String dateTimeNow = DateTime.now().toIso8601String();
+    try {
+      // Konvertujemo sliku u base64 format
+      String imageBase64 = '';
+      if (_imageFile != null) {
+        List<int> imageBytes = File(_imageFile!.path).readAsBytesSync();
+        imageBase64 = base64Encode(imageBytes);
+      }
 
-    // Formiramo JSON objekat za slanje na API
-    Map<String, dynamic> requestData = {
-      "naslov": titleController.text,
-      "sadrzaj": contentController.text,
-      "slika": imageBase64,
-      "datumUredjivanja": dateTimeNow
-    };
+      // Konvertujemo datum u string u formatu ISO 8601
+      String dateTimeNow = DateTime.now().toIso8601String();
 
-    // Pozivamo API servis za uređivanje obavijesti
-    ApiService.editObavijest(widget.obavijestID, requestData);
+      // Formiramo JSON objekat za slanje na API
+      Map<String, dynamic> requestData = {
+        "naslov": titleController.text,
+        "sadrzaj": contentController.text,
+        "slika": imageBase64,
+        "datumUredjivanja": dateTimeNow
+      };
 
-    // Ako izvršenje dođe do ovde, obavijest je uspješno ažurirana
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Obavijest je uspješno ažurirana')),
-    );
+      // Pozivamo API servis za uređivanje obavijesti
+      await ApiService.editObavijest(widget.obavijestID, requestData);
 
-    // Vraćamo se na prethodnu stranicu
-    Navigator.pop(context);
-  } catch (e) {
-    // Ako se izuzetak dogodi, prikazujemo odgovarajuću poruku korisniku
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Došlo je do greške prilikom ažuriranja obavijesti: $e')),
-    );
+      // Ako izvršenje dođe do ovde, obavijest je uspješno ažurirana
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Obavijest je uspješno ažurirana')),
+      );
+
+      // Vraćamo se na prethodnu stranicu i osvježavamo obavijesti
+      widget.fetchNotifications(); // Osvježi obavijesti nakon uređivanja
+      Navigator.pop(context, true);
+    } catch (e) {
+      // Ako se izuzetak dogodi, prikazujemo odgovarajuću poruku korisniku
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Došlo je do greške prilikom ažuriranja obavijesti: $e')),
+      );
+    }
   }
-}
 }

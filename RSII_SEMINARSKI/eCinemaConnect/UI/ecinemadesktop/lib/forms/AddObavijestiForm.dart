@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
@@ -36,35 +35,39 @@ class _ObavijestFormState extends State<ObavijestForm> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-    // Forma je validna, možemo slati obavijest na server
+      // Konvertujemo izabranu sliku u Base64 format
+      String base64Image = '';
+      if (selectedImage != null) {
+        List<int> imageBytes = await selectedImage!.readAsBytes();
+        base64Image = base64Encode(imageBytes);
+      } else {
+        // Prikažite poruku greške ako slika nije izabrana
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Molimo izaberite sliku')),
+        );
+        return;
+      }
 
-    // Konvertujemo izabranu sliku u Base64 format
-    String base64Image = '';
-    if (selectedImage != null) {
-      List<int> imageBytes = await selectedImage!.readAsBytes();
-      base64Image = base64Encode(imageBytes);
+      try {
+        await ApiService.posaljiObavijest(widget.korisnikId, naslov, sadrzaj, base64Image);
+
+        // Obavijest je uspješno poslata
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Obavijest uspješno poslata')),
+        );
+
+        // Očistite formu
+        _formKey.currentState!.reset();
+        setState(() {
+          selectedImage = null;
+        });
+      } catch (error) {
+        // Greška prilikom slanja obavijesti
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Greška prilikom slanja obavijesti: $error')),
+        );
+      }
     }
-
-    try {
-      await ApiService.posaljiObavijest(widget.korisnikId, naslov, sadrzaj, base64Image);
-
-      // Obavijest je uspješno poslata
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Obavijest uspješno poslata')),
-      );
-
-      // Očistite formu
-      _formKey.currentState!.reset();
-      setState(() {
-        selectedImage = null;
-      });
-    } catch (error) {
-      // Greška prilikom slanja obavijesti
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Greška prilikom slanja obavijesti: $error')),
-      );
-    }
-  }
   }
 
   Future<void> _pickImage() async {
@@ -88,11 +91,11 @@ class _ObavijestFormState extends State<ObavijestForm> {
           key: _formKey,
           child: ListView(
             children: <Widget>[
-              //Text('Korisnik ID: ${widget.korisnikId}'), // Prikaz korisnik ID
               TextFormField(
                 decoration: InputDecoration(
                   labelText: 'Naslov',
-                  prefixIcon: Icon(Icons.title), // Ikona za naslov
+                  prefixIcon: Icon(Icons.title),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -106,10 +109,12 @@ class _ObavijestFormState extends State<ObavijestForm> {
                   return null;
                 },
               ),
+              SizedBox(height: 16.0),
               TextFormField(
                 decoration: InputDecoration(
                   labelText: 'Sadržaj',
-                  prefixIcon: Icon(Icons.description), // Ikona za sadržaj
+                  prefixIcon: Icon(Icons.description),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.0)),
                 ),
                 onChanged: (value) {
                   setState(() {
@@ -125,27 +130,49 @@ class _ObavijestFormState extends State<ObavijestForm> {
                   }
                   return null;
                 },
-                maxLines: null, // Omogućava višelinijski unos
+                maxLines: null,
               ),
-             ButtonBar( // Dodavanje dugmadi u horizontalnom redu
-                alignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  ElevatedButton(
-                    onPressed: _pickImage, // Dodavanje slike
-                    child: Text('Dodaj sliku'),
-                  ),
-                  ElevatedButton(
-                    onPressed: _submitForm,
-                    child: Text('Pošalji obavijest'),
-                  ),
-                ],
-              ),
-              if (selectedImage != null)
-                Image.file(
-                  File(selectedImage!.path),
-                  width: 300,
-                  height: 300,
+              SizedBox(height: 16.0),
+              ElevatedButton.icon(
+                onPressed: _pickImage,
+                icon: Icon(Icons.image),
+                label: Text('Dodaj sliku'),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  textStyle: TextStyle(fontSize: 16.0),
                 ),
+              ),
+              SizedBox(height: 16.0),
+              selectedImage == null
+                  ? Container(
+                      height: 200.0,
+                      width: 400.0,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Ovdje će se prikazati vaša slika kada je odaberete. Preporuka je da slika bude landscape formatu.',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    )
+                  : Image.file(
+                      File(selectedImage!.path),
+                      width: double.infinity,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    ),
+              SizedBox(height: 16.0),
+              ElevatedButton(
+                onPressed: _submitForm,
+                child: Text('Pošalji obavijest'),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(vertical: 16.0),
+                  textStyle: TextStyle(fontSize: 16.0),
+                ),
+              ),
             ],
           ),
         ),

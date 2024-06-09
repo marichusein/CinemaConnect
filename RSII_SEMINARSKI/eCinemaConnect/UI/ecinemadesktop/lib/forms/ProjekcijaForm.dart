@@ -67,12 +67,11 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
 
   final TextEditingController datumController = TextEditingController();
   final TextEditingController cijenaController = TextEditingController();
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    // Preuzimanje filmova i sala sa stvarnih API-ja
     preuzmiFilmove();
     preuzmiSale();
   }
@@ -100,22 +99,13 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
   }
 
   void dodajProjekciju() async {
-    if (selectedFilmId == null ||
-        selectedSalaId == null ||
-        datumController.text.isEmpty ||
-        cijenaController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Sva polja su obavezna!'),
-        ),
-      );
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
     final formattedDate =
         DateFormat("yyyy-MM-ddTHH:mm:ss.SSS'Z'").format(pickedDateTimef);
 
-// Sada možete koristiti formattedDate u vašem zahtjevu
     final novaProjekcija = {
       "filmId": selectedFilmId,
       "salaId": selectedSalaId,
@@ -123,7 +113,6 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
       "cijenaKarte": int.parse(cijenaController.text),
     };
 
-    // Konvertirajte podatke u JSON format
     try {
       await ApiService.dodajProjekciju(novaProjekcija);
 
@@ -150,18 +139,18 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime pickedDate = (await showDatePicker(
+    final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
       firstDate: DateTime.now().subtract(Duration(days: 1)),
       lastDate: DateTime(DateTime.now().year + 1),
-    ))!;
+    );
 
     if (pickedDate != null) {
-      final TimeOfDay pickedTime = (await showTimePicker(
+      final TimeOfDay? pickedTime = await showTimePicker(
         context: context,
         initialTime: TimeOfDay.now(),
-      ))!;
+      );
 
       if (pickedTime != null) {
         final DateTime pickedDateTime = DateTime(
@@ -172,8 +161,10 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
           pickedTime.minute,
         );
 
-        datumController.text = pickedDateTime.toLocal().toString();
-        pickedDateTimef = pickedDateTime.toLocal();
+        setState(() {
+          datumController.text = pickedDateTime.toLocal().toString();
+          pickedDateTimef = pickedDateTime.toLocal();
+        });
       }
     }
   }
@@ -181,129 +172,132 @@ class _DodavanjeProjekcijeScreenState extends State<DodavanjeProjekcijeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Dodavanje Nove Projekcije'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Dropdown za odabir filma
-              TextField(
-                controller: pretragaController,
-                onChanged: (value) {
-                  setState(
-                      () {}); // Ovdje ćemo osvježiti widget kako bismo primijenili filtriranje
-                },
-                decoration: InputDecoration(
-                  labelText: 'Pretraži film',
-                  prefixIcon: Icon(Icons.search),
-                ),
-              ),
-
-// Dropdown za odabir filma
-              DropdownButtonFormField<int>(
-                value: selectedFilmId,
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedFilmId = newValue;
-                    // Pronađi plakat filma na temelju odabranog ID-a filma
-                    final selectedFilm =
-                        filmovi.firstWhere((film) => film.idfilma == newValue);
-                    plakatFilma = selectedFilm.filmPlakat;
-                  });
-                },
-                items: filmovi
-                    .where((film) => film.nazivFilma
-                        .toLowerCase()
-                        .contains(pretragaController.text.toLowerCase()))
-                    .map<DropdownMenuItem<int>>((film) {
-                  return DropdownMenuItem<int>(
-                    value: film.idfilma,
-                    child: Text(film.nazivFilma),
-                  );
-                }).toList(),
-                decoration: InputDecoration(labelText: 'Film'),
-              ),
-
-              // Dropdown za odabir sale
-              DropdownButtonFormField<int>(
-                value: selectedSalaId,
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedSalaId = newValue;
-                  });
-                },
-                items: sale.map<DropdownMenuItem<int>>((sala) {
-                  return DropdownMenuItem<int>(
-                    value: sala.idsale,
-                    child: Text(sala.nazivSale),
-                  );
-                }).toList(),
-                decoration: InputDecoration(labelText: 'Sala'),
-              ),
-
-              // Unos datuma
-              // Unos datuma
-              TextFormField(
-                controller: datumController,
-                readOnly: true, // Onemogućuje uređivanje teksta ručno
-                onTap: () {
-                  _selectDate(
-                      context); // Otvori DateTime picker pritiskom na polje
-                },
-                decoration: InputDecoration(
-                  labelText: 'Datum i vrijeme projekcije',
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.calendar_today),
-                    onPressed: () {
-                      _selectDate(
-                          context); // Otvori DateTime picker pritiskom na ikonu
-                    },
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                TextField(
+                  controller: pretragaController,
+                  onChanged: (value) {
+                    setState(
+                        () {}); // Osvježi widget kako bi se primijenilo filtriranje
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Pretraži film',
+                    prefixIcon: Icon(Icons.search),
                   ),
                 ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Datum i vrijeme su obavezni!';
-                  }
-                  return null;
-                },
-              ),
 
-              // Unos cijene
-              TextFormField(
-                controller: cijenaController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  labelText: 'Cijena karte',
-                  suffixIcon: Icon(Icons.attach_money),
+                DropdownButtonFormField<int>(
+                  value: selectedFilmId,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedFilmId = newValue;
+                      final selectedFilm = filmovi
+                          .firstWhere((film) => film.idfilma == newValue);
+                      plakatFilma = selectedFilm.filmPlakat;
+                    });
+                  },
+                  items: filmovi
+                      .where((film) => film.nazivFilma
+                          .toLowerCase()
+                          .contains(pretragaController.text.toLowerCase()))
+                      .map<DropdownMenuItem<int>>((film) {
+                    return DropdownMenuItem<int>(
+                      value: film.idfilma,
+                      child: Text(film.nazivFilma),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(labelText: 'Film'),
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Odabir filma je obavezan!';
+                    }
+                    return null;
+                  },
                 ),
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Cijena karte je obavezna!';
-                  }
-                  final cijena = int.tryParse(value);
-                  if (cijena == null) {
-                    return 'Unesite ispravan broj za cijenu!';
-                  } else if (cijena < 1 || cijena > 20) {
-                    return 'Cijena karte mora biti broj između 1 i 20!';
-                  }
-                  return null;
-                },
-              ),
 
-              // Gumb za dodavanje projekcije
-              Padding(
-                padding: const EdgeInsets.only(
-                    top: 20.0), // Dodajemo razmak iznad gumba
-                child: ElevatedButton(
-                  onPressed: dodajProjekciju,
-                  child: Text('Dodaj Projekciju'),
+                DropdownButtonFormField<int>(
+                  value: selectedSalaId,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedSalaId = newValue;
+                    });
+                  },
+                  items: sale.map<DropdownMenuItem<int>>((sala) {
+                    return DropdownMenuItem<int>(
+                      value: sala.idsale,
+                      child: Text(sala.nazivSale),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(labelText: 'Sala'),
+                  validator: (value) {
+                    if (value == null) {
+                      return 'Odabir sale je obavezan!';
+                    }
+                    return null;
+                  },
                 ),
-              ),
-            ],
+
+                TextFormField(
+                  controller: datumController,
+                  readOnly: true,
+                  onTap: () {
+                    _selectDate(context);
+                  },
+                  decoration: InputDecoration(
+                    labelText: 'Datum i vrijeme projekcije',
+                    suffixIcon: IconButton(
+                      icon: Icon(Icons.calendar_today),
+                      onPressed: () {
+                        _selectDate(context);
+                      },
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Datum i vrijeme su obavezni!';
+                    }
+                    return null;
+                  },
+                ),
+
+                TextFormField(
+                  controller: cijenaController,
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(
+                    labelText: 'Cijena karte',
+                    suffixIcon: Icon(Icons.attach_money),
+                  ),
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Cijena karte je obavezna!';
+                    }
+                    final cijena = int.tryParse(value);
+                    if (cijena == null) {
+                      return 'Unesite ispravan broj za cijenu!';
+                    } else if (cijena < 1 || cijena > 20) {
+                      return 'Cijena karte mora biti broj između 1 i 20!';
+                    }
+                    return null;
+                  },
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: ElevatedButton(
+                    onPressed: dodajProjekciju,
+                    child: Text('Dodaj Projekciju'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

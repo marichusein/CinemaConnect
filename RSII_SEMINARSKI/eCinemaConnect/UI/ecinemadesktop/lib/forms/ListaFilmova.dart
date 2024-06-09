@@ -15,7 +15,7 @@ class _MovieListPageState extends State<MovieListPage> {
   List<dynamic> allmovies = [];
 
   bool isLoading = true;
-  
+
   @override
   void initState() {
     super.initState();
@@ -26,7 +26,7 @@ class _MovieListPageState extends State<MovieListPage> {
     final fetchedMovies = await ApiService.fetchMovies();
     setState(() {
       movies = fetchedMovies;
-      allmovies=fetchedMovies;
+      allmovies = fetchedMovies;
       isLoading = false;
     });
   }
@@ -37,27 +37,28 @@ class _MovieListPageState extends State<MovieListPage> {
   }
 
   Future<void> _searchMovies(String query) async {
-  setState(() {
-    isLoading = true; // Postavite isLoading na true dok se izvršava pretraga
-  });
+    setState(() {
+      isLoading = true;
+    });
 
-  if (query.isEmpty) {
-    // Ako je upit prazan, prikažite sve filmove
+    if (query.isEmpty) {
+      setState(() {
+        isLoading = false;
+        movies = allmovies;
+      });
+      return;
+    }
+
+    final List<dynamic> searchResults = allmovies
+        .where((movie) =>
+            movie['nazivFilma'].toLowerCase().contains(query.toLowerCase()))
+        .toList();
+
     setState(() {
       isLoading = false;
-      movies = allmovies; 
+      movies = searchResults;
     });
-    return;
   }
-
-  final List<dynamic> searchResults = movies.where((movie) => movie['nazivFilma'].toLowerCase().contains(query.toLowerCase())).toList();
-
-  setState(() {
-    isLoading = false;
-    movies = searchResults;
-  });
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -111,12 +112,10 @@ class _MovieListPageState extends State<MovieListPage> {
                                         fit: BoxFit.cover,
                                         color: movie['aktivan']
                                             ? null
-                                            : Colors
-                                                .black, // Dodajte ovo kako biste postavili crno-bijelu boju ako film nije aktivan
+                                            : Colors.black,
                                         colorBlendMode: movie['aktivan']
                                             ? null
-                                            : BlendMode
-                                                .saturation, // Ovo je samo primjer kako biste crno-bijelu boju primijenili na sliku, možete prilagoditi ovisno o vašim potrebama
+                                            : BlendMode.saturation,
                                       )
                                     : Icon(Icons.image_not_supported),
                               ),
@@ -157,7 +156,6 @@ class _MovieListPageState extends State<MovieListPage> {
   }
 
   Future<void> _editMovie(int movieId) async {
-    // Pronađite film koji se uređuje
     var movie = movies.firstWhere((element) => element['idfilma'] == movieId);
     await _showEditDialog(
       movieId,
@@ -169,11 +167,12 @@ class _MovieListPageState extends State<MovieListPage> {
   }
 
   Future<void> _showEditDialog(
-      int movieId,
-      String currentName,
-      String currentDescription,
-      int currentDuration,
-      String currentPoster) async {
+    int movieId,
+    String currentName,
+    String currentDescription,
+    int currentDuration,
+    String currentPoster,
+  ) async {
     TextEditingController nameController =
         TextEditingController(text: currentName);
     TextEditingController descriptionController =
@@ -181,8 +180,8 @@ class _MovieListPageState extends State<MovieListPage> {
     TextEditingController durationController =
         TextEditingController(text: currentDuration.toString());
 
-
     XFile? newImage;
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
     return showDialog(
       context: context,
@@ -192,81 +191,114 @@ class _MovieListPageState extends State<MovieListPage> {
             return AlertDialog(
               title: Text('Edit Movie'),
               content: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (currentPoster.startsWith(
-                        'data:image')) // Prikaz postojećeg postera iz base64 formata
-                      Image.memory(
-                        base64Decode(currentPoster.split(',').last),
-                        width: 100,
-                        height: 100,
-                      ),
-                    SizedBox(height: 10),
-                    ElevatedButton(
-                      onPressed: () async {
-                        final imagePicker = ImagePicker();
-                        final XFile? pickedImage = await imagePicker.pickImage(
-                            source: ImageSource.gallery);
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (newImage != null)
+                        Image.file(
+                          File(newImage!.path),
+                         width: 400,
+                          height: 300,
+                        )
+                      else if (currentPoster.isNotEmpty)
+                        Image.memory(
+                          base64Decode(currentPoster),
+                          width: 400,
+                          height: 300,
+                        ),
+                      SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () async {
+                          final imagePicker = ImagePicker();
+                          final XFile? pickedImage = await imagePicker.pickImage(
+                              source: ImageSource.gallery);
 
-                        if (pickedImage != null) {
-                          setState(() {
-                            newImage = pickedImage;
-                          });
-                        }
-                      },
-                      child: Text('Pick Poster Image'),
-                    ),
-                    TextField(
-                      controller: nameController,
-                      decoration: InputDecoration(labelText: 'Name'),
-                    ),
-                    TextField(
-                      controller: descriptionController,
-                      decoration: InputDecoration(labelText: 'Description'),
-                      maxLines: 11,
-                    ),
-                    TextField(
-                      controller: durationController,
-                      decoration: InputDecoration(labelText: 'Duration'),
-                      keyboardType: TextInputType.number,
-                    ),
-                  ],
+                          if (pickedImage != null) {
+                            setState(() {
+                              newImage = pickedImage;
+                            });
+                          }
+                        },
+                        child: Text('Pick Poster Image'),
+                      ),
+                      TextFormField(
+                        controller: nameController,
+                        decoration: InputDecoration(labelText: 'Name'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Name ne može biti prazno';
+                          }
+                          return null;
+                        },
+                      ),
+                      TextFormField(
+                        controller: descriptionController,
+                        decoration: InputDecoration(labelText: 'Description'),
+                        maxLines: 5,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Description ne može biti prazna';
+                          }
+                          return null;
+                        },
+                      ),
+                      TextFormField(
+                        controller: durationController,
+                        decoration: InputDecoration(labelText: 'Duration (minutes)'),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Morate unijeti neku vrijednost';
+                          }
+                          final intValue = int.tryParse(value);
+                          if (intValue == null || intValue < 30 || intValue > 360) {
+                            return 'Trajanje mora biti broj i to između 30 i 360 minuta';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
               actions: [
                 TextButton(
-                  child: Text('Cancel'),
+                  child: Text('Odustani'),
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
                 ),
                 TextButton(
-                  child: Text('Save'),
+                  child: Text('Spasi'),
                   onPressed: () async {
-                    try {
+                    if (_formKey.currentState!.validate()) {
+                      try {
+                        String? base64Image;
+                        if (newImage != null) {
+                          final imageBytes = await File(newImage!.path).readAsBytes();
+                          base64Image = base64Encode(imageBytes);
+                        } else {
+                          base64Image = currentPoster;
+                        }
 
-                      if (newImage != null) {
-                      
-                            
-                        final imageBytes = await File(newImage!.path).readAsBytes();
-                        final base64Image = base64Encode(imageBytes);
-                         await ApiService.editMovie(
-                        movieId,
-                        nameController.text,
-                        descriptionController.text,
-                        int.parse(durationController.text),
-                        base64Image,
-                      );
+                        await ApiService.editMovie(
+                          movieId,
+                          nameController.text,
+                          descriptionController.text,
+                          int.parse(durationController.text),
+                          base64Image,
+                        );
 
+                        Navigator.of(context).pop();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Film se uspješno uredio')),
+                        );
+                        _fetchMovies(); // Ponovno učitajte filmove nakon uređivanja
+                      } catch (e) {
+                        print('Error editing movie: $e');
                       }
-
-                     
-                      Navigator.of(context).pop();
-                      _fetchMovies(); // Ponovno učitajte filmove nakon uređivanja
-                    } catch (e) {
-                      // Handle error
-                      print('Error editing movie: $e');
                     }
                   },
                 ),
