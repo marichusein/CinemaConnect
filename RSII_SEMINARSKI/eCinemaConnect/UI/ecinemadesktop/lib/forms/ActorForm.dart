@@ -1,4 +1,3 @@
-// ignore: file_names
 import 'dart:convert';
 import 'package:ecinemadesktop/services/services.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +12,6 @@ class _ActorFormState extends State<ActorForm> {
   final TextEditingController imeController = TextEditingController();
   final TextEditingController prezimeController = TextEditingController();
   String? slikaBase64;
-  String? poruka;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   Future<void> _odaberiSliku() async {
@@ -37,9 +35,9 @@ class _ActorFormState extends State<ActorForm> {
     String prezime = prezimeController.text;
 
     if (slikaBase64 == null) {
-      setState(() {
-        poruka = 'Greška! Morate odabrati sliku.';
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Greška! Morate odabrati sliku.')),
+      );
       return;
     }
 
@@ -47,17 +45,20 @@ class _ActorFormState extends State<ActorForm> {
       await ApiService.dodajGlumca(ime, prezime, slikaBase64!);
 
       setState(() {
-        poruka = 'Glumac uspješno dodan.';
         imeController.clear();
         prezimeController.clear();
         slikaBase64 = null;
       });
 
       _formKey.currentState!.reset();
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Glumac uspješno dodan.')),
+      );
     } catch (error) {
-      setState(() {
-        poruka = 'Greška pri dodavanju glumca: $error';
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Greška pri dodavanju glumca: $error')),
+      );
     }
   }
 
@@ -181,18 +182,6 @@ class _ActorFormState extends State<ActorForm> {
                     ),
                   ),
                 ),
-                if (poruka != null)
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      poruka!,
-                      style: TextStyle(
-                        color: poruka!.contains('Greška')
-                            ? Colors.red
-                            : Colors.green,
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),

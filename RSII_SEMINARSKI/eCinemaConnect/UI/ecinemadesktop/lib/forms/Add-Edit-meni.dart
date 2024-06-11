@@ -21,6 +21,7 @@ class _MenuItemFormState extends State<MenuItemForm> {
   TextEditingController _opisController = TextEditingController();
   TextEditingController _cijenaController = TextEditingController();
   XFile? _imageFile;
+  bool _imageNotSelectedError = false;
 
   @override
   void initState() {
@@ -57,12 +58,20 @@ class _MenuItemFormState extends State<MenuItemForm> {
     if (pickedFile != null) {
       setState(() {
         _imageFile = XFile(pickedFile.path);
+        _imageNotSelectedError = false;
       });
     }
   }
 
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      if (_imageFile == null) {
+        setState(() {
+          _imageNotSelectedError = true;
+        });
+        return;
+      }
+
       // Convert image to base64
       Uint8List? imageBytes = await _imageFile!.readAsBytes();
       String base64Image = base64Encode(imageBytes);
@@ -169,14 +178,18 @@ class _MenuItemFormState extends State<MenuItemForm> {
                 },
               ),
               SizedBox(height: 20),
-              _imageFile == null
-                  ? Text('Nema odabrane slike')
-                  : Image.file(
-                      File(_imageFile!.path),
-                      fit: BoxFit.fitHeight,
-                      width: 300,
-                      height: 300,
-                    ),
+              if (_imageFile == null && _imageNotSelectedError)
+                Text(
+                  'Nema odabrane slike',
+                  style: TextStyle(color: Colors.red),
+                ),
+              if (_imageFile != null)
+                Image.file(
+                  File(_imageFile!.path),
+                  fit: BoxFit.fitHeight,
+                  width: 300,
+                  height: 300,
+                ),
               ElevatedButton(
                 onPressed: _pickImage,
                 child: Text('Odaberi sliku'),
