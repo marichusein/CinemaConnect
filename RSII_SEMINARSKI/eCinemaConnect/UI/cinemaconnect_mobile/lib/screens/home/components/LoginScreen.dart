@@ -165,11 +165,14 @@ class LoginScreen extends StatelessWidget {
   //   );
   // }
 
-  @override
+
+   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Prijava'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: Stack(
         children: [
@@ -177,95 +180,108 @@ class LoginScreen extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                    'assets/images/login.jpg'), // Postavite putanju do slike pozadine
+                image: AssetImage('assets/images/login.jpg'), // Putanja do slike pozadine
                 fit: BoxFit.cover,
               ),
             ),
           ),
           BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: 5.0,
-              sigmaY: 5.0,
-            ),
+            filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
             child: Container(
-              color: Colors.black.withOpacity(0.5),
+              color: Colors.black.withOpacity(0.6),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(15.0),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Text(
                   'CINEMACONNECT',
                   style: TextStyle(
-                    fontSize: 24.0,
+                    fontSize: 32.0,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white, // Postavite boju teksta prema potrebi
+                    color: Colors.white,
+                  ),
+                ),
+                SizedBox(height: 30),
+                TextField(
+                  controller: korisnickoImeController,
+                  style: TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Korisničko ime',
+                    labelStyle: TextStyle(color: Colors.white),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.3),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
                 SizedBox(height: 20),
                 TextField(
-                  controller: korisnickoImeController,
-                  style: TextStyle(
-                      color: Colors.white), // Postavite bijelu boju teksta
-                  decoration: InputDecoration(
-                    labelText: 'Korisničko ime',
-                    labelStyle: TextStyle(
-                        color: Colors.white), // Postavite bijelu boju labele
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-                SizedBox(height: 10),
-                TextField(
                   controller: lozinkaController,
-                  style: TextStyle(
-                      color: Colors.white), // Postavite bijelu boju teksta
+                  style: TextStyle(color: Colors.white),
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: 'Lozinka',
-                    labelStyle: TextStyle(
-                        color: Colors.white), // Postavite bijelu boju labele
-                    border: OutlineInputBorder(),
+                    labelStyle: TextStyle(color: Colors.white),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.3),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
                 ),
-                SizedBox(height: 20),
+                SizedBox(height: 30),
                 ElevatedButton(
                   onPressed: () {
                     _login(context);
                   },
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
                   child: Text('Prijavi se'),
                 ),
-                SizedBox(height: 10),
+                SizedBox(height: 15),
                 Text(
                   errorMessage,
                   style: TextStyle(color: Colors.red),
                 ),
-                SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                SizedBox(height: 20),
+                Column(
                   children: [
                     ElevatedButton(
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => AdminLoginScreen()),
+                          MaterialPageRoute(builder: (context) => AdminLoginScreen()),
                         );
                       },
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
                       child: Text('Admin'),
                     ),
-                    SizedBox(width: 10),
+                    SizedBox(height: 10),
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (BuildContext context) => SignupScreen(),
-                          ),
+                          MaterialPageRoute(builder: (BuildContext context) => SignupScreen()),
                         );
                       },
-                      child: Text('Kreiraj novi račun'),
+                      child: Text(
+                        'Kreiraj novi račun',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ],
                 ),

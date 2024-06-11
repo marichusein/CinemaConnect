@@ -224,89 +224,126 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void openEditProfileForm() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Uredi profil'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              TextField(
-                onChanged: (value) {
-                  setState(() {
-                    firstName = value;
-                  });
-                },
-                decoration: InputDecoration(labelText: 'Ime'),
-                controller: TextEditingController(text: firstName),
+void openEditProfileForm() {
+  // Kontroleri za input polja
+  final firstNameController = TextEditingController(text: firstName);
+  final lastNameController = TextEditingController(text: lastName);
+  final usernameController = TextEditingController(text: username);
+  final telefonController = TextEditingController(text: telefon);
+  final emailController = TextEditingController(text: email);
+  final newPasswordController = TextEditingController();
+
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text('Uredi profil'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        firstName = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Ime',
+                      errorText: firstName.isEmpty ? 'Polje ne smije biti prazno' : null,
+                    ),
+                    controller: firstNameController,
+                  ),
+                  TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        lastName = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Prezime',
+                      errorText: lastName.isEmpty ? 'Polje ne smije biti prazno' : null,
+                    ),
+                    controller: lastNameController,
+                  ),
+                  TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        username = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Username',
+                      errorText: username.isEmpty ? 'Polje ne smije biti prazno' : null,
+                    ),
+                    controller: usernameController,
+                  ),
+                  TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        telefon = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Telefon',
+                      errorText: telefon.isEmpty ? 'Polje ne smije biti prazno' : null,
+                    ),
+                    controller: telefonController,
+                  ),
+                  TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        email = value;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      errorText: email.isEmpty ? 'Polje ne smije biti prazno' : null,
+                    ),
+                    controller: emailController,
+                  ),
+                  TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        newPassword = value;
+                      });
+                    },
+                    decoration: InputDecoration(labelText: 'Nova lozinka'),
+                    obscureText: true, // Skrivanje unesene lozinke
+                    controller: newPasswordController,
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {}); // Refresh UI to show error messages
+                      if (firstName.isNotEmpty && lastName.isNotEmpty && username.isNotEmpty && telefon.isNotEmpty && email.isNotEmpty) {
+                        updateUserData();
+                        Navigator.of(context).pop(); // Zatvori dijalog nakon uspješne validacije
+                      }
+                    },
+                    child: Text('Spasi promjene'),
+                  ),
+                ],
               ),
-              TextField(
-                onChanged: (value) {
-                  setState(() {
-                    lastName = value;
-                  });
-                },
-                decoration: InputDecoration(labelText: 'Prezime'),
-                controller: TextEditingController(text: lastName),
-              ),
-               TextField(
-                onChanged: (value) {
-                  setState(() {
-                    username = value;
-                  });
-                },
-                decoration: InputDecoration(labelText: 'Username'),
-                controller: TextEditingController(text: username),
-              ),
-               TextField(
-                onChanged: (value) {
-                  setState(() {
-                    telefon = value;
-                  });
-                },
-                decoration: InputDecoration(labelText: 'Telefon'),
-                controller: TextEditingController(text: telefon),
-              ),
-              TextField(
-                onChanged: (value) {
-                  setState(() {
-                    email = value;
-                  });
-                },
-                decoration: InputDecoration(labelText: 'Email'),
-                controller: TextEditingController(text: email),
-              ),
-              TextField(
-                onChanged: (value) {
-                  setState(() {
-                    newPassword = value;
-                  });
-                },
-                decoration: InputDecoration(labelText: 'Nova lozinka'),
-                obscureText: true, // Skrivanje unesene lozinke
-              ),
-              ElevatedButton(
+            ),
+            actions: <Widget>[
+              TextButton(
                 onPressed: () {
-                  updateUserData();
+                  Navigator.of(context).pop();
                 },
-                child: Text('Spasi promjene'),
+                child: Text('Zatvori'),
               ),
             ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Zatvori'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+          );
+        },
+      );
+    },
+  );
+}
+
+
+
 
   void filterResults(String query) {
     setState(() {

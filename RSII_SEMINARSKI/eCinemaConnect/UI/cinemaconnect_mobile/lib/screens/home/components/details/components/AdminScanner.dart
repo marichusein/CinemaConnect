@@ -21,11 +21,20 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   late QRViewController controller;
   TextEditingController idController = TextEditingController();
   final String baseUrl = ApiKonstante.baseUrl;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('QR Skener'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () {
+              Navigator.of(context).pop(); // Navigate back to the initial screen
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -62,9 +71,9 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) => ResultScreen(message: response.body),
-              ));
-          }
-           else {
+              ),
+            );
+          } else {
             // API poziv nije uspio, prikaži poruku o grešci
             Navigator.push(
               context,
